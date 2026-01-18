@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v21.0</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        :root {
+            --bg-deep: #020202;
+            --bg-panel: rgba(10, 11, 14, 0.96);
+            --primary: #0a0a0a;
+            --accent: #ff0000; 
+            --accent-glow: rgba(255, 0, 0, 0.35);
+            --discord: #5865F2;
+            --staff-blue: #00ccff;
+            --admin-gold: #ffcc00;
+            --text-main: #e0e0e0;
+            --border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) var(--primary); }
+        
+        body { 
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh; overflow: hidden; user-select: none;
+        }
+
+        /* BACKGROUND */
+        #particles-js { position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        /* LAYOUT */
+        .app-wrapper { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 10; }
+        
+        header {
+            height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
+            background: rgba(5, 0, 0, 0.95); border-bottom: 3px solid var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow); z-index: 100;
+        }
+
+        .workspace { display: flex; flex: 1; overflow: hidden; }
+        
+        aside {
+            width: 300px; background: #050505; border-right: 1px solid #222;
+            display: flex; flex-direction: column; padding: 20px 0; transition: 0.3s;
+        }
+
+        main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.4); position: relative; }
+
+        /* COMPONENTS */
+        .glass-box {
+            background: var(--bg-panel); border: 1px solid #222; padding: 25px; 
+            border-radius: 4px; margin-bottom: 25px; position: relative; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); overflow: hidden;
+            border-left: 2px solid var(--accent);
+        }
+        
+        h2, h3 { font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,0,0.4); }
+
+        .nav-btn {
+            background: transparent; border: none; color: #888; padding: 16px 25px;
+            text-align: left; cursor: pointer; font-family: 'Rajdhani'; font-weight: 600; font-size: 1.1rem;
+            display: flex; align-items: center; gap: 15px; transition: 0.3s; width: 100%;
+            border-right: 3px solid transparent;
+        }
+        .nav-btn:hover, .nav-btn.active { background: rgba(255, 0, 0, 0.08); color: white; border-right-color: var(--accent); }
+
+        /* INPUTS & BUTTONS */
+        input, textarea, select {
+            width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 12px;
+            color: white; font-family: 'Share Tech Mono'; margin-bottom: 15px; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        .cyber-btn {
+            width: 100%; background: transparent; border: 1px solid var(--accent);
+            color: var(--accent); padding: 12px; font-family: 'Orbitron'; cursor: pointer;
+            transition: 0.3s; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
+        }
+        .cyber-btn:hover { background: var(--accent); color: #fff; box-shadow: 0 0 25px var(--accent); }
+        
+        .btn-small { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
+        .btn-blue { border-color: var(--staff-blue); color: var(--staff-blue); }
+        .btn-blue:hover { background: var(--staff-blue); color: #000; box-shadow: 0 0 15px var(--staff-blue); }
+        .btn-gold { border-color: var(--admin-gold); color: var(--admin-gold); }
+        .btn-gold:hover { background: var(--admin-gold); color: #000; box-shadow: 0 0 15px var(--admin-gold); }
+
+        /* TABLES */
+        .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .cyber-table th { text-align: left; border-bottom: 1px solid var(--accent); padding: 10px; color: #aaa; font-size: 0.8rem; }
+        .cyber-table td { padding: 12px 10px; border-bottom: 1px solid #222; font-family: 'Share Tech Mono'; font-size: 0.9rem; vertical-align: middle; }
+        .cyber-table tr:hover { background: rgba(255,255,255,0.03); }
+
+        /* CHAT & REPORTS */
+        .chat-window { height: 400px; overflow-y: auto; background: #050505; border: 1px solid #333; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px; border-radius: 4px; max-width: 80%; font-size: 0.9rem; position: relative; }
+        .msg-me { background: rgba(255, 0, 0, 0.15); align-self: flex-end; border: 1px solid var(--accent); color: white; }
+        .msg-other { background: #151515; align-self: flex-start; border: 1px solid #333; color: #ccc; }
+        .msg-sender { font-size: 0.7rem; color: var(--staff-blue); display: block; margin-bottom: 3px; font-weight: bold; }
+
+        .report-card { border-left: 3px solid var(--staff-blue); background: #0f0f0f; padding: 15px; margin-bottom: 10px; position: relative; }
+        .report-op { border-left-color: var(--accent); }
+        .discord-tag { position: absolute; top: 5px; right: 5px; font-size: 0.6rem; color: var(--discord); opacity: 0.8; font-weight: bold; }
+
+        .blur-text { filter: blur(6px); transition: 0.3s; cursor: pointer; user-select: none; }
+        .blur-text:hover, .blur-text.visible { filter: none; }
+
+        /* OVERLAYS */
+        #idCardCanvas { border: 1px solid #444; box-shadow: 0 0 40px rgba(0,0,0,1); background: #111; width: 100%; height: auto; transition: 0.3s; }
+        #login-modal, #lockdown-screen, #edit-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        #login-modal, #edit-modal { background: rgba(0,0,0,0.85); display: none; }
+        #lockdown-screen { background: #000; display: none; flex-direction: column; color: var(--accent); text-align: center; }
+
+        .panel { display: none; animation: fadeIn 0.4s ease-out; }
+        .panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseAlert { 0% { opacity: 1; text-shadow: 0 0 30px red; } 50% { opacity: 0.4; } 100% { opacity: 1; text-shadow: 0 0 30px red; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles-js"></canvas>
+
+    <div id="lockdown-screen">
+        <i class="fas fa-biohazard fa-6x" style="margin-bottom:30px; animation: pulseAlert 1s infinite;"></i>
+        <h1 style="font-size:4rem; margin-bottom:10px;">SİSTEM KİLİTLENDİ</h1>
+        <p style="letter-spacing: 5px; font-size:1.5rem;">YETKİSİZ ERİŞİM TESPİTİ</p>
+        <p style="margin-top:20px; color:#666; font-family:'Share Tech Mono'">PROTOKOL: KIZIL-ELMA // IP LOGLANDI</p>
+    </div>
+
+    <div class="app-wrapper">
+        <header>
+            <div style="display:flex; align-items:center; gap:20px;">
+                <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
+                <div>
+                    <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v21.0</small>
+                </div>
+            </div>
+            <div style="text-align:right; font-family:'Share Tech Mono';">
+                <div id="sys-clock" style="font-size:1.4rem; color:white;">00:00:00</div>
+                <div id="net-status" style="font-size:0.8rem; color:var(--accent);"><i class="fas fa-shield-alt"></i> BAĞLANTI GÜVENLİ</div>
+            </div>
+        </header>
+
+        <div class="workspace">
+            <aside>
+                <div style="text-align:center; padding: 30px 20px; border-bottom: 1px solid #333; margin-bottom: 10px;">
+                    <div style="width:70px; height:70px; border-radius:50%; border:2px solid var(--accent); margin:0 auto 15px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(255,0,0,0.3); overflow:hidden; background:#000;">
+                        <i class="fas fa-user-secret fa-2x" id="u-icon" style="color:white;"></i>
+                        <img id="u-photo" style="display:none; width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <h3 id="u-name" style="font-size:1rem; margin-bottom:5px;">MİSAFİR</h3>
+                    <p id="u-code" style="font-size:0.9rem; color:var(--staff-blue); font-weight:bold; letter-spacing:1px; display:none;">KOD: YOK</p>
+                    <p id="u-role" style="font-size:0.7rem; color:#666;">ERİŞİM KISITLI</p>
+                </div>
+
+                <div id="menu-guest">
+                    <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-globe"></i> Duyurular</button>
+                    <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-user-plus"></i> Akademi Başvuru</button>
+                    <button class="nav-btn" onclick="app.showLogin()" style="margin-top:30px; color:var(--accent);"><i class="fas fa-fingerprint"></i> Personel Girişi</button>
+                </div>
+
+                <div id="menu-staff" style="display:none;">
+                    <button class="nav-btn active" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Ana Komuta</button>
+                    <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Raporlar (Webhook)</button>
+                    <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyonlar (Webhook)</button>
+                    <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Şifreli Chat</button>
+                    <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip / Yönetim</button>
+                    <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> GDBS Sorgu</button>
+                    <button class="nav-btn" onclick="app.logout()" style="color:var(--accent); margin-top:auto;"><i class="fas fa-power-off"></i> Çıkış</button>
+                </div>
+            </aside>
+
+            <main>
+                <div id="panel-public" class="panel active">
+                    <div class="glass-box">
+                        <h2><i class="fas fa-bullhorn"></i> RESMİ DUYURULAR</h2>
+                        <div id="feed-public"></div>
+                    </div>
+                    <div class="glass-box"><h3>ARANANLAR</h3><table class="cyber-table" id="wanted-table"><thead><tr><th>KOD</th><th>SUÇ</th><th>DURUM</th></tr></thead><tbody></tbody></table></div>
+                    <div class="glass-box" style="max-width:600px;"><h3>İHBAR HATTI</h3><input id="tip-subj" placeholder="Konu"><textarea id="tip-text" placeholder="Detay..."></textarea><button class="cyber-btn" onclick="app.sendTip()">GÖNDER</button></div>
+                </div>
+
+                <div id="panel-basvuru" class="panel">
+                    <div class="glass-box" style="max-width:600px; margin:0 auto;">
+                        <h2 style="text-align:center;">AKADEMİ BAŞVURU</h2>
+                        <label>TC Kimlik</label><input id="app-tc" maxlength="11">
+                        <label>Ad Soyad</label><input id="app-name">
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                            <div><label>Cinsiyet</label><select id="app-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select></div>
+                            <div><label>Branş</label><select id="app-skill"><option value="siber">Siber</option><option value="saha">Saha</option><option value="analiz">Analiz</option></select></div>
+                        </div>
+                        <button class="cyber-btn" onclick="app.submitApp()">GÖNDER</button>
+                    </div>
+                </div>
+
+                <div id="panel-dashboard" class="panel">
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-bottom:20px;">
+                        <div class="glass-box" style="text-align:center;"><small>TEHDİT</small><h1 style="color:var(--accent);">V</h1></div>
+                        <div class="glass-box" style="text-align:center;"><small>PERSONEL</small><h1 id="stat-staff" style="color:white;">0</h1></div>
+                        <div class="glass-box" style="text-align:center;"><small>GÖREV</small><h1 id="stat-ops" style="color:var(--staff-blue);">0</h1></div>
+                    </div>
+                    <div class="glass-box"><h3>CANLI AKIŞ</h3><div id="dash-logs" style="height:200px; overflow-y:auto; color:#888; font-size:0.8rem;"></div></div>
+                    <div class="glass-box" style="padding:0; height:400px;"><div id="map" style="height:100%;"></div></div>
+                </div>
+
+                <div id="panel-reports" class="panel">
+                    <div style="display:grid; grid-template-columns: 1fr 2fr; gap:25px;">
+                        <div class="glass-box">
+                            <h3>RAPOR GÖNDER</h3>
+                            <p style="font-size:0.7rem; color:var(--discord);">Bu rapor Discord kanalına iletilecektir.</p>
+                            <select id="report-type"><option value="field">SAHA RAPORU</option><option value="intel">İSTİHBARAT</option></select>
+                            <input id="report-subj" placeholder="Başlık">
+                            <textarea id="report-content" rows="8" placeholder="Detay..."></textarea>
+                            <button class="cyber-btn btn-blue" style="width:100%" onclick="app.submitReport()">HAVUZA & DISCORD'A İLET</button>
+                        </div>
+                        <div class="glass-box">
+                            <h3>HAVUZ</h3>
+                            <div id="reports-feed" style="height:500px; overflow-y:auto;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-chat" class="panel">
+                    <div class="glass-box" style="max-width:800px; margin:0 auto;">
+                        <h2 style="text-align:center; color:var(--staff-blue);">GÜVENLİ HAT (KOD ADI)</h2>
+                        <div class="chat-window" id="chat-window"></div>
+                        <div style="display:flex; gap:10px;">
+                            <input id="chat-input" placeholder="Mesajınız..." style="margin:0;">
+                            <button class="cyber-btn" onclick="app.sendChat()" style="width:120px; border-color:var(--staff-blue); color:var(--staff-blue);">GÖNDER</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-ops" class="panel">
+                    <div class="glass-box">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h2>OPERASYON LİSTESİ</h2>
+                            <button class="cyber-btn btn-small" onclick="document.getElementById('new-op-modal').style.display='block'">+ YENİ GÖREV</button>
+                        </div>
+                        <div id="new-op-modal" style="display:none; background:#000; padding:20px; border:1px solid var(--accent); margin:20px 0;">
+                            <h3>GÖREV EMRİ</h3>
+                            <p style="color:var(--discord); font-size:0.7rem;">Operasyon emri Discord kanalına düşecektir.</p>
+                            <input id="op-name" placeholder="Kod Adı">
+                            <label>Lider</label><select id="op-lead"></select>
+                            <button class="cyber-btn" onclick="app.addOp()">BAŞLAT</button>
+                            <button class="cyber-btn" style="border-color:#555; color:#555;" onclick="document.getElementById('new-op-modal').style.display='none'">İPTAL</button>
+                        </div>
+                        <table class="cyber-table" id="ops-table"><thead><tr><th>GÖREV</th><th>LİDER</th><th>DURUM</th><th>AKSİYON</th></tr></thead><tbody></tbody></table>
+                    </div>
+                </div>
+
+                <div id="panel-hr" class="panel">
+                    <div id="admin-tools" class="glass-box" style="display:none; border-color:var(--admin-gold);">
+                        <h3 style="color:var(--admin-gold);">YÖNETİCİ PANELİ</h3>
+                        <div style="display:flex; gap:15px;">
+                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1;">
+                            <select id="ann-type" style="width:150px;"><option value="info">Bilgi</option><option value="critical">KRİTİK</option></select>
+                        </div>
+                        <textarea id="ann-msg" rows="2" placeholder="Mesaj..."></textarea>
+                        <button class="cyber-btn btn-gold" onclick="app.adminPostAnnounce()">YAYINLA</button>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px;">
+                        <div class="glass-box">
+                            <h3 id="hr-table-title">EKİP LİSTESİ</h3>
+                            <div style="max-height:500px; overflow-y:auto;">
+                                <table class="cyber-table" id="hr-staff-table"><thead id="hr-table-head"></thead><tbody id="hr-table-body"></tbody></table>
+                            </div>
+                        </div>
+                        <div class="glass-box" style="text-align:center;">
+                            <h3>KİMLİK KARTI</h3>
+                            <canvas id="idCardCanvas" width="500" height="300"></canvas>
+                            <br><br>
+                            <div id="id-actions"></div>
+                        </div>
+                    </div>
+                    <div id="admin-apps-section" class="glass-box" style="display:none;">
+                        <h3>BAŞVURULAR</h3>
+                        <div id="hr-apps-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px;"></div>
+                    </div>
+                </div>
+
+                <div id="panel-db" class="panel">
+                    <div class="glass-box"><h2>GDBS SORGU</h2><input id="db-q" placeholder="TC / İsim"><button class="cyber-btn" onclick="app.queryDB()">ARA</button><div id="db-res" style="margin-top:20px;"></div></div>
+                    <div class="glass-box"><h3>DENETİM İZLERİ</h3><table class="cyber-table" id="audit-table"><thead><tr><th>ZAMAN</th><th>KULLANICI</th><th>DETAY</th></tr></thead><tbody></tbody></table></div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <div id="login-modal">
+        <div class="glass-box" style="width:400px; text-align:center; border:2px solid var(--accent);">
+            <i class="fas fa-shield-alt fa-4x" style="color:var(--accent); margin-bottom:20px;"></i>
+            <h3>GÜVENLİ GİRİŞ</h3>
+            <input type="password" id="login-pass" placeholder="ERİŞİM ANAHTARI" style="text-align:center; letter-spacing:5px;">
+            <div id="2fa-box" style="display:none; margin-top:10px;">
+                <p style="color:var(--success);">KOD: <span id="2fa-code" style="font-weight:bold; color:white;"></span></p>
+                <input type="text" id="login-2fa" placeholder="KODU GİRİN" style="text-align:center;">
+            </div>
+            <button class="cyber-btn" id="btn-l1" onclick="app.loginStep1()">DEVAM</button>
+            <button class="cyber-btn" id="btn-l2" onclick="app.loginStep2()" style="display:none;">GİRİŞ</button>
+            <p id="login-msg" style="margin-top:15px; color:var(--accent); font-weight:bold;"></p>
+            <button class="nav-btn" onclick="document.getElementById('login-modal').style.display='none'" style="justify-content:center;">İPTAL</button>
+        </div>
+    </div>
+
+    <div id="edit-modal">
+        <div class="glass-box" style="width:400px; border-color:var(--admin-gold);">
+            <h3 style="color:var(--admin-gold);">DÜZENLE</h3>
+            <input type="hidden" id="edit-id">
+            <label>Ad Soyad</label><input id="edit-name">
+            <label>Kod Adı</label><input id="edit-code">
+            <label>Yetki</label><select id="edit-role"><option value="staff">Personel</option><option value="admin">Yönetici</option></select>
+            <button class="cyber-btn btn-gold" style="width:100%" onclick="app.saveEdit()">KAYDET</button>
+            <button class="nav-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="text-align:center; width:100%">İPTAL</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const CONFIG = {
+            WEB_REP: "https://discord.com/api/webhooks/1462228533509361839/fZmCO4aEvvwKT_01NGI-KY5rs7t5rQyYIxaaLylENigt13K0EVPbuH7nKfQgSkWQ2nP7",
+            WEB_OPS: "https://discord.com/api/webhooks/1462228977346412736/XyP1g3QXXOoXcg9vFnr5DMJ0PMygNHEx-TjhyMzBokQ1b8D9hZ-HGUubZKZUJSJHdi-X",
+            TAG_REP: "<@997276536250056855>",
+            TAG_OPS: "<@997275075839528970>"
+        };
+
+        const app = {
+            state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null,
+                db: {
+                    personnel: JSON.parse(localStorage.getItem('mit_v21_staff')) || [
+                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
+                        { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
+                    ],
+                    reports: JSON.parse(localStorage.getItem('mit_v21_reports')) || [],
+                    apps: JSON.parse(localStorage.getItem('mit_v21_apps')) || [],
+                    ops: JSON.parse(localStorage.getItem('mit_v21_ops')) || [],
+                    chat: JSON.parse(localStorage.getItem('mit_v21_chat')) || [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
+                    audit: JSON.parse(localStorage.getItem('mit_v21_audit')) || [],
+                    announcements: JSON.parse(localStorage.getItem('mit_v21_ann')) || [{title: "SİSTEM GÜNCEL", msg: "v21.0 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
+                    wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
+                }
+            },
+
+            init: function() {
+                this.updateClock(); setInterval(() => this.updateClock(), 1000);
+                this.initParticles();
+                this.renderPublic(); this.nav('public');
+            },
+
+            /* PARTICLE EFFECT */
+            initParticles: function() {
+                const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d');
+                cvs.width=window.innerWidth; cvs.height=window.innerHeight;
+                let pts=[]; for(let i=0;i<50;i++) pts.push({x:Math.random()*cvs.width, y:Math.random()*cvs.height, vx:(Math.random()-.5), vy:(Math.random()-.5)});
+                function anim(){
+                    ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,0,0,0.2)';
+                    pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1;
+                    ctx.beginPath(); ctx.arc(p.x,p.y,2,0,6.28); ctx.fill();
+                    pts.forEach(p2=>{ if(Math.hypot(p.x-p2.x,p.y-p2.y)<100){ ctx.strokeStyle=`rgba(255,0,0,0.1)`; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.stroke(); }});});
+                    requestAnimationFrame(anim);
+                } anim();
+            },
+
+            /* WEBHOOK SENDER */
+            sendDiscord: async function(url, tag, title, desc, color, fields) {
+                const p = { 
+                    username: "MİT İSTİHBARAT", 
+                    avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", 
+                    content: tag, // Pings the user/role outside the embed
+                    embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v21.0" }, timestamp: new Date()}] 
+                };
+                try { await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); } catch(e){}
+            },
+
+            /* NAV */
+            nav: function(id) {
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('panel-' + id).classList.add('active');
+                if(id === 'map') setTimeout(() => this.initMap(), 200);
+                if(id === 'chat') this.renderChat();
+                if(id === 'hr') this.renderHR();
+                if(id === 'ops') this.renderOps();
+                if(id === 'db') this.renderLogs();
+                if(id === 'reports') this.renderReports();
+                if(id === 'dashboard') this.updateDash();
+            },
+
+            /* AUTH 2FA */
+            showLogin: function() { 
+                document.getElementById('login-modal').style.display='flex'; document.getElementById('2fa-box').style.display='none';
+                document.getElementById('btn-l1').style.display='inline-block'; document.getElementById('btn-l2').style.display='none';
+                document.getElementById('login-pass').value=''; document.getElementById('login-2fa').value='';
+            },
+            loginStep1: function() {
+                const p=document.getElementById('login-pass').value, u=this.state.db.personnel.find(x=>x.pass===p);
+                if(u){ this.state.tUser=u; this.state.genCode=Math.floor(1000+Math.random()*9000);
+                    document.getElementById('2fa-code').innerText=this.state.genCode; document.getElementById('2fa-box').style.display='block';
+                    document.getElementById('btn-l1').style.display='none'; document.getElementById('btn-l2').style.display='inline-block';
+                } else this.failLogin();
+            },
+            loginStep2: function() {
+                if(parseInt(document.getElementById('login-2fa').value)===this.state.genCode) {
+                    this.state.user=this.state.tUser; this.state.fail=0;
+                    document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block';
+                    document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename;
+                    document.getElementById('u-code').style.display='block'; document.getElementById('u-role').innerText=this.state.user.role==='admin'?'YÖNETİCİ':this.state.user.rank;
+                    document.getElementById('u-role').style.color=this.state.user.role==='admin'?'var(--admin-gold)':'#666';
+                    document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`;
+                    document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
+                    this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
+                } else this.failLogin();
+            },
+            failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3)document.getElementById('lockdown-screen').style.display='flex'; },
+            logout: function() { location.reload(); },
+
+            /* MODULES */
+            renderReports: function() {
+                const f = document.getElementById('reports-feed'); f.innerHTML='';
+                this.state.db.reports.forEach(r => {
+                    f.innerHTML+=`<div class="report-card ${r.type==='op'?'report-op':''}"><div class="discord-tag">SENT > WEBHOOK</div><div style="display:flex; justify-content:space-between;"><span style="color:white; font-weight:bold;">${r.subject}</span><span style="color:#666; font-size:0.7rem;">${r.author} | ${r.date}</span></div><p style="color:#aaa; margin-top:5px; font-size:0.9rem;">${r.content}</p></div>`;
+                });
+            },
+            submitReport: function() {
+                const t=document.getElementById('report-type').value, s=document.getElementById('report-subj').value, c=document.getElementById('report-content').value;
+                if(!s||!c)return alert("Eksik!");
+                this.state.db.reports.unshift({author:this.state.user.codename, type:t, subject:s, content:c, date:new Date().toLocaleString()}); this.save(); this.renderReports();
+                // SEND TO DISCORD
+                this.sendDiscord(CONFIG.WEB_REP, CONFIG.TAG_REP, "📝 SAHA RAPORU", `**${s}**`, 3447003, [{name:"Ajan",value:this.state.user.codename, inline:true}, {name:"Tip",value:t.toUpperCase(), inline:true}, {name:"İçerik",value:c}]);
+                document.getElementById('report-subj').value=''; document.getElementById('report-content').value='';
+            },
+
+            renderOps: function() {
+                const t=document.querySelector('#ops-table tbody'); t.innerHTML='';
+                const sel=document.getElementById('op-lead'); sel.innerHTML='';
+                this.state.db.personnel.forEach(p=>sel.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`);
+                this.state.db.ops.forEach((o,i)=>{
+                    t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td><td>${o.status==='AKTİF'?`<button class="cyber-btn btn-small" onclick="app.endOp(${i})">BİTİR</button>`:'-'}</td></tr>`;
+                });
+            },
+            addOp: function() {
+                const n=document.getElementById('op-name').value, l=document.getElementById('op-lead').value; if(!n)return;
+                this.state.db.ops.unshift({name:n, lead:l, status:'AKTİF'}); this.save(); document.getElementById('new-op-modal').style.display='none'; this.renderOps();
+                // SEND TO DISCORD
+                this.sendDiscord(CONFIG.WEB_OPS, CONFIG.TAG_OPS, "🚨 YENİ GÖREV EMRİ", `**Operasyon:** ${n}`, 15158332, [{name:"Tim Lideri",value:l,inline:true}, {name:"Durum",value:"BAŞLATILDI",inline:true}]);
+            },
+            endOp: function(i) { this.state.db.ops[i].status='PASİF'; this.save(); this.renderOps(); },
+
+            /* HR / ADMIN / EDIT */
+            renderHR: function() {
+                const isAdmin = this.state.user.role==='admin';
+                document.getElementById('admin-tools').style.display=isAdmin?'block':'none';
+                document.getElementById('admin-apps-section').style.display=isAdmin?'block':'none';
+                document.getElementById('hr-table-head').innerHTML=isAdmin?`<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>ŞİFRE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th></tr>`;
+                const body=document.getElementById('hr-table-body'); body.innerHTML='';
+                this.state.db.personnel.forEach(p=>{
+                    if(isAdmin){
+                        const vis=this.state.visiblePass.has(p.id);
+                        body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${p.role==='admin'?'var(--admin-gold)':'#fff'}">${p.role.toUpperCase()}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><span class="blur-text ${vis?'visible':''}" onclick="app.togglePass('${p.id}')">${p.pass}</span></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button><button class="cyber-btn btn-small" style="border-color:#555;" onclick="app.fireStaff('${p.id}')">X</button></td></tr>`;
+                    } else body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td>${p.rank}</td><td style="color:var(--success)">AKTİF</td></tr>`;
+                });
+                if(isAdmin){
+                    const l=document.getElementById('hr-apps-list'); l.innerHTML=this.state.db.apps.length?'':'Bekleyen yok.';
+                    this.state.db.apps.forEach((a,i)=>{
+                        let rank=a.skill==='siber'?"SİBER UZMANI":(a.skill==='saha'?"SAHA AJANI":"ANALİST");
+                        l.innerHTML+=`<div style="background:#0a0a0a; border:1px solid #222; padding:15px;"><strong style="color:white">${a.name}</strong> (${a.skill})<br><small>${a.tc}</small><br><input id="ac-${i}" placeholder="KOD ADI" style="width:100%; margin-top:5px;"><div style="display:flex; gap:5px;"><button class="cyber-btn btn-small" onclick="app.approveApp(${i},'${rank}')">ONAY</button><button class="cyber-btn btn-small" style="border-color:#555;" onclick="app.rejectApp(${i})">RED</button></div></div>`;
+                    });
+                    document.getElementById('id-actions').innerHTML=`<button class="cyber-btn btn-small" onclick="app.downloadID()">İNDİR</button>`;
+                } else document.getElementById('id-actions').innerHTML='<span style="color:#666">Yetkisiz</span>';
+            },
+            editUser: function(id) { const p=this.state.db.personnel.find(x=>x.id===id); document.getElementById('edit-id').value=p.id; document.getElementById('edit-name').value=p.name; document.getElementById('edit-code').value=p.codename; document.getElementById('edit-role').value=p.role; document.getElementById('edit-modal').style.display='flex'; },
+            saveEdit: function() { const id=document.getElementById('edit-id').value, p=this.state.db.personnel.find(x=>x.id===id); if(p){ p.name=document.getElementById('edit-name').value; p.codename=document.getElementById('edit-code').value; p.role=document.getElementById('edit-role').value; this.save(); this.renderHR(); document.getElementById('edit-modal').style.display='none'; } },
+            approveApp: function(idx,rank){ const c=document.getElementById(`ac-${idx}`).value.toUpperCase(); if(!c)return alert("Kod!"); const a=this.state.db.apps[idx]; const nP={id:"AG-"+Math.floor(100+Math.random()*900),name:a.name,codename:c,role:'staff',rank,pass:"MIT"+Math.floor(1000+Math.random()*9000),gender:a.gender,photoId:Math.floor(Math.random()*99),cover:{fakeName:"Sivil "+Math.floor(Math.random()*100),fakeJob:"Mühendis",fakePhotoId:Math.floor(Math.random()*99)}}; this.state.db.personnel.push(nP); this.state.db.apps.splice(idx,1); this.save(); this.renderHR(); },
+            rejectApp: function(idx){ this.state.db.apps.splice(idx,1); this.save(); this.renderHR(); },
+            fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); }},
+            togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
+
+            /* CANVAS ID */
+            drawID: function(id,mode) {
+                const p=this.state.db.personnel.find(x=>x.id===id); if(!p)return;
+                const cvs=document.getElementById('idCardCanvas'), ctx=cvs.getContext('2d');
+                const w=cvs.width, h=cvs.height, isReal=mode==='REAL';
+                const bgC=isReal?["#0a0000","#1c0000"]:["#ffffff","#e0e0e0"];
+                const grd=ctx.createLinearGradient(0,0,w,h); grd.addColorStop(0,bgC[0]); grd.addColorStop(1,bgC[1]);
+                ctx.fillStyle=grd; ctx.fillRect(0,0,w,h);
+                if(isReal){ ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle="red"; ctx.beginPath(); ctx.arc(w/2,h/2,90,0,6.28); ctx.fill(); ctx.restore(); }
+                ctx.fillStyle=isReal?"#ff0000":"#005588"; ctx.fillRect(0,0,w,60);
+                ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px Arial"; ctx.fillText(isReal?"T.C. MİLLİ İSTİHBARAT TEŞKİLATI":"TÜRKİYE CUMHURİYETİ",w/2,30);
+                ctx.font="12px monospace"; ctx.fillText(isReal?"RESMİ KİMLİK":"KİMLİK KARTI",w/2,50);
+                const img=new Image(); img.crossOrigin="Anonymous"; img.src=`https://randomuser.me/api/portraits/${p.gender}/${isReal?p.photoId:p.cover.fakePhotoId}.jpg`;
+                const px=30,py=80,pw=120,ph=150; ctx.strokeStyle=isReal?"#ff0000":"#005588"; ctx.lineWidth=3; ctx.strokeRect(px,py,pw,ph); ctx.fillStyle="#222"; ctx.fillRect(px,py,pw,ph);
+                const tx=170; ctx.textAlign="left";
+                const df=(l,v,y)=>{ ctx.fillStyle=isReal?"#888":"#555"; ctx.font="10px Arial"; ctx.fillText(l,tx,y); ctx.fillStyle=isReal?"#fff":"#000"; ctx.font="bold 16px Arial"; ctx.fillText(v.toUpperCase(),tx,y+18); };
+                df("ADI SOYADI",isReal?p.name:p.cover.fakeName,90); df("GÖREVİ",isReal?p.rank:p.cover.fakeJob,130);
+                if(isReal){ df("KOD ADI",p.codename,170); ctx.fillStyle="red"; ctx.font="bold 12px monospace"; ctx.fillText("GİZLİ",tx,220); } else { df("DOĞUM", "15.04.1990",170); }
+                img.onload=()=>{ ctx.drawImage(img,px,py,pw,ph); };
+            },
+            downloadID: function(){ const l=document.createElement('a'); l.download='ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
+
+            /* GENERIC */
+            renderPublic: function(){ document.getElementById('feed-public').innerHTML=''; this.state.db.announcements.forEach(a=>{ document.getElementById('feed-public').innerHTML+=`<div style="padding:15px; background:#0f0f0f; border-left:4px solid ${a.type==='critical'?'var(--accent)':'var(--staff-blue)'}; margin-bottom:10px;"><strong style="color:white">${a.title}</strong> <span style="float:right;font-size:0.7rem;color:#666">${a.date}</span><p style="color:#aaa;margin-top:5px;">${a.msg}</p></div>`; }); const t=document.querySelector('#wanted-table tbody'); t.innerHTML=''; this.state.db.wanted.forEach(w=>t.innerHTML+=`<tr><td>${w.name}</td><td>${w.crime}</td><td style="color:var(--accent)">${w.status}</td></tr>`); },
+            adminPostAnnounce: function(){ if(this.state.user.role!=='admin')return; const t=document.getElementById('ann-title').value, m=document.getElementById('ann-msg').value, tp=document.getElementById('ann-type').value; if(!t)return; this.state.db.announcements.unshift({title:t, msg:m, type:tp, date:new Date().toLocaleDateString()}); this.save(); alert("Yayınlandı"); this.renderPublic(); },
+            submitApp: function(){ const tc=document.getElementById('app-tc').value, name=document.getElementById('app-name').value, g=document.getElementById('app-gender').value, s=document.getElementById('app-skill').value; if(!tc||!name)return alert("Eksik!"); this.state.db.apps.push({tc, name, skill:s, gender:g, date:new Date().toLocaleDateString()}); this.save(); alert("Gönderildi."); this.nav('public'); },
+            sendTip: function(){ alert("İhbar şifrelendi."); document.getElementById('tip-subj').value=''; document.getElementById('tip-text').value=''; },
+            updateDash: function(){ document.getElementById('stat-staff').innerText=this.state.db.personnel.length; document.getElementById('stat-ops').innerText=this.state.db.ops.filter(o=>o.status==='AKTİF').length; const l=document.getElementById('dash-logs'); l.innerHTML=''; this.state.db.audit.slice(-8).reverse().forEach(x=>l.innerHTML+=`<div style="border-bottom:1px solid #222; padding:5px;"><span style="color:var(--accent)">[${x.time}]</span> ${x.detail}</div>`); },
+            renderChat: function(){ const w=document.getElementById('chat-window'); w.innerHTML=''; this.state.db.chat.forEach(c=>{ const me=this.state.user&&c.user===this.state.user.codename; w.innerHTML+=`<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${c.msg}</div>`; }); w.scrollTop=w.scrollHeight; },
+            sendChat: function(){ const t=document.getElementById('chat-input').value; if(!t)return; this.state.db.chat.push({user:this.state.user.codename, msg:t, time:new Date().toLocaleTimeString()}); this.save(); document.getElementById('chat-input').value=''; this.renderChat(); },
+            queryDB: function(){ const q=document.getElementById('db-q').value; if(!q)return; this.logAudit('SORGU', `Aranan: ${q}`); document.getElementById('db-res').innerHTML='<div style="padding:10px; border:1px solid var(--accent)">TEMİZ</div>'; },
+            renderLogs: function(){ const t=document.querySelector('#audit-table tbody'); t.innerHTML=''; this.state.db.audit.slice().reverse().forEach(l=>t.innerHTML+=`<tr><td>${l.time}</td><td>${l.user}</td><td>${l.detail}</td></tr>`); },
+            save: function(){ localStorage.setItem('mit_v21_staff', JSON.stringify(this.state.db.personnel)); localStorage.setItem('mit_v21_apps', JSON.stringify(this.state.db.apps)); localStorage.setItem('mit_v21_ops', JSON.stringify(this.state.db.ops)); localStorage.setItem('mit_v21_chat', JSON.stringify(this.state.db.chat)); localStorage.setItem('mit_v21_audit', JSON.stringify(this.state.db.audit)); localStorage.setItem('mit_v21_ann', JSON.stringify(this.state.db.announcements)); localStorage.setItem('mit_v21_reports', JSON.stringify(this.state.db.reports)); },
+            logAudit: function(act, det){ this.state.db.audit.push({time:new Date().toLocaleString(), user:this.state.user?this.state.user.name:'SİSTEM', detail:`${act}: ${det}`}); this.save(); },
+            initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
+            updateClock: function(){ document.getElementById('sys-clock').innerText=new Date().toLocaleTimeString(); }
+        };
+        window.onload = () => app.init();
+    </script>
+</body>
+</html>
