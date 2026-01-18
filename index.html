@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MİT | KIZIL ELMA SİBER SAVUNMA v21.0</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
@@ -49,6 +49,7 @@
         aside {
             width: 300px; background: #050505; border-right: 1px solid #222;
             display: flex; flex-direction: column; padding: 20px 0; transition: 0.3s;
+            flex-shrink: 0; /* Menünün küçülmesini engeller */
         }
 
         main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.4); position: relative; }
@@ -92,7 +93,8 @@
         .btn-gold:hover { background: var(--admin-gold); color: #000; box-shadow: 0 0 15px var(--admin-gold); }
 
         /* TABLES */
-        .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .table-container { overflow-x: auto; } /* Tablo taşmasını engellemek için */
+        .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; /* Mobilde tablo sıkışmasın */ }
         .cyber-table th { text-align: left; border-bottom: 1px solid var(--accent); padding: 10px; color: #aaa; font-size: 0.8rem; }
         .cyber-table td { padding: 12px 10px; border-bottom: 1px solid #222; font-family: 'Share Tech Mono'; font-size: 0.9rem; vertical-align: middle; }
         .cyber-table tr:hover { background: rgba(255,255,255,0.03); }
@@ -121,6 +123,89 @@
         .panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulseAlert { 0% { opacity: 1; text-shadow: 0 0 30px red; } 50% { opacity: 0.4; } 100% { opacity: 1; text-shadow: 0 0 30px red; } }
+
+        /* --- MOBİL UYUMLULUK (RESPONSIVE CSS) --- */
+        @media screen and (max-width: 900px) {
+            body { overflow: auto; /* Mobilde sayfa kaydırılabilsin */ }
+            
+            /* Header Düzeni */
+            header {
+                height: auto;
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+                text-align: center;
+            }
+            header > div { width: 100%; justify-content: center; }
+            header img { height: 40px; }
+            header h1 { font-size: 1.4rem !important; }
+
+            /* Ana Yapı - Dikey Hizalama */
+            .workspace {
+                flex-direction: column;
+                overflow: visible;
+            }
+
+            /* Yan Menü (Mobilde Üste Alıyoruz) */
+            aside {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 2px solid var(--accent);
+                padding: 10px 0;
+            }
+            
+            /* Menü Butonları Yatay Kaydırma */
+            #menu-guest, #menu-staff {
+                display: flex !important; /* JS gizlese bile mobilde düzeni bozmamak için */
+                flex-direction: row;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 0 10px 10px 10px;
+                gap: 10px;
+            }
+            /* Gizli olan menüyü yine gizli tutmak için JS kontrolüne bırakıyoruz, 
+               sadece display:flex yapısını aktif olan menüye uyguluyoruz */
+            #menu-guest[style*="none"], #menu-staff[style*="none"] {
+                display: none !important;
+            }
+
+            .nav-btn {
+                width: auto;
+                padding: 8px 15px;
+                border-right: none;
+                border-bottom: 3px solid transparent;
+                background: rgba(255,255,255,0.05);
+                border-radius: 4px;
+                font-size: 0.9rem;
+            }
+            .nav-btn.active {
+                border-right: none;
+                border-bottom-color: var(--accent);
+                background: rgba(255,0,0,0.1);
+            }
+
+            /* İçerik Alanı */
+            main { padding: 15px; overflow: visible; }
+
+            /* Grid Yapılarını Tek Kolona Düşür */
+            div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            /* Modallar */
+            .glass-box { padding: 15px; }
+            #login-modal .glass-box, #edit-modal .glass-box { width: 90% !important; }
+
+            /* Canvas */
+            #idCardCanvas { width: 100%; height: auto; }
+            
+            /* Font Ayarları */
+            h1 { font-size: 1.5rem; }
+            #lockdown-screen h1 { font-size: 2rem !important; }
+            #lockdown-screen i { font-size: 3rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -143,7 +228,7 @@
                     <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v21.0</small>
                 </div>
             </div>
-            <div style="text-align:right; font-family:'Share Tech Mono';">
+            <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
                 <div id="sys-clock" style="font-size:1.4rem; color:white;">00:00:00</div>
                 <div id="net-status" style="font-size:0.8rem; color:var(--accent);"><i class="fas fa-shield-alt"></i> BAĞLANTI GÜVENLİ</div>
             </div>
@@ -151,7 +236,7 @@
 
         <div class="workspace">
             <aside>
-                <div style="text-align:center; padding: 30px 20px; border-bottom: 1px solid #333; margin-bottom: 10px;">
+                <div style="text-align:center; padding: 20px; border-bottom: 1px solid #333; margin-bottom: 10px;">
                     <div style="width:70px; height:70px; border-radius:50%; border:2px solid var(--accent); margin:0 auto 15px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px rgba(255,0,0,0.3); overflow:hidden; background:#000;">
                         <i class="fas fa-user-secret fa-2x" id="u-icon" style="color:white;"></i>
                         <img id="u-photo" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -163,18 +248,18 @@
 
                 <div id="menu-guest">
                     <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-globe"></i> Duyurular</button>
-                    <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-user-plus"></i> Akademi Başvuru</button>
-                    <button class="nav-btn" onclick="app.showLogin()" style="margin-top:30px; color:var(--accent);"><i class="fas fa-fingerprint"></i> Personel Girişi</button>
+                    <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-user-plus"></i> Başvuru</button>
+                    <button class="nav-btn" onclick="app.showLogin()" style="color:var(--accent);"><i class="fas fa-fingerprint"></i> Personel</button>
                 </div>
 
                 <div id="menu-staff" style="display:none;">
-                    <button class="nav-btn active" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Ana Komuta</button>
-                    <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Raporlar (Webhook)</button>
-                    <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyonlar (Webhook)</button>
-                    <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Şifreli Chat</button>
-                    <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip / Yönetim</button>
-                    <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> GDBS Sorgu</button>
-                    <button class="nav-btn" onclick="app.logout()" style="color:var(--accent); margin-top:auto;"><i class="fas fa-power-off"></i> Çıkış</button>
+                    <button class="nav-btn active" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Komuta</button>
+                    <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Rapor</button>
+                    <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
+                    <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Chat</button>
+                    <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip</button>
+                    <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> Sorgu</button>
+                    <button class="nav-btn" onclick="app.logout()" style="color:var(--accent);"><i class="fas fa-power-off"></i> Çıkış</button>
                 </div>
             </aside>
 
@@ -184,7 +269,7 @@
                         <h2><i class="fas fa-bullhorn"></i> RESMİ DUYURULAR</h2>
                         <div id="feed-public"></div>
                     </div>
-                    <div class="glass-box"><h3>ARANANLAR</h3><table class="cyber-table" id="wanted-table"><thead><tr><th>KOD</th><th>SUÇ</th><th>DURUM</th></tr></thead><tbody></tbody></table></div>
+                    <div class="glass-box"><h3>ARANANLAR</h3><div class="table-container"><table class="cyber-table" id="wanted-table"><thead><tr><th>KOD</th><th>SUÇ</th><th>DURUM</th></tr></thead><tbody></tbody></table></div></div>
                     <div class="glass-box" style="max-width:600px;"><h3>İHBAR HATTI</h3><input id="tip-subj" placeholder="Konu"><textarea id="tip-text" placeholder="Detay..."></textarea><button class="cyber-btn" onclick="app.sendTip()">GÖNDER</button></div>
                 </div>
 
@@ -253,15 +338,15 @@
                             <button class="cyber-btn" onclick="app.addOp()">BAŞLAT</button>
                             <button class="cyber-btn" style="border-color:#555; color:#555;" onclick="document.getElementById('new-op-modal').style.display='none'">İPTAL</button>
                         </div>
-                        <table class="cyber-table" id="ops-table"><thead><tr><th>GÖREV</th><th>LİDER</th><th>DURUM</th><th>AKSİYON</th></tr></thead><tbody></tbody></table>
+                        <div class="table-container"><table class="cyber-table" id="ops-table"><thead><tr><th>GÖREV</th><th>LİDER</th><th>DURUM</th><th>AKSİYON</th></tr></thead><tbody></tbody></table></div>
                     </div>
                 </div>
 
                 <div id="panel-hr" class="panel">
                     <div id="admin-tools" class="glass-box" style="display:none; border-color:var(--admin-gold);">
                         <h3 style="color:var(--admin-gold);">YÖNETİCİ PANELİ</h3>
-                        <div style="display:flex; gap:15px;">
-                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1;">
+                        <div style="display:flex; gap:15px; flex-wrap:wrap;">
+                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1; min-width:200px;">
                             <select id="ann-type" style="width:150px;"><option value="info">Bilgi</option><option value="critical">KRİTİK</option></select>
                         </div>
                         <textarea id="ann-msg" rows="2" placeholder="Mesaj..."></textarea>
@@ -271,7 +356,7 @@
                     <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px;">
                         <div class="glass-box">
                             <h3 id="hr-table-title">EKİP LİSTESİ</h3>
-                            <div style="max-height:500px; overflow-y:auto;">
+                            <div style="max-height:500px; overflow-y:auto;" class="table-container">
                                 <table class="cyber-table" id="hr-staff-table"><thead id="hr-table-head"></thead><tbody id="hr-table-body"></tbody></table>
                             </div>
                         </div>
@@ -290,7 +375,7 @@
 
                 <div id="panel-db" class="panel">
                     <div class="glass-box"><h2>GDBS SORGU</h2><input id="db-q" placeholder="TC / İsim"><button class="cyber-btn" onclick="app.queryDB()">ARA</button><div id="db-res" style="margin-top:20px;"></div></div>
-                    <div class="glass-box"><h3>DENETİM İZLERİ</h3><table class="cyber-table" id="audit-table"><thead><tr><th>ZAMAN</th><th>KULLANICI</th><th>DETAY</th></tr></thead><tbody></tbody></table></div>
+                    <div class="glass-box"><h3>DENETİM İZLERİ</h3><div class="table-container"><table class="cyber-table" id="audit-table"><thead><tr><th>ZAMAN</th><th>KULLANICI</th><th>DETAY</th></tr></thead><tbody></tbody></table></div></div>
                 </div>
 
             </main>
@@ -338,7 +423,7 @@
             state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null,
                 db: {
                     personnel: JSON.parse(localStorage.getItem('mit_v21_staff')) || [
-                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'Bakan', pass: 'GökSancak1881', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
+                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
                         { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
                     ],
                     reports: JSON.parse(localStorage.getItem('mit_v21_reports')) || [],
@@ -376,7 +461,7 @@
                 const p = { 
                     username: "MİT İSTİHBARAT", 
                     avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", 
-                    content: tag, // Pings the user/role outside the embed
+                    content: tag, 
                     embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v21.0" }, timestamp: new Date()}] 
                 };
                 try { await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); } catch(e){}
@@ -524,5 +609,4 @@
         window.onload = () => app.init();
     </script>
 </body>
-
 </html>
