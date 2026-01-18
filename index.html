@@ -338,7 +338,7 @@
             state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null,
                 db: {
                     personnel: JSON.parse(localStorage.getItem('mit_v21_staff')) || [
-                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
+                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'Bakan', pass: 'GökSancak1881', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
                         { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
                     ],
                     reports: JSON.parse(localStorage.getItem('mit_v21_reports')) || [],
@@ -524,4 +524,5 @@
         window.onload = () => app.init();
     </script>
 </body>
+
 </html>
