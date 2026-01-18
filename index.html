@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v22.1</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v22.2</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -26,8 +26,6 @@
             --admin-gold: #ffcc00;
             --text-main: #e0e0e0;
             --border: 1px solid rgba(255, 255, 255, 0.08);
-            
-            --scanline-color: rgba(0,0,0,0.5);
         }
 
         /* DEFCON THEMES */
@@ -199,7 +197,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v22.1</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v22.2</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -415,6 +413,9 @@
             <label>Kod Adı</label>
             <input id="edit-code">
             
+            <label>Rütbe / Ünvan</label>
+            <input id="edit-rank" placeholder="Örn: SAHA UZMANI, DAİRE BAŞKANI">
+            
             <label>Yetki Seviyesi</label>
             <select id="edit-role">
                 <option value="staff">Personel</option>
@@ -457,18 +458,18 @@
         const app = {
             state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null,
                 db: {
-                    defcon: localStorage.getItem('mit_v22_1_defcon') || 1,
-                    personnel: JSON.parse(localStorage.getItem('mit_v22_1_staff')) || [
-                        { id: 'ADM-001', name: 'Kadir Kortekin.', codename: 'Gölge Anka', role: 'admin', rank: 'MİT BAKAN', pass: 'GökSancak1881', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
+                    defcon: localStorage.getItem('mit_v22_2_defcon') || 1,
+                    personnel: JSON.parse(localStorage.getItem('mit_v22_2_staff')) || [
+                        { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
                         { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
                     ],
-                    reports: JSON.parse(localStorage.getItem('mit_v22_1_reports')) || [],
-                    apps: JSON.parse(localStorage.getItem('mit_v22_1_apps')) || [],
-                    tips: JSON.parse(localStorage.getItem('mit_v22_1_tips')) || [],
-                    ops: JSON.parse(localStorage.getItem('mit_v22_1_ops')) || [],
-                    chat: JSON.parse(localStorage.getItem('mit_v22_1_chat')) || [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
-                    audit: JSON.parse(localStorage.getItem('mit_v22_1_audit')) || [],
-                    announcements: JSON.parse(localStorage.getItem('mit_v22_1_ann')) || [{title: "SİSTEM GÜNCEL", msg: "v22.1 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
+                    reports: JSON.parse(localStorage.getItem('mit_v22_2_reports')) || [],
+                    apps: JSON.parse(localStorage.getItem('mit_v22_2_apps')) || [],
+                    tips: JSON.parse(localStorage.getItem('mit_v22_2_tips')) || [],
+                    ops: JSON.parse(localStorage.getItem('mit_v22_2_ops')) || [],
+                    chat: JSON.parse(localStorage.getItem('mit_v22_2_chat')) || [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
+                    audit: JSON.parse(localStorage.getItem('mit_v22_2_audit')) || [],
+                    announcements: JSON.parse(localStorage.getItem('mit_v22_2_ann')) || [{title: "SİSTEM GÜNCEL", msg: "v22.2 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
                     wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
                 }
             },
@@ -501,7 +502,7 @@
                 this.renderPublic(); this.nav('public');
             },
 
-            setDefcon: function(lvl) { this.state.db.defcon = lvl; localStorage.setItem('mit_v22_1_defcon', lvl); this.applyDefcon(lvl); },
+            setDefcon: function(lvl) { this.state.db.defcon = lvl; localStorage.setItem('mit_v22_2_defcon', lvl); this.applyDefcon(lvl); },
             applyDefcon: function(lvl) { document.body.className = `defcon-${lvl}`; const el = document.getElementById('defcon-disp'); if(el) el.innerText = lvl; },
             initParticles: function() {
                 const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d');
@@ -511,7 +512,7 @@
             },
 
             sendDiscord: async function(url, tag, title, desc, color, fields) {
-                const p = { username: "MİT İSTİHBARAT", avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", content: tag, embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v22.1" }, timestamp: new Date()}] };
+                const p = { username: "MİT İSTİHBARAT", avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", content: tag, embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v22.2" }, timestamp: new Date()}] };
                 try { await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); } catch(e){}
             },
 
@@ -590,6 +591,9 @@
                 document.getElementById('edit-name').value=p.name; 
                 document.getElementById('edit-code').value=p.codename; 
                 document.getElementById('edit-role').value=p.role; 
+                // YENİ RÜTBE GÜNCELLEMESİ
+                document.getElementById('edit-rank').value = p.rank || "";
+                
                 document.getElementById('edit-pass').value = ''; 
                 document.getElementById('edit-modal').style.display='flex'; 
             },
@@ -599,6 +603,10 @@
                     p.name=document.getElementById('edit-name').value; 
                     p.codename=document.getElementById('edit-code').value; 
                     p.role=document.getElementById('edit-role').value; 
+                    
+                    // YENİ RÜTBE KAYDI
+                    p.rank = document.getElementById('edit-rank').value.toUpperCase();
+                    
                     const newPass = document.getElementById('edit-pass').value.trim();
                     if(newPass.length > 0) p.pass = newPass;
                     this.save(); this.renderHR(); document.getElementById('edit-modal').style.display='none'; 
@@ -680,14 +688,14 @@
             
             renderLogs: function(){ const t=document.querySelector('#audit-table tbody'); t.innerHTML=''; this.state.db.audit.slice().reverse().forEach(l=>t.innerHTML+=`<tr><td>${l.time}</td><td>${l.user}</td><td>${l.detail}</td></tr>`); },
             save: function(){ 
-                localStorage.setItem('mit_v22_1_staff', JSON.stringify(this.state.db.personnel)); 
-                localStorage.setItem('mit_v22_1_apps', JSON.stringify(this.state.db.apps)); 
-                localStorage.setItem('mit_v22_1_tips', JSON.stringify(this.state.db.tips)); 
-                localStorage.setItem('mit_v22_1_ops', JSON.stringify(this.state.db.ops)); 
-                localStorage.setItem('mit_v22_1_chat', JSON.stringify(this.state.db.chat)); 
-                localStorage.setItem('mit_v22_1_audit', JSON.stringify(this.state.db.audit)); 
-                localStorage.setItem('mit_v22_1_ann', JSON.stringify(this.state.db.announcements)); 
-                localStorage.setItem('mit_v22_1_reports', JSON.stringify(this.state.db.reports)); 
+                localStorage.setItem('mit_v22_2_staff', JSON.stringify(this.state.db.personnel)); 
+                localStorage.setItem('mit_v22_2_apps', JSON.stringify(this.state.db.apps)); 
+                localStorage.setItem('mit_v22_2_tips', JSON.stringify(this.state.db.tips)); 
+                localStorage.setItem('mit_v22_2_ops', JSON.stringify(this.state.db.ops)); 
+                localStorage.setItem('mit_v22_2_chat', JSON.stringify(this.state.db.chat)); 
+                localStorage.setItem('mit_v22_2_audit', JSON.stringify(this.state.db.audit)); 
+                localStorage.setItem('mit_v22_2_ann', JSON.stringify(this.state.db.announcements)); 
+                localStorage.setItem('mit_v22_2_reports', JSON.stringify(this.state.db.reports)); 
             },
             logAudit: function(act, det){ this.state.db.audit.push({time:new Date().toLocaleString(), user:this.state.user?this.state.user.name:'SİSTEM', detail:`${act}: ${det}`}); this.save(); },
             initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
@@ -697,6 +705,3 @@
     </script>
 </body>
 </html>
-
-
-
