@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v22.0</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v22.1</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,7 +12,7 @@
     <style>
         :root {
             /* Varsayılan Tema (Kırmızı - DEFCON 1) */
-            --hue: 0; /* Kırmızı */
+            --hue: 0; 
             --bg-deep: #020202;
             --bg-panel: rgba(10, 11, 14, 0.96);
             --primary: #0a0a0a;
@@ -199,7 +199,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v22.0</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v22.1</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -406,12 +406,25 @@
 
     <div id="edit-modal">
         <div class="glass-box" style="width:400px; border-color:var(--admin-gold);">
-            <h3 style="color:var(--admin-gold);">DÜZENLE</h3>
+            <h3 style="color:var(--admin-gold);">PERSONEL DÜZENLE</h3>
             <input type="hidden" id="edit-id">
-            <label>Ad Soyad</label><input id="edit-name">
-            <label>Kod Adı</label><input id="edit-code">
-            <label>Yetki</label><select id="edit-role"><option value="staff">Personel</option><option value="admin">Yönetici</option></select>
-            <button class="cyber-btn btn-gold" style="width:100%" onclick="app.saveEdit()">KAYDET</button>
+            
+            <label>Ad Soyad</label>
+            <input id="edit-name">
+            
+            <label>Kod Adı</label>
+            <input id="edit-code">
+            
+            <label>Yetki Seviyesi</label>
+            <select id="edit-role">
+                <option value="staff">Personel</option>
+                <option value="admin">Yönetici</option>
+            </select>
+
+            <label style="color:var(--accent);">Yeni Şifre (Opsiyonel)</label>
+            <input id="edit-pass" placeholder="Değiştirmek için yeni şifreyi yazın..." style="border:1px dashed var(--accent);">
+            
+            <button class="cyber-btn btn-gold" style="width:100%" onclick="app.saveEdit()">KAYDET & GÜNCELLE</button>
             <button class="nav-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="text-align:center; width:100%">İPTAL</button>
         </div>
     </div>
@@ -425,7 +438,6 @@
             TAG_OPS: "<@997275075839528970>"
         };
 
-        // SES YÖNETİCİSİ (SFX)
         const SFX = {
             ctx: new (window.AudioContext || window.webkitAudioContext)(),
             playTone: function(freq, type, dur) {
@@ -439,27 +451,24 @@
             hover: function() { this.playTone(400, 'triangle', 0.05); },
             error: function() { this.playTone(150, 'sawtooth', 0.3); setTimeout(()=>this.playTone(100,'sawtooth',0.3),150); },
             success: function() { this.playTone(800, 'sine', 0.1); setTimeout(()=>this.playTone(1200,'sine',0.2),100); },
-            boot: function() { 
-                let t=0; 
-                for(let i=0;i<5;i++){ setTimeout(()=>this.playTone(200+(i*100), 'square', 0.1), t); t+=100; }
-            }
+            boot: function() { try { let t=0; for(let i=0;i<5;i++){ setTimeout(()=>this.playTone(200+(i*100), 'square', 0.1), t); t+=100; } } catch(e){} }
         };
 
         const app = {
             state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null,
                 db: {
-                    defcon: localStorage.getItem('mit_v22_defcon') || 1,
-                    personnel: JSON.parse(localStorage.getItem('mit_v21_staff')) || [
+                    defcon: localStorage.getItem('mit_v22_1_defcon') || 1,
+                    personnel: JSON.parse(localStorage.getItem('mit_v22_1_staff')) || [
                         { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
                         { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
                     ],
-                    reports: JSON.parse(localStorage.getItem('mit_v21_reports')) || [],
-                    apps: JSON.parse(localStorage.getItem('mit_v21_apps')) || [],
-                    tips: JSON.parse(localStorage.getItem('mit_v22_tips')) || [],
-                    ops: JSON.parse(localStorage.getItem('mit_v21_ops')) || [],
-                    chat: JSON.parse(localStorage.getItem('mit_v21_chat')) || [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
-                    audit: JSON.parse(localStorage.getItem('mit_v21_audit')) || [],
-                    announcements: JSON.parse(localStorage.getItem('mit_v21_ann')) || [{title: "SİSTEM GÜNCEL", msg: "v22.0 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
+                    reports: JSON.parse(localStorage.getItem('mit_v22_1_reports')) || [],
+                    apps: JSON.parse(localStorage.getItem('mit_v22_1_apps')) || [],
+                    tips: JSON.parse(localStorage.getItem('mit_v22_1_tips')) || [],
+                    ops: JSON.parse(localStorage.getItem('mit_v22_1_ops')) || [],
+                    chat: JSON.parse(localStorage.getItem('mit_v22_1_chat')) || [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
+                    audit: JSON.parse(localStorage.getItem('mit_v22_1_audit')) || [],
+                    announcements: JSON.parse(localStorage.getItem('mit_v22_1_ann')) || [{title: "SİSTEM GÜNCEL", msg: "v22.1 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
                     wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
                 }
             },
@@ -475,30 +484,14 @@
 
             bootSequence: function() {
                 const s = document.getElementById('boot-screen');
+                if(!s) { this.initAppLogic(); return; }
                 const t = document.getElementById('boot-text');
-                const lines = [
-                    "BIOS DATE 01/18/26 15:00:00 VER 1.02",
-                    "CPU: QUANTUM CORE i9, SPEED: 99.9 GHz",
-                    "checking memory...... OK",
-                    "loading kernel...... OK",
-                    "mounting secure drives...... OK",
-                    "establishing uplink...... SUCCESS",
-                    "INITIATING KIZIL_ELMA PROTOCOL..."
-                ];
+                const lines = ["BIOS DATE 01/18/26 15:00:00", "establishing uplink...... SUCCESS", "INITIATING KIZIL_ELMA PROTOCOL..."];
                 let i = 0;
-                SFX.boot();
+                try { SFX.boot(); } catch(e){}
                 const int = setInterval(() => {
-                    if(i < lines.length) {
-                        t.innerHTML += lines[i] + "<br>";
-                        i++;
-                    } else {
-                        clearInterval(int);
-                        setTimeout(() => {
-                            s.style.opacity = '0';
-                            document.getElementById('main-app').style.opacity = '1';
-                            setTimeout(() => { s.style.display='none'; this.initAppLogic(); }, 1000);
-                        }, 500);
-                    }
+                    if(i < lines.length) { t.innerHTML += lines[i] + "<br>"; i++; } 
+                    else { clearInterval(int); s.style.opacity = '0'; document.getElementById('main-app').style.opacity = '1'; setTimeout(() => { s.style.display='none'; this.initAppLogic(); }, 1000); }
                 }, 150);
             },
 
@@ -508,44 +501,20 @@
                 this.renderPublic(); this.nav('public');
             },
 
-            /* DEFCON */
-            setDefcon: function(lvl) {
-                this.state.db.defcon = lvl;
-                localStorage.setItem('mit_v22_defcon', lvl);
-                this.applyDefcon(lvl);
-                this.logAudit('SİSTEM', `DEFCON seviyesi ${lvl} olarak değiştirildi.`);
-            },
-            applyDefcon: function(lvl) {
-                document.body.className = `defcon-${lvl}`;
-                const el = document.getElementById('defcon-disp');
-                if(el) el.innerText = lvl;
-            },
-
-            /* PARTICLE EFFECT */
+            setDefcon: function(lvl) { this.state.db.defcon = lvl; localStorage.setItem('mit_v22_1_defcon', lvl); this.applyDefcon(lvl); },
+            applyDefcon: function(lvl) { document.body.className = `defcon-${lvl}`; const el = document.getElementById('defcon-disp'); if(el) el.innerText = lvl; },
             initParticles: function() {
                 const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d');
                 cvs.width=window.innerWidth; cvs.height=window.innerHeight;
                 let pts=[]; for(let i=0;i<50;i++) pts.push({x:Math.random()*cvs.width, y:Math.random()*cvs.height, vx:(Math.random()-.5), vy:(Math.random()-.5)});
-                function anim(){
-                    ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)';
-                    pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1;
-                    ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); });
-                    requestAnimationFrame(anim);
-                } anim();
+                function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); }); requestAnimationFrame(anim); } anim();
             },
 
-            /* WEBHOOK SENDER */
             sendDiscord: async function(url, tag, title, desc, color, fields) {
-                const p = { 
-                    username: "MİT İSTİHBARAT", 
-                    avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", 
-                    content: tag, 
-                    embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v22.0" }, timestamp: new Date()}] 
-                };
+                const p = { username: "MİT İSTİHBARAT", avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", content: tag, embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v22.1" }, timestamp: new Date()}] };
                 try { await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); } catch(e){}
             },
 
-            /* NAV */
             nav: function(id) {
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                 document.getElementById('panel-' + id).classList.add('active');
@@ -558,43 +527,27 @@
                 if(id === 'dashboard') this.updateDash();
             },
 
-            /* AUTH 2FA */
-            showLogin: function() { 
-                document.getElementById('login-modal').style.display='flex'; document.getElementById('2fa-box').style.display='none';
-                document.getElementById('btn-l1').style.display='inline-block'; document.getElementById('btn-l2').style.display='none';
-                document.getElementById('login-pass').value=''; document.getElementById('login-2fa').value='';
-            },
+            showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('2fa-box').style.display='none'; document.getElementById('btn-l1').style.display='inline-block'; document.getElementById('btn-l2').style.display='none'; document.getElementById('login-pass').value=''; document.getElementById('login-2fa').value=''; document.getElementById('login-msg').innerText=''; this.state.fail = 0; },
             loginStep1: function() {
-                const p=document.getElementById('login-pass').value, u=this.state.db.personnel.find(x=>x.pass===p);
-                if(u){ this.state.tUser=u; this.state.genCode=Math.floor(1000+Math.random()*9000);
-                    document.getElementById('2fa-code').innerText=this.state.genCode; document.getElementById('2fa-box').style.display='block';
-                    document.getElementById('btn-l1').style.display='none'; document.getElementById('btn-l2').style.display='inline-block';
-                    SFX.success();
-                } else { SFX.error(); this.failLogin(); }
+                const p = document.getElementById('login-pass').value.trim();
+                const u = this.state.db.personnel.find(x => x.pass === p);
+                if(u){ this.state.tUser=u; this.state.genCode=Math.floor(1000+Math.random()*9000); document.getElementById('2fa-code').innerText=this.state.genCode; document.getElementById('2fa-box').style.display='block'; document.getElementById('btn-l1').style.display='none'; document.getElementById('btn-l2').style.display='inline-block'; SFX.success(); } 
+                else { SFX.error(); this.failLogin(); }
             },
             loginStep2: function() {
                 if(parseInt(document.getElementById('login-2fa').value)===this.state.genCode) {
-                    SFX.success();
-                    this.state.user=this.state.tUser; this.state.fail=0;
+                    SFX.success(); this.state.user=this.state.tUser; this.state.fail=0;
                     document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block';
-                    document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename;
-                    document.getElementById('u-code').style.display='block'; document.getElementById('u-role').innerText=this.state.user.role==='admin'?'YÖNETİCİ':this.state.user.rank;
-                    document.getElementById('u-role').style.color=this.state.user.role==='admin'?'var(--admin-gold)':'#666';
-                    document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`;
-                    document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
+                    document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename; document.getElementById('u-code').style.display='block';
+                    document.getElementById('u-role').innerText=this.state.user.role==='admin'?'YÖNETİCİ':this.state.user.rank; document.getElementById('u-role').style.color=this.state.user.role==='admin'?'var(--admin-gold)':'#666';
+                    document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
                     this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
                 } else { SFX.error(); this.failLogin(); }
             },
             failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3){ SFX.error(); document.getElementById('lockdown-screen').style.display='flex'; } },
             logout: function() { location.reload(); },
 
-            /* MODULES */
-            renderReports: function() {
-                const f = document.getElementById('reports-feed'); f.innerHTML='';
-                this.state.db.reports.forEach(r => {
-                    f.innerHTML+=`<div class="report-card ${r.type==='op'?'report-op':''}"><div class="discord-tag">SENT > WEBHOOK</div><div style="display:flex; justify-content:space-between;"><span style="color:white; font-weight:bold;">${r.subject}</span><span style="color:#666; font-size:0.7rem;">${r.author} | ${r.date}</span></div><p style="color:#aaa; margin-top:5px; font-size:0.9rem;">${r.content}</p></div>`;
-                });
-            },
+            renderReports: function() { const f = document.getElementById('reports-feed'); f.innerHTML=''; this.state.db.reports.forEach(r => { f.innerHTML+=`<div class="report-card ${r.type==='op'?'report-op':''}"><div class="discord-tag">SENT > WEBHOOK</div><div style="display:flex; justify-content:space-between;"><span style="color:white; font-weight:bold;">${r.subject}</span><span style="color:#666; font-size:0.7rem;">${r.author} | ${r.date}</span></div><p style="color:#aaa; margin-top:5px; font-size:0.9rem;">${r.content}</p></div>`; }); },
             submitReport: function() {
                 const t=document.getElementById('report-type').value, s=document.getElementById('report-subj').value, c=document.getElementById('report-content').value;
                 if(!s||!c){ SFX.error(); return alert("Eksik!"); }
@@ -603,23 +556,10 @@
                 document.getElementById('report-subj').value=''; document.getElementById('report-content').value=''; SFX.success();
             },
 
-            renderOps: function() {
-                const t=document.querySelector('#ops-table tbody'); t.innerHTML='';
-                const sel=document.getElementById('op-lead'); sel.innerHTML='';
-                this.state.db.personnel.forEach(p=>sel.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`);
-                this.state.db.ops.forEach((o,i)=>{
-                    t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td><td>${o.status==='AKTİF'?`<button class="cyber-btn btn-small" onclick="app.endOp(${i})">BİTİR</button>`:'-'}</td></tr>`;
-                });
-            },
-            addOp: function() {
-                const n=document.getElementById('op-name').value, l=document.getElementById('op-lead').value; if(!n)return;
-                this.state.db.ops.unshift({name:n, lead:l, status:'AKTİF'}); this.save(); document.getElementById('new-op-modal').style.display='none'; this.renderOps();
-                this.sendDiscord(CONFIG.WEB_OPS, CONFIG.TAG_OPS, "🚨 YENİ GÖREV EMRİ", `**Operasyon:** ${n}`, 15158332, [{name:"Tim Lideri",value:l,inline:true}, {name:"Durum",value:"BAŞLATILDI",inline:true}]);
-                SFX.success();
-            },
+            renderOps: function() { const t=document.querySelector('#ops-table tbody'); t.innerHTML=''; const sel=document.getElementById('op-lead'); sel.innerHTML=''; this.state.db.personnel.forEach(p=>sel.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`); this.state.db.ops.forEach((o,i)=>{ t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td><td>${o.status==='AKTİF'?`<button class="cyber-btn btn-small" onclick="app.endOp(${i})">BİTİR</button>`:'-'}</td></tr>`; }); },
+            addOp: function() { const n=document.getElementById('op-name').value, l=document.getElementById('op-lead').value; if(!n)return; this.state.db.ops.unshift({name:n, lead:l, status:'AKTİF'}); this.save(); document.getElementById('new-op-modal').style.display='none'; this.renderOps(); this.sendDiscord(CONFIG.WEB_OPS, CONFIG.TAG_OPS, "🚨 YENİ GÖREV EMRİ", `**Operasyon:** ${n}`, 15158332, [{name:"Tim Lideri",value:l,inline:true}, {name:"Durum",value:"BAŞLATILDI",inline:true}]); SFX.success(); },
             endOp: function(i) { this.state.db.ops[i].status='PASİF'; this.save(); this.renderOps(); },
 
-            /* HR / ADMIN / EDIT */
             renderHR: function() {
                 const isAdmin = this.state.user.role==='admin';
                 document.getElementById('admin-tools').style.display=isAdmin?'block':'none';
@@ -632,32 +572,45 @@
                         body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${p.role==='admin'?'var(--admin-gold)':'#fff'}">${p.role.toUpperCase()}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><span class="blur-text ${vis?'visible':''}" onclick="app.togglePass('${p.id}')">${p.pass}</span></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button><button class="cyber-btn btn-small" style="border-color:#555;" onclick="app.fireStaff('${p.id}')">X</button></td></tr>`;
                     } else body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td>${p.rank}</td><td style="color:var(--success)">AKTİF</td></tr>`;
                 });
-                
                 if(isAdmin){
-                    // Apps
                     const l=document.getElementById('hr-apps-list'); l.innerHTML=this.state.db.apps.length?'':'<span style="color:#666">Bekleyen yok.</span>';
                     this.state.db.apps.forEach((a,i)=>{
                         let rank=a.skill==='siber'?"SİBER UZMANI":(a.skill==='saha'?"SAHA AJANI":"ANALİST");
                         l.innerHTML+=`<div style="background:#0a0a0a; border:1px solid #222; padding:15px;"><strong style="color:white">${a.name}</strong> (${a.skill})<br><small>${a.tc}</small><br><input id="ac-${i}" placeholder="KOD ADI" style="width:100%; margin-top:5px;"><div style="display:flex; gap:5px;"><button class="cyber-btn btn-small" onclick="app.approveApp(${i},'${rank}')">ONAY</button><button class="cyber-btn btn-small" style="border-color:#555;" onclick="app.rejectApp(${i})">RED</button></div></div>`;
                     });
-                    // Tips
                     const tl=document.getElementById('hr-tips-list'); tl.innerHTML=this.state.db.tips.length?'':'<span style="color:#666">İhbar yok.</span>';
-                    this.state.db.tips.forEach((tp, i)=>{
-                        tl.innerHTML += `<div style="border-bottom:1px solid #333; padding:10px;"><strong style="color:var(--accent)">${tp.subject}</strong> <small style="float:right">${tp.date}</small><p style="font-size:0.9rem; color:#ccc; margin-top:5px;">${tp.text}</p><button class="cyber-btn btn-small" style="margin-top:5px; border-color:#555" onclick="app.delTip(${i})">SİL</button></div>`
-                    });
-
+                    this.state.db.tips.forEach((tp, i)=>{ tl.innerHTML += `<div style="border-bottom:1px solid #333; padding:10px;"><strong style="color:var(--accent)">${tp.subject}</strong> <small style="float:right">${tp.date}</small><p style="font-size:0.9rem; color:#ccc; margin-top:5px;">${tp.text}</p><button class="cyber-btn btn-small" style="margin-top:5px; border-color:#555" onclick="app.delTip(${i})">SİL</button></div>` });
                     document.getElementById('id-actions').innerHTML=`<button class="cyber-btn btn-small" onclick="app.downloadID()">İNDİR</button>`;
                 } else document.getElementById('id-actions').innerHTML='<span style="color:#666">Yetkisiz</span>';
             },
-            editUser: function(id) { const p=this.state.db.personnel.find(x=>x.id===id); document.getElementById('edit-id').value=p.id; document.getElementById('edit-name').value=p.name; document.getElementById('edit-code').value=p.codename; document.getElementById('edit-role').value=p.role; document.getElementById('edit-modal').style.display='flex'; },
-            saveEdit: function() { const id=document.getElementById('edit-id').value, p=this.state.db.personnel.find(x=>x.id===id); if(p){ p.name=document.getElementById('edit-name').value; p.codename=document.getElementById('edit-code').value; p.role=document.getElementById('edit-role').value; this.save(); this.renderHR(); document.getElementById('edit-modal').style.display='none'; } },
+
+            editUser: function(id) { 
+                const p=this.state.db.personnel.find(x=>x.id===id); 
+                document.getElementById('edit-id').value=p.id; 
+                document.getElementById('edit-name').value=p.name; 
+                document.getElementById('edit-code').value=p.codename; 
+                document.getElementById('edit-role').value=p.role; 
+                document.getElementById('edit-pass').value = ''; 
+                document.getElementById('edit-modal').style.display='flex'; 
+            },
+            saveEdit: function() { 
+                const id=document.getElementById('edit-id').value, p=this.state.db.personnel.find(x=>x.id===id); 
+                if(p){ 
+                    p.name=document.getElementById('edit-name').value; 
+                    p.codename=document.getElementById('edit-code').value; 
+                    p.role=document.getElementById('edit-role').value; 
+                    const newPass = document.getElementById('edit-pass').value.trim();
+                    if(newPass.length > 0) p.pass = newPass;
+                    this.save(); this.renderHR(); document.getElementById('edit-modal').style.display='none'; 
+                } 
+            },
+            
             approveApp: function(idx,rank){ const c=document.getElementById(`ac-${idx}`).value.toUpperCase(); if(!c)return alert("Kod!"); const a=this.state.db.apps[idx]; const nP={id:"AG-"+Math.floor(100+Math.random()*900),name:a.name,codename:c,role:'staff',rank,pass:"MIT"+Math.floor(1000+Math.random()*9000),gender:a.gender,photoId:Math.floor(Math.random()*99),cover:{fakeName:"Sivil "+Math.floor(Math.random()*100),fakeJob:"Mühendis",fakePhotoId:Math.floor(Math.random()*99)}}; this.state.db.personnel.push(nP); this.state.db.apps.splice(idx,1); this.save(); this.renderHR(); SFX.success(); },
             rejectApp: function(idx){ this.state.db.apps.splice(idx,1); this.save(); this.renderHR(); },
             delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); this.renderHR(); },
             fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); }},
             togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
 
-            /* CANVAS ID */
             drawID: function(id,mode) {
                 const p=this.state.db.personnel.find(x=>x.id===id); if(!p)return;
                 const cvs=document.getElementById('idCardCanvas'), ctx=cvs.getContext('2d');
@@ -679,7 +632,6 @@
             },
             downloadID: function(){ const l=document.createElement('a'); l.download='ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
 
-            /* GENERIC */
             renderPublic: function(){ document.getElementById('feed-public').innerHTML=''; this.state.db.announcements.forEach(a=>{ document.getElementById('feed-public').innerHTML+=`<div style="padding:15px; background:#0f0f0f; border-left:4px solid ${a.type==='critical'?'var(--accent)':'var(--staff-blue)'}; margin-bottom:10px;"><strong style="color:white">${a.title}</strong> <span style="float:right;font-size:0.7rem;color:#666">${a.date}</span><p style="color:#aaa;margin-top:5px;">${a.msg}</p></div>`; }); const t=document.querySelector('#wanted-table tbody'); t.innerHTML=''; this.state.db.wanted.forEach(w=>t.innerHTML+=`<tr><td>${w.name}</td><td>${w.crime}</td><td style="color:var(--accent)">${w.status}</td></tr>`); },
             adminPostAnnounce: function(){ if(this.state.user.role!=='admin')return; const t=document.getElementById('ann-title').value, m=document.getElementById('ann-msg').value, tp=document.getElementById('ann-type').value; if(!t)return; this.state.db.announcements.unshift({title:t, msg:m, type:tp, date:new Date().toLocaleDateString()}); this.save(); alert("Yayınlandı"); this.renderPublic(); },
             submitApp: function(){ const tc=document.getElementById('app-tc').value, name=document.getElementById('app-name').value, g=document.getElementById('app-gender').value, s=document.getElementById('app-skill').value; if(!tc||!name){SFX.error(); return alert("Eksik!");} this.state.db.apps.push({tc, name, skill:s, gender:g, date:new Date().toLocaleDateString()}); this.save(); alert("Gönderildi."); this.nav('public'); },
@@ -728,14 +680,14 @@
             
             renderLogs: function(){ const t=document.querySelector('#audit-table tbody'); t.innerHTML=''; this.state.db.audit.slice().reverse().forEach(l=>t.innerHTML+=`<tr><td>${l.time}</td><td>${l.user}</td><td>${l.detail}</td></tr>`); },
             save: function(){ 
-                localStorage.setItem('mit_v21_staff', JSON.stringify(this.state.db.personnel)); 
-                localStorage.setItem('mit_v21_apps', JSON.stringify(this.state.db.apps)); 
-                localStorage.setItem('mit_v22_tips', JSON.stringify(this.state.db.tips)); 
-                localStorage.setItem('mit_v21_ops', JSON.stringify(this.state.db.ops)); 
-                localStorage.setItem('mit_v21_chat', JSON.stringify(this.state.db.chat)); 
-                localStorage.setItem('mit_v21_audit', JSON.stringify(this.state.db.audit)); 
-                localStorage.setItem('mit_v21_ann', JSON.stringify(this.state.db.announcements)); 
-                localStorage.setItem('mit_v21_reports', JSON.stringify(this.state.db.reports)); 
+                localStorage.setItem('mit_v22_1_staff', JSON.stringify(this.state.db.personnel)); 
+                localStorage.setItem('mit_v22_1_apps', JSON.stringify(this.state.db.apps)); 
+                localStorage.setItem('mit_v22_1_tips', JSON.stringify(this.state.db.tips)); 
+                localStorage.setItem('mit_v22_1_ops', JSON.stringify(this.state.db.ops)); 
+                localStorage.setItem('mit_v22_1_chat', JSON.stringify(this.state.db.chat)); 
+                localStorage.setItem('mit_v22_1_audit', JSON.stringify(this.state.db.audit)); 
+                localStorage.setItem('mit_v22_1_ann', JSON.stringify(this.state.db.announcements)); 
+                localStorage.setItem('mit_v22_1_reports', JSON.stringify(this.state.db.reports)); 
             },
             logAudit: function(act, det){ this.state.db.audit.push({time:new Date().toLocaleString(), user:this.state.user?this.state.user.name:'SİSTEM', detail:`${act}: ${det}`}); this.save(); },
             initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
