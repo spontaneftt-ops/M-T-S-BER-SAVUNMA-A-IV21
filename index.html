@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v33.0 (AI VISION)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v34.0 (FINAL CHAT FIX)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -130,10 +130,39 @@
 
         #idCardCanvas { max-width: 100%; height: auto; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* CHAT LAYOUT */
+        /* --- CHAT LAYOUT (FLEX FIX) --- */
         .chat-container { display: grid; grid-template-columns: 1fr 280px; gap: 15px; height: 500px; }
-        .chat-main { display: flex; flex-direction: column; height: 100%; }
-        .chat-window { flex: 1; overflow-y: auto; background: #050505; border: 1px solid #333; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
+        
+        .chat-main { 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            min-height: 0; /* Önemli: Flex taşmasını önler */
+        }
+        
+        .chat-window { 
+            flex: 1; 
+            overflow-y: auto; 
+            background: #050505; 
+            border: 1px solid #333; 
+            padding: 15px; 
+            margin-bottom: 10px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            min-height: 0; /* Önemli */
+        }
+        
+        .chat-inputs {
+            flex-shrink: 0; /* Küçülmesini engeller */
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #0a0a0a;
+            padding: 10px;
+            border: 1px solid #333;
+        }
+
         .chat-sidebar { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 10px; overflow-y: auto; }
         .chat-user-card { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; transition: 0.3s; }
         .chat-user-card:hover { background: rgba(255,255,255,0.05); }
@@ -282,7 +311,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v33.0</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v34.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -437,7 +466,7 @@
                         <div class="chat-container">
                             <div class="chat-main">
                                 <div class="chat-window" id="chat-window"></div>
-                                <div style="display:flex; gap:10px; align-items:center;">
+                                <div class="chat-inputs">
                                     <button class="cyber-btn btn-small" style="width:40px;" onclick="document.getElementById('chat-file').click()"><i class="fas fa-paperclip"></i></button>
                                     <input type="file" id="chat-file" style="display:none" onchange="app.sendFileChat(this)">
                                     <input id="chat-input" placeholder="Mesajınız..." style="margin:0; flex:1;">
@@ -479,7 +508,7 @@
                             <input id="crypto-input" placeholder="Gizli Mesaj İçeriği">
                             <button class="cyber-btn" style="border-color:var(--cyber-green); color:var(--cyber-green);" onclick="app.createCryptoMessage()">ŞİFRELE VE GÖNDER</button>
                             
-                            <h4 style="color:var(--accent); margin-top:20px;">KRİPTO MESAJ YÖNETİMİ</h4>
+                            <h4 style="color:var(--accent); margin-top:20px;">KRİPTO MESAJ YÖNETİMİ (SİL)</h4>
                             <div id="admin-crypto-list" style="max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px;"></div>
                         </div>
 
@@ -578,9 +607,7 @@
         <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
             <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
             <div id="hack-terminal"></div>
-            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
-                <div id="hack-progress-bar"></div>
-            </div>
+            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;"><div id="hack-progress-bar"></div></div>
             <p id="hack-status" style="font-family:'Share Tech Mono'; color:white; text-align:center; margin-top:5px;">HEDEF: ŞİFREYİ KIR</p>
             <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
             <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
@@ -627,22 +654,18 @@
         error: function() { this.playTone(150, 'sawtooth', 0.3); setTimeout(()=>this.playTone(100,'sawtooth',0.3),150); },
         success: function() { this.playTone(800, 'sine', 0.1); setTimeout(()=>this.playTone(1200,'sine',0.2),100); },
         boot: function() { try { let t=0; for(let i=0;i<5;i++){ setTimeout(()=>this.playTone(200+(i*100), 'square', 0.1), t); t+=100; } } catch(e){} },
-        ring: function() { 
-            const now = this.ctx.currentTime;
-            const o = this.ctx.createOscillator(); const g = this.ctx.createGain();
-            o.connect(g); g.connect(this.ctx.destination);
-            o.frequency.setValueAtTime(800, now); o.frequency.setValueAtTime(600, now + 0.4);
-            g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.00001, now + 0.8);
-            o.start(now); o.stop(now + 0.8);
-        },
+        ring: function() { const now=this.ctx.currentTime; const o=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.setValueAtTime(800,now); o.frequency.setValueAtTime(600,now+0.4); g.gain.setValueAtTime(0.1,now); g.gain.exponentialRampToValueAtTime(0.00001,now+0.8); o.start(now); o.stop(now+0.8); },
         hack: function() { this.playTone(3000, 'square', 0.05); }
     };
 
     const phoneSystem = {
         peer: null, activeCall: null, myStream: null, ringInterval: null,
         init: function(userId) {
-            const cleanId = userId; 
-            this.peer = new Peer(cleanId + "-mit-system"); 
+            // DİNAMİK ID OLUŞTURMA (HATA ÖNLEME)
+            const randomSuffix = Math.floor(Math.random() * 10000);
+            const dynamicId = userId + "_" + randomSuffix; 
+            this.peer = new Peer(dynamicId); 
+            
             this.peer.on('open', (id) => {
                 database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' });
                 database.ref('online_users/' + userId).onDisconnect().remove();
@@ -651,7 +674,7 @@
             this.peer.on('call', (call) => { this.incomingCall(call); });
         },
         callUser: function(targetPeerId, targetName) {
-            if(!targetPeerId) return alert("Hata: Hedef ID bulunamadı.");
+            if(!targetPeerId) return alert("Kullanıcı çevrimdışı veya hatta değil.");
             navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
                 this.myStream = stream; const call = this.peer.call(targetPeerId, stream); this.setupCallUI(call, targetName, "ARANIYOR...");
             }).catch(err => { alert("Mikrofon izni gerekli!"); });
@@ -683,7 +706,7 @@
             const interval = setInterval(() => { if(!this.activeCall || !this.activeCall.open) { clearInterval(interval); return; } sec++; const m = Math.floor(sec/60).toString().padStart(2,'0'); const s = (sec%60).toString().padStart(2,'0'); timer.innerText = `${m}:${s}`; }, 1000);
             call.on('stream', (remoteStream) => { 
                 const audio = document.getElementById('remote-audio'); audio.srcObject = remoteStream; 
-                audio.play().catch(e => console.log("Auto-play prevented"));
+                audio.play().catch(e => console.log("Otomatik oynatma engellendi."));
             });
             call.on('close', () => { clearInterval(interval); this.endCall(); });
         }
@@ -701,7 +724,7 @@
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
             cryptoMessages: [], 
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v33.0 AI VISION", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v34.0 FINAL FIX", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
@@ -811,54 +834,14 @@
             }
         },
 
-        // --- YAPAY ZEKA GÖRÜNTÜ FONKSİYONU ---
         generateAIImage: function() {
-            const prompt = document.getElementById('ai-prompt').value.trim();
-            const style = document.getElementById('ai-style').value;
-            
+            const prompt = document.getElementById('ai-prompt').value.trim(); const style = document.getElementById('ai-style').value;
             if(!prompt) { SFX.error(); return alert("Görüntü parametresi (prompt) girilmedi!"); }
-            
-            // Yükleniyor Efekti
-            document.getElementById('ai-loader').style.display = 'block';
-            document.getElementById('ai-placeholder').style.display = 'block';
-            document.getElementById('ai-placeholder').innerText = "GEMINI VISION İŞLENİYOR... %0";
-            document.getElementById('ai-generated-img').style.display = 'none';
-            SFX.click();
-
-            // Yükleme Simülasyonu
-            let progress = 0;
-            const int = setInterval(() => {
-                progress += 10;
-                if(progress <= 90) document.getElementById('ai-placeholder').innerText = `GEMINI VISION İŞLENİYOR... %${progress}`;
-                else clearInterval(int);
-            }, 200);
-
-            // Prompt Düzenleme (RP için gerçekçi hale getir)
-            let fullPrompt = prompt;
-            if(style === 'satellite') fullPrompt = "satellite view map photography, high resolution, tactical " + prompt;
-            else if(style === 'cctv') fullPrompt = "cctv security camera footage, low quality, surveillance " + prompt;
-            else if(style === 'sketch') fullPrompt = "police sketch, hand drawn pencil, suspect portrait " + prompt;
-            else if(style === 'photorealistic') fullPrompt = "photorealistic 8k, cinematic lighting " + prompt;
-
-            const encodedPrompt = encodeURIComponent(fullPrompt);
-            const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
-
-            // Resmi Yükle
-            setTimeout(() => {
-                const img = document.getElementById('ai-generated-img');
-                img.src = url;
-                img.onload = () => {
-                    clearInterval(int);
-                    document.getElementById('ai-loader').style.display = 'none';
-                    document.getElementById('ai-placeholder').style.display = 'none';
-                    img.style.display = 'block';
-                    SFX.success();
-                };
-                img.onerror = () => {
-                    alert("Görüntü oluşturulamadı (Sunucu Hatası).");
-                    document.getElementById('ai-loader').style.display = 'none';
-                };
-            }, 2000); // 2 saniye bekle (gerilim için)
+            document.getElementById('ai-loader').style.display = 'block'; document.getElementById('ai-placeholder').style.display = 'block'; document.getElementById('ai-placeholder').innerText = "GEMINI VISION İŞLENİYOR... %0"; document.getElementById('ai-generated-img').style.display = 'none'; SFX.click();
+            let progress = 0; const int = setInterval(() => { progress += 10; if(progress <= 90) document.getElementById('ai-placeholder').innerText = `GEMINI VISION İŞLENİYOR... %${progress}`; else clearInterval(int); }, 200);
+            let fullPrompt = prompt; if(style === 'satellite') fullPrompt = "satellite view map photography, high resolution, tactical " + prompt; else if(style === 'cctv') fullPrompt = "cctv security camera footage, low quality, surveillance " + prompt; else if(style === 'sketch') fullPrompt = "police sketch, hand drawn pencil, suspect portrait " + prompt; else if(style === 'photorealistic') fullPrompt = "photorealistic 8k, cinematic lighting " + prompt;
+            const encodedPrompt = encodeURIComponent(fullPrompt); const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
+            setTimeout(() => { const img = document.getElementById('ai-generated-img'); img.src = url; img.onload = () => { clearInterval(int); document.getElementById('ai-loader').style.display = 'none'; document.getElementById('ai-placeholder').style.display = 'none'; img.style.display = 'block'; SFX.success(); }; img.onerror = () => { alert("Görüntü oluşturulamadı (Sunucu Hatası)."); document.getElementById('ai-loader').style.display = 'none'; }; }, 2000);
         },
 
         renderCyber: function() {
@@ -927,7 +910,7 @@
         rejectAppCurrent: function() { const idx = this.state.viewingAppIdx; this.state.db.apps.splice(idx,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
         delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); },
         fireStaff: function(id){ if(confirm("Bu personeli kalıcı olarak silmek istiyor musunuz?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1){ this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); alert("Personel silindi."); } } },
-        drawID: function(id, mode) { const p = this.state.db.personnel.find(x => x.id === id); if (!p) return; const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630; const drawContent = (bgLoaded) => { if (!bgLoaded) { ctx.fillStyle = "#151515"; ctx.fillRect(0, 0, cvs.width, cvs.height); ctx.strokeStyle = "#333"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, cvs.width, cvs.height); const logo = new Image(); logo.crossOrigin = "Anonymous"; logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png"; logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); }; logo.onerror = () => { drawPersonalDetails(); }; } else { drawPersonalDetails(); } }; const drawPersonalDetails = () => { const photo = new Image(); photo.crossOrigin = "Anonymous"; const isReal = (mode === 'REAL'); const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1); photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`; photo.onload = () => { const px = 58, py = 250, pw = 285, ph = 310; ctx.drawImage(photo, px, py, pw, ph); ctx.lineWidth = 4; ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)"; ctx.strokeRect(px, py, pw, ph); ctx.font = "bold 34px 'Courier New', monospace"; ctx.fillStyle = "#ffffff"; ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 5; ctx.textAlign = "left"; const tx = 420; let ty = 295; const gap = 100; ctx.fillText((isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR")).toUpperCase(), tx, ty); ty += gap; ctx.fillText((isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL")).toUpperCase(), tx, ty); ty += gap; if(isReal) { ctx.fillStyle = "#ff3333"; ctx.fillText(p.codename.toUpperCase(), tx, ty); } else { ctx.fillStyle = "#ccc"; ctx.fillText("DOĞUM: 15.04.1990", tx, ty); } ctx.font = "15px Arial"; ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600); }; }; const bg = new Image(); bg.crossOrigin = "Anonymous"; bg.src = "https://cdn.discordapp.com/attachments/1452796022475722975/1462732671464640688/taslak.png?ex=696f4375&is=696df1f5&hm=7aae0c5a29ce3791765946e403b19a4708e5164a081fdc8f7757c03b810a38c9&"; bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); }; bg.onerror = () => { drawContent(false); }; },
+        drawID: function(id, mode) { const p = this.state.db.personnel.find(x => x.id === id); if (!p) return; const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630; const drawContent = (bgLoaded) => { if (!bgLoaded) { ctx.fillStyle = "#151515"; ctx.fillRect(0, 0, cvs.width, cvs.height); ctx.strokeStyle = "#333"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, cvs.width, cvs.height); const logo = new Image(); logo.crossOrigin = "Anonymous"; logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png"; logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); }; logo.onerror = () => { drawPersonalDetails(); }; } else { drawPersonalDetails(); } }; const drawPersonalDetails = () => { const photo = new Image(); photo.crossOrigin = "Anonymous"; const isReal = (mode === 'REAL'); const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1); photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`; photo.onload = () => { const px = 58, py = 250, pw = 285, ph = 310; ctx.drawImage(photo, px, py, pw, ph); ctx.lineWidth = 4; ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)"; ctx.strokeRect(px, py, pw, ph); ctx.font = "bold 34px 'Courier New', monospace"; ctx.fillStyle = "#ffffff"; ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 5; ctx.textAlign = "left"; const tx = 420; let ty = 295; const gap = 100; ctx.fillText((isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR")).toUpperCase(), tx, ty); ty += gap; ctx.fillText((isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL")).toUpperCase(), tx, ty); ty += gap; if(isReal) { ctx.fillStyle = "#ff3333"; ctx.fillText(p.codename.toUpperCase(), tx, ty); } else { ctx.fillStyle = "#ccc"; ctx.fillText("DOĞUM: 15.04.1990", tx, ty); } ctx.font = "15px Arial"; ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600); }; }; const bg = new Image(); bg.crossOrigin = "Anonymous"; bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); }; bg.onerror = () => { drawContent(false); }; },
         downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
         
         // --- CHAT FIX VE MEDYA GÖNDERME ---
