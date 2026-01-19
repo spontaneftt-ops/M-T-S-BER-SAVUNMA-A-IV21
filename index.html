@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v32.0 (CHAT FIX)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v33.0 (AI VISION)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -23,6 +23,7 @@
             --staff-blue: #00ccff;
             --admin-gold: #ffcc00;
             --cyber-green: #00ff41;
+            --ai-purple: #bd00ff;
             --text-main: #e0e0e0;
         }
 
@@ -118,6 +119,8 @@
         .btn-green { border-color: #00ff00; color: #00ff00; }
         .btn-red { border-color: #ff0000; color: #ff0000; }
         .btn-fake { border-color: #888; color: #888; } 
+        .btn-ai { border-color: var(--ai-purple); color: var(--ai-purple); }
+        .btn-ai:hover { background: var(--ai-purple); color: white; box-shadow: 0 0 25px var(--ai-purple); }
 
         .table-container { overflow-x: auto; }
         .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
@@ -158,6 +161,11 @@
         .hack-char:hover { background: var(--cyber-green); color: black; }
         
         #hack-progress-bar { width: 0%; height: 5px; background: var(--cyber-green); transition: width 0.1s; box-shadow: 0 0 10px var(--cyber-green); }
+
+        /* AI IMAGE STYLES */
+        #ai-preview-area { min-height: 300px; border: 2px dashed #444; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); position: relative; overflow: hidden; }
+        .ai-loading-scan { position: absolute; width: 100%; height: 5px; background: var(--ai-purple); animation: scanDown 1.5s infinite linear; box-shadow: 0 0 15px var(--ai-purple); display: none; }
+        #ai-generated-img { max-width: 100%; max-height: 500px; display: none; border: 2px solid var(--ai-purple); box-shadow: 0 0 30px rgba(189,0,255,0.3); }
 
         #lockdown-screen { background: #000; display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); text-align: center; }
         #login-modal, #edit-modal, #call-modal, #app-view-modal, #hack-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
@@ -274,7 +282,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v32.0</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v33.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -307,6 +315,7 @@
                     <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
                     <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Chat</button>
                     <button id="nav-cyber" class="nav-btn" onclick="app.nav('cyber')" style="display:none; color:var(--cyber-green);"><i class="fas fa-code"></i> SİBER</button>
+                    <button id="nav-ai" class="nav-btn" onclick="app.nav('ai')" style="display:none; color:var(--ai-purple);"><i class="fas fa-brain"></i> Y.Z. GÖRÜNTÜ</button>
                     <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip</button>
                     <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> Sorgu</button>
                     <button class="nav-btn" onclick="app.logout()" style="color:var(--accent);"><i class="fas fa-power-off"></i> Çıkış</button>
@@ -382,6 +391,29 @@
                     </div>
                 </div>
 
+                <div id="panel-ai" class="panel">
+                    <div class="glass-box" style="border-color:var(--ai-purple); max-width:800px; margin:0 auto;">
+                        <h2 style="color:var(--ai-purple); text-align:center;">GEMINI VISION - GÖRÜNTÜ İSTİHBARATI</h2>
+                        <div style="display:flex; gap:10px; margin-bottom:15px;">
+                            <input id="ai-prompt" placeholder="Görüntü parametrelerini girin (Örn: Uydu görüntüsü, istanbul limanı)..." style="flex:1;">
+                            <select id="ai-style" style="width:150px;">
+                                <option value="">MOD SEÇ</option>
+                                <option value="photorealistic">Realistik</option>
+                                <option value="satellite">Uydu (SAT)</option>
+                                <option value="cctv">CCTV Kamera</option>
+                                <option value="sketch">Robot Resim</option>
+                            </select>
+                            <button class="cyber-btn btn-ai" style="width:120px;" onclick="app.generateAIImage()">OLUŞTUR</button>
+                        </div>
+                        <div id="ai-preview-area">
+                            <div class="ai-loading-scan" id="ai-loader"></div>
+                            <p id="ai-placeholder" style="color:#666; font-size:0.8rem;">GÖRÜNTÜ İŞLEME BEKLENİYOR...</p>
+                            <img id="ai-generated-img" src="" onload="this.style.display='block'; document.getElementById('ai-loader').style.display='none'; document.getElementById('ai-placeholder').style.display='none';">
+                        </div>
+                        <p style="font-size:0.7rem; color:var(--ai-purple); margin-top:10px;">NOT: Görüntüler yapay zeka tarafından sentezlenmektedir. Kesin delil niteliği taşımaz.</p>
+                    </div>
+                </div>
+
                 <div id="panel-reports" class="panel">
                     <div style="display:grid; grid-template-columns: 1fr 2fr; gap:25px;">
                         <div class="glass-box">
@@ -453,7 +485,7 @@
 
                         <h3 style="color:var(--admin-gold); margin-top:15px;">DUYURU YAYINLA</h3>
                         <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1;">
+                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1; min-width:200px;">
                             <select id="ann-type" style="width:150px;"><option value="info">Bilgi</option><option value="critical">KRİTİK</option></select>
                         </div>
                         <textarea id="ann-msg" rows="2" placeholder="Mesaj..."></textarea>
@@ -539,6 +571,19 @@
             <input id="edit-pass" placeholder="Değiştirmek için yeni şifreyi yazın...">
             <button class="cyber-btn btn-gold" style="width:100%" onclick="app.saveEdit()">KAYDET & GÜNCELLE</button>
             <button class="nav-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="text-align:center; width:100%">İPTAL</button>
+        </div>
+    </div>
+
+    <div id="hack-modal">
+        <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
+            <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
+            <div id="hack-terminal"></div>
+            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
+                <div id="hack-progress-bar"></div>
+            </div>
+            <p id="hack-status" style="font-family:'Share Tech Mono'; color:white; text-align:center; margin-top:5px;">HEDEF: ŞİFREYİ KIR</p>
+            <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
+            <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
         </div>
     </div>
 
@@ -656,7 +701,7 @@
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
             cryptoMessages: [], 
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v32.0 CHAT FIX", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v33.0 AI VISION", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
@@ -691,11 +736,7 @@
                 if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); } 
                 this.refreshCurrentView(); 
                 this.applyDefcon(this.state.db.defcon); 
-                
-                // Chat Ekranındaysa Mesajları Güncelle
-                if(document.getElementById('panel-chat').classList.contains('active')) {
-                    this.renderChat();
-                }
+                if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
             });
             database.ref('online_users').on('value', (snap) => { 
                 this.state.onlineUsers = snap.val() || {}; 
@@ -706,7 +747,7 @@
         refreshCurrentView: function() {
             if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
             if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
-            if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); // Önemli
+            if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
             if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps();
             if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports();
             if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash();
@@ -728,6 +769,7 @@
             if(id === 'ops' && !this.can('ops_view') && !this.can('ops_manage') && !this.can('all')) return alert("Erişim Reddedildi: Operasyon Yetkisi Yok");
             if(id === 'db' && !this.can('db_query') && !this.can('all')) return alert("Erişim Reddedildi: Veritabanı Yetkisi Yok");
             if(id === 'cyber' && !this.can('cyber_ops') && !this.can('all')) return alert("Erişim Reddedildi: Sadece Siber Uzmanlar"); 
+            if(id === 'ai' && !this.can('cyber_ops') && !this.can('all')) return alert("Erişim Reddedildi: Yüksek Yetki Gerekli"); 
             if(id === 'ops') { const btn = document.getElementById('btn-new-op'); if(this.can('all') || this.can('ops_manage')) { btn.style.display = 'block'; } else { btn.style.display = 'none'; } }
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); 
         },
@@ -743,7 +785,7 @@
             const rDef = ROLE_DEFS[this.state.user.role] || {label:'PERSONEL', color:'#ccc'};
             document.getElementById('u-role').innerText=rDef.label; document.getElementById('u-role').style.color=rDef.color;
             document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
-            if(this.can('cyber_ops') || this.can('all')) { document.getElementById('nav-cyber').style.display = 'flex'; }
+            if(this.can('cyber_ops') || this.can('all')) { document.getElementById('nav-cyber').style.display = 'flex'; document.getElementById('nav-ai').style.display = 'flex'; }
             this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
         },
         failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3){ SFX.error(); document.getElementById('lockdown-screen').style.display='flex'; } },
@@ -769,11 +811,61 @@
             }
         },
 
+        // --- YAPAY ZEKA GÖRÜNTÜ FONKSİYONU ---
+        generateAIImage: function() {
+            const prompt = document.getElementById('ai-prompt').value.trim();
+            const style = document.getElementById('ai-style').value;
+            
+            if(!prompt) { SFX.error(); return alert("Görüntü parametresi (prompt) girilmedi!"); }
+            
+            // Yükleniyor Efekti
+            document.getElementById('ai-loader').style.display = 'block';
+            document.getElementById('ai-placeholder').style.display = 'block';
+            document.getElementById('ai-placeholder').innerText = "GEMINI VISION İŞLENİYOR... %0";
+            document.getElementById('ai-generated-img').style.display = 'none';
+            SFX.click();
+
+            // Yükleme Simülasyonu
+            let progress = 0;
+            const int = setInterval(() => {
+                progress += 10;
+                if(progress <= 90) document.getElementById('ai-placeholder').innerText = `GEMINI VISION İŞLENİYOR... %${progress}`;
+                else clearInterval(int);
+            }, 200);
+
+            // Prompt Düzenleme (RP için gerçekçi hale getir)
+            let fullPrompt = prompt;
+            if(style === 'satellite') fullPrompt = "satellite view map photography, high resolution, tactical " + prompt;
+            else if(style === 'cctv') fullPrompt = "cctv security camera footage, low quality, surveillance " + prompt;
+            else if(style === 'sketch') fullPrompt = "police sketch, hand drawn pencil, suspect portrait " + prompt;
+            else if(style === 'photorealistic') fullPrompt = "photorealistic 8k, cinematic lighting " + prompt;
+
+            const encodedPrompt = encodeURIComponent(fullPrompt);
+            const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
+
+            // Resmi Yükle
+            setTimeout(() => {
+                const img = document.getElementById('ai-generated-img');
+                img.src = url;
+                img.onload = () => {
+                    clearInterval(int);
+                    document.getElementById('ai-loader').style.display = 'none';
+                    document.getElementById('ai-placeholder').style.display = 'none';
+                    img.style.display = 'block';
+                    SFX.success();
+                };
+                img.onerror = () => {
+                    alert("Görüntü oluşturulamadı (Sunucu Hatası).");
+                    document.getElementById('ai-loader').style.display = 'none';
+                };
+            }, 2000); // 2 saniye bekle (gerilim için)
+        },
+
         renderCyber: function() {
             const list = document.getElementById('cyber-messages-list'); list.innerHTML = '';
             if(!this.state.db.cryptoMessages || this.state.db.cryptoMessages.length === 0) { list.innerHTML = '<p style="color:#666">Veri yok.</p>'; return; }
             this.state.db.cryptoMessages.forEach(msg => {
-                let bodyHTML = msg.status === 'LOCKED' ? `<div class="crypto-glitch">${msg.encrypted}</div><div style="margin-top:10px;"><button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ</button></div>` : `<div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">${msg.content}</div><div style="margin-top:5px; color:#666; font-size:0.8rem;">AÇIK MESAJ</div>`;
+                let bodyHTML = msg.status === 'LOCKED' ? `<div class="crypto-glitch">${msg.encrypted}</div><div style="margin-top:10px;"><button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ</button></div>` : `<div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">${msg.content}</div><div style="margin-top:5px; color:#666; font-size:0.8rem;">DEŞİFRE EDİLDİ</div>`;
                 list.innerHTML += `<div class="crypto-card"><div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;"><span style="color:#aaa;">GÖNDEREN: ${msg.sender}</span><span style="color:#aaa;">${msg.date}</span></div>${bodyHTML}</div>`;
             });
         },
@@ -793,7 +885,6 @@
                 document.getElementById('admin-tools').insertAdjacentHTML('beforeend', htmlForm);
             }
 
-            // Kripto Mesaj Yönetimi (Silme)
             if(canManage) {
                 const cryptoList = document.getElementById('admin-crypto-list');
                 if(cryptoList) {
