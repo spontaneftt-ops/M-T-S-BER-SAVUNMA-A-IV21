@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v44.0 (IDENTITY GEN UPDATE)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v45.0 (ROLE & CALL FIX)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,14 +12,10 @@
 
     <style>
         :root {
-            --hue: 0; 
             --bg-deep: #020202;
-            --bg-panel: rgba(10, 11, 14, 0.90);
-            --primary: #0a0a0a;
-            --accent: hsl(var(--hue), 100%, 50%); 
-            --accent-dim: hsl(var(--hue), 100%, 20%);
-            --accent-glow: hsla(var(--hue), 100%, 50%, 0.35);
-            --discord: #5865F2;
+            --accent: #ff0000; 
+            --accent-dim: #330000;
+            --accent-glow: rgba(255, 0, 0, 0.35);
             --staff-blue: #00ccff;
             --admin-gold: #ffcc00;
             --cyber-green: #00ff41;
@@ -27,658 +23,612 @@
             --text-main: #e0e0e0;
         }
 
-        body.defcon-5 { --hue: 120; }
-        body.defcon-4 { --hue: 60; }
-        body.defcon-3 { --hue: 30; }
-        body.defcon-1 { --hue: 0; }
+        body.defcon-5 { --accent: #00ff00; }
+        body.defcon-4 { --accent: #ffff00; }
+        body.defcon-3 { --accent: #ff8800; }
+        body.defcon-1 { --accent: #ff0000; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) var(--primary); }
+        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) #111; }
         
         body { 
             background-color: var(--bg-deep);
             background-image: url('https://img.freepik.com/premium-photo/digital-world-map-hologram-blue-background_436667-178.jpg'); 
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text-main);
-            font-family: 'Rajdhani', sans-serif;
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--text-main); font-family: 'Rajdhani', sans-serif;
             height: 100vh; overflow: hidden; user-select: none;
-            transition: --accent 0.5s ease;
         }
 
-        .scanlines {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
-            background-size: 100% 4px;
-            animation: scanlineMove 10s linear infinite;
-            opacity: 0.2;
-        }
-        @keyframes scanlineMove { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+        .overlay-bg { position: fixed; inset: 0; background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.95) 100%); pointer-events: none; z-index: 0; }
+        .scanlines { position: fixed; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1)); background-size: 100% 4px; pointer-events: none; z-index: 9999; opacity: 0.3; }
 
-        #boot-screen {
-            position: fixed; inset: 0; background: #000; z-index: 5000;
-            font-family: 'Share Tech Mono'; color: var(--accent); padding: 50px;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            font-size: 1.2rem; text-align: center;
-        }
-        
-        .mit-logo-anim {
-            width: 150px; height: 150px;
-            background-image: url('https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png');
-            background-size: contain; background-repeat: no-repeat; background-position: center;
-            filter: drop-shadow(0 0 20px red);
-            animation: pulseLogo 2s infinite;
-            margin-bottom: 20px;
-        }
-        @keyframes pulseLogo { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 40px red); } 100% { transform: scale(1); opacity: 0.8; } }
+        /* BOOT SCREEN */
+        #boot-screen { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'Share Tech Mono'; color: var(--accent); }
+        .mit-logo-anim { width: 150px; height: 150px; background: url('https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png') no-repeat center/contain; filter: drop-shadow(0 0 20px red); animation: pulseLogo 2s infinite; margin-bottom: 20px; }
+        @keyframes pulseLogo { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 40px red); } }
 
-        #particles-js { position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-
+        /* APP LAYOUT */
         .app-wrapper { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 10; opacity: 0; transition: opacity 1s; }
-        
-        header {
-            height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
-            background: rgba(5, 0, 0, 0.90); border-bottom: 3px solid var(--accent);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 30px var(--accent-glow); z-index: 100;
-        }
-
+        header { height: 70px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--accent); backdrop-filter: blur(5px); }
         .workspace { display: flex; flex: 1; overflow: hidden; }
-        
-        aside {
-            width: 300px; background: rgba(5, 5, 5, 0.95); border-right: 1px solid #222;
-            display: flex; flex-direction: column; padding: 20px 0; transition: 0.3s;
-            flex-shrink: 0; backdrop-filter: blur(5px);
-        }
+        aside { width: 280px; background: rgba(5,5,5,0.95); border-right: 1px solid #222; display: flex; flex-direction: column; padding: 10px 0; backdrop-filter: blur(10px); }
+        main { flex: 1; padding: 20px; overflow-y: auto; position: relative; }
 
-        main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.3); position: relative; }
+        /* COMPONENTS */
+        .glass-box { background: rgba(10, 15, 20, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 4px; margin-bottom: 20px; border-left: 2px solid var(--accent); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        h2, h3 { font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; letter-spacing: 1px; }
 
-        .glass-box {
-            background: rgba(10, 15, 20, 0.85);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1); padding: 25px; 
-            border-radius: 4px; margin-bottom: 25px; position: relative; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.7); overflow: hidden;
-            border-left: 2px solid var(--accent);
-            transition: border-color 0.5s;
-        }
-        
-        h2, h3 { font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-glow); transition: color 0.5s; }
-
-        .nav-btn {
-            background: transparent; border: none; color: #888; padding: 16px 25px;
-            text-align: left; cursor: pointer; font-family: 'Rajdhani'; font-weight: 600; font-size: 1.1rem;
-            display: flex; align-items: center; gap: 15px; transition: 0.3s; width: 100%;
-            border-right: 3px solid transparent;
-        }
-        .nav-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--text-main); text-shadow: 0 0 5px white; }
+        .nav-btn { background: transparent; border: none; color: #888; padding: 12px 20px; text-align: left; cursor: pointer; font-family: 'Rajdhani'; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; width: 100%; transition: 0.2s; border-right: 3px solid transparent; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: white; }
         .nav-btn.active { background: linear-gradient(90deg, var(--accent-dim) 0%, transparent 100%); color: white; border-right-color: var(--accent); }
+        .nav-btn.disabled { display: none !important; } /* Role based hide */
 
-        input, textarea, select {
-            width: 100%; background: rgba(0,0,0,0.6); border: 1px solid #333; padding: 12px;
-            color: white; font-family: 'Share Tech Mono'; margin-bottom: 15px; outline: none; transition: 0.3s;
+        .cyber-btn { background: rgba(0,0,0,0.4); border: 1px solid var(--accent); color: var(--accent); padding: 10px 20px; font-family: 'Orbitron'; cursor: pointer; transition: 0.3s; font-weight: bold; text-transform: uppercase; }
+        .cyber-btn:hover { background: var(--accent); color: black; box-shadow: 0 0 15px var(--accent); }
+        .btn-small { padding: 5px 10px; font-size: 0.7rem; }
+        .btn-green { border-color: var(--cyber-green); color: var(--cyber-green); } .btn-green:hover { background: var(--cyber-green); color: black; }
+
+        input, textarea, select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 10px; color: white; font-family: 'Share Tech Mono'; margin-bottom: 10px; outline: none; }
+        input:focus { border-color: var(--accent); }
+
+        /* CHAT & CALL UI */
+        .chat-container { display: grid; grid-template-columns: 1fr 260px; gap: 15px; height: 550px; }
+        .chat-window { background: rgba(0,0,0,0.6); border: 1px solid #333; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .chat-inputs { display: flex; gap: 10px; margin-top: 10px; }
+        .chat-sidebar { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 10px; overflow-y: auto; }
+        
+        .chat-user-card { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 8px; border-bottom: 1px solid #222; transition: 0.2s; 
         }
-        input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); background: rgba(0,0,0,0.9); }
+        .chat-user-card:hover { background: rgba(255,255,255,0.05); }
+        .user-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; margin-right: 8px; display: inline-block; }
+        .status-online { background: #00ff00; box-shadow: 0 0 5px #00ff00; }
 
-        .cyber-btn {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--accent);
-            color: var(--accent); padding: 12px; font-family: 'Orbitron'; cursor: pointer;
-            transition: 0.3s; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
-            position: relative; overflow: hidden;
-        }
-        .cyber-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px var(--accent); }
-        .cyber-btn:active { transform: scale(0.98); }
-        
-        .btn-small { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
-        .btn-blue { border-color: var(--staff-blue); color: var(--staff-blue); }
-        .btn-gold { border-color: var(--admin-gold); color: var(--admin-gold); }
-        .btn-green { border-color: #00ff00; color: #00ff00; }
-        .btn-red { border-color: #ff0000; color: #ff0000; }
-        .btn-ai { border-color: var(--ai-purple); color: var(--ai-purple); }
+        .msg { padding: 8px 12px; border-radius: 4px; max-width: 80%; font-size: 0.9rem; }
+        .msg-me { background: var(--accent-dim); align-self: flex-end; border: 1px solid var(--accent); }
+        .msg-other { background: #151515; align-self: flex-start; border: 1px solid #333; color: #ccc; }
 
-        .table-container { overflow-x: auto; }
-        .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
-        .cyber-table th { text-align: left; border-bottom: 1px solid var(--accent); padding: 10px; color: #aaa; font-size: 0.8rem; }
-        .cyber-table td { padding: 12px 10px; border-bottom: 1px solid #333; font-family: 'Share Tech Mono'; font-size: 0.9rem; vertical-align: middle; }
-        .cyber-table tr:hover { background: rgba(255,255,255,0.05); }
+        /* MODALS */
+        #call-modal, #login-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
+        .call-pulse { width: 100px; height: 100px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; animation: pulseCall 1.5s infinite; margin-bottom: 20px; }
+        @keyframes pulseCall { 0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); } 70% { box-shadow: 0 0 0 30px rgba(0,0,0,0); } }
 
-        .chat-container { display: grid; grid-template-columns: 1fr 280px; gap: 15px; height: 500px; }
-        .chat-window { flex: 1; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #333; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
-        .chat-inputs { flex-shrink: 0; display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.8); padding: 10px; border: 1px solid #333; }
-        .msg-me { background: var(--accent-dim); align-self: flex-end; border: 1px solid var(--accent); color: white; padding:10px; border-radius:4px; max-width:80%; }
-        .msg-other { background: #151515; align-self: flex-start; border: 1px solid #333; color: #ccc; padding:10px; border-radius:4px; max-width:80%; }
-        .msg-sender { font-size: 0.7rem; color: var(--staff-blue); display: block; margin-bottom: 3px; font-weight: bold; }
-        .status-online { background: #00ff00; box-shadow: 0 0 5px #00ff00; width:8px; height:8px; border-radius:50%; display:inline-block; }
+        /* Tables */
+        .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        .cyber-table th { text-align: left; border-bottom: 1px solid var(--accent); padding: 8px; color: #888; }
+        .cyber-table td { border-bottom: 1px solid #222; padding: 8px; }
 
-        .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 15px; border: 1px solid var(--accent); padding: 10px; background: rgba(0,0,0,0.5); margin-top: 10px; }
-        .bio-img { width: 100%; height: 100px; object-fit: cover; border: 1px solid #444; }
-        .bio-data div { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: 'Share Tech Mono'; font-size: 0.9rem; }
-
-        .crypto-card { border: 1px solid var(--cyber-green); background: rgba(0, 20, 0, 0.8); padding: 15px; margin-bottom: 15px; font-family: 'Share Tech Mono'; position: relative; overflow: hidden; }
-        .crypto-glitch { animation: glitchText 0.3s infinite; color: var(--cyber-green); font-weight: bold; font-size: 1.1rem; word-break: break-all; }
-        
-        #hack-terminal { background: #000; border: 2px solid var(--cyber-green); height: 300px; padding: 20px; font-family: 'Share Tech Mono'; color: var(--cyber-green); overflow: hidden; position: relative; }
-        .hack-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1.2rem; }
-        .hack-char { width: 20px; text-align: center; cursor: pointer; transition: 0.1s; }
-        .hack-char:hover { background: var(--cyber-green); color: black; }
-        
-        #ai-preview-area { min-height: 300px; border: 2px dashed #444; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); position: relative; overflow: hidden; }
-        .ai-loading-scan { position: absolute; width: 100%; height: 5px; background: var(--ai-purple); animation: scanDown 1.5s infinite linear; box-shadow: 0 0 15px var(--ai-purple); display: none; }
-        
-        #login-modal, #edit-modal, #call-modal, #hack-modal, #app-view-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
-
-        /* YENİ: GENERATOR PANEL STYLES */
-        .gen-result-box {
-            background: rgba(0,0,0,0.6); border: 1px solid var(--staff-blue); padding: 20px; 
-            margin-top: 20px; font-family: 'Courier New', monospace; position: relative;
-        }
-        .gen-field { margin-bottom: 5px; color: #ccc; }
-        .gen-val { color: var(--staff-blue); font-weight: bold; }
-        
-        #lockdown-screen { background: #000; display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); text-align: center; }
-        .sec-matrix { position: relative; width: 100%; height: 200px; background: #000; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column; }
-        .sec-circle { position: absolute; border: 2px dashed var(--accent); border-radius: 50%; animation: spinSec 10s linear infinite; opacity: 0.5; }
-        .sec-circle:nth-child(1) { width: 150px; height: 150px; border-color: var(--staff-blue); animation-duration: 5s; }
-        .sec-circle:nth-child(2) { width: 100px; height: 100px; animation-direction: reverse; }
-        
-        #call-modal { flex-direction: column; }
-        .call-pulse { animation: callPulse 1.5s infinite; border-radius: 50%; width: 100px; height: 100px; background: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 0 30px var(--accent-glow); }
-        
-        @keyframes spinSec { 100% { transform: rotate(360deg); } }
-        @keyframes scanDown { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        @keyframes callPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { box-shadow: 0 0 0 30px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
-        @keyframes glitchText { 0% { opacity: 1; transform: translate(0); } 20% { opacity: 0.8; transform: translate(-2px, 2px); } 40% { opacity: 1; transform: translate(2px, -2px); } 100% { opacity: 1; transform: translate(0); } }
-        @keyframes pulseAlert { 0% { opacity: 1; text-shadow: 0 0 30px var(--accent); } 50% { opacity: 0.4; } 100% { opacity: 1; text-shadow: 0 0 30px var(--accent); } }
-
-        .panel { display: none; animation: fadeIn 0.4s ease-out; }
-        .panel.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .blur-text { filter: blur(5px); transition: 0.3s; cursor: pointer; }
-        .blur-text.visible { filter: blur(0); }
-        .exam-q-box { background: rgba(0,0,0,0.4); padding: 15px; border-left: 3px solid var(--accent); margin-bottom: 20px; }
-        
-        @media screen and (max-width: 900px) {
-            body { overflow: auto; background-attachment: scroll; }
-            header { height: auto; flex-direction: column; gap: 10px; padding: 15px; text-align: center; }
-            header > div { width: 100%; justify-content: center; }
-            .workspace { flex-direction: column; overflow: visible; }
-            aside { width: 100%; border-right: none; border-bottom: 2px solid var(--accent); padding: 10px 0; }
-            #menu-guest, #menu-staff { display: flex !important; flex-direction: row; overflow-x: auto; white-space: nowrap; padding: 0 10px 10px 10px; gap: 10px; }
-            #menu-guest[style*="none"], #menu-staff[style*="none"] { display: none !important; }
-            .nav-btn { width: auto; padding: 8px 15px; border-right: none; border-bottom: 3px solid transparent; background: rgba(255,255,255,0.05); }
-            main { padding: 15px; }
-            div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; gap: 15px !important; }
-            .chat-container { grid-template-columns: 1fr; height: auto; }
-        }
+        /* GEN BOX */
+        .gen-result { background: rgba(0,0,0,0.8); border: 1px solid var(--staff-blue); padding: 15px; margin-top: 15px; font-family: 'Courier New'; display: none; }
     </style>
 </head>
 <body class="defcon-1">
 
     <div class="overlay-bg"></div>
     <div class="scanlines"></div>
-    <canvas id="particles-js"></canvas>
+    <div id="particles-js"></div>
 
     <div id="boot-screen">
         <div class="mit-logo-anim"></div>
-        <h1 style="color:white; font-size:2.5rem; letter-spacing:5px; margin-bottom:20px; text-shadow:0 0 20px red;">MİT <span style="color:var(--accent)">SİBER AĞ</span></h1>
-        <div id="boot-text"></div>
-        <div style="margin-top:20px; width:300px; height:4px; background:#111; border-radius:2px; overflow:hidden;">
-            <div style="width:100%; height:100%; background:var(--accent); animation: loadBar 3s ease-in-out;"></div>
-        </div>
-        <style>@keyframes loadBar { 0% { width:0; } 100% { width:100%; } }</style>
+        <h1>MİT <span style="color:var(--accent)">SİBER AĞ</span></h1>
+        <div id="boot-text">SİSTEM BAŞLATILIYOR...</div>
+        <div style="margin-top:20px; width:200px; height:2px; background:#333;"><div style="width:0%; height:100%; background:var(--accent); animation: load 2s forwards;"></div></div>
+        <style>@keyframes load{to{width:100%}}</style>
     </div>
 
-    <div id="call-modal">
+    <div id="call-modal" style="flex-direction: column;">
         <div class="call-pulse"><i class="fas fa-phone fa-3x" style="color:white"></i></div>
-        <h2 id="call-status" style="color:white; margin-bottom:10px;">GELEN ARAMA</h2>
-        <p id="call-caller" style="color:var(--staff-blue); font-size:1.2rem; margin-bottom:30px;">...</p>
-        <div id="call-actions" style="display:flex; gap:20px;">
-            <button class="cyber-btn btn-green" onclick="app.phone.answerCall()">CEVAPLA</button>
-            <button class="cyber-btn btn-red" onclick="app.phone.rejectCall()">REDDET</button>
+        <h2 id="call-status" style="color:white;">ARANIYOR...</h2>
+        <p id="call-name" style="color:var(--staff-blue); margin-bottom: 20px; font-size: 1.2rem;">HEDEF</p>
+        <div id="call-actions">
+            <button class="cyber-btn btn-green" id="btn-answer" onclick="app.phone.answer()" style="display:none;">CEVAPLA</button>
+            <button class="cyber-btn" style="border-color:red; color:red;" onclick="app.phone.hangup()">KAPAT</button>
         </div>
-        <div id="in-call-ui" style="display:none; text-align:center;">
-            <p style="color:#0f0;">BAĞLANTI GÜVENLİ (ŞİFRELİ)</p>
-            <h1 id="call-timer" style="font-size:3rem; font-family:'Share Tech Mono'">00:00</h1>
-            <button class="cyber-btn btn-red" style="margin-top:20px;" onclick="app.phone.endCall()">KAPAT</button>
-        </div>
+        <div id="call-timer" style="display:none; font-size: 2rem; margin-top: 10px; font-family: 'Share Tech Mono';">00:00</div>
         <audio id="remote-audio" autoplay></audio>
     </div>
 
-    <div id="hack-modal">
-        <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
-            <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
-            <div id="hack-terminal"></div>
-            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;"><div id="hack-progress-bar"></div></div>
-            <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
-            <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
-        </div>
-    </div>
-
-    <div id="app-view-modal" style="display:none; overflow-y:auto; padding:20px;">
-        <div class="glass-box" style="max-width:800px; width:100%; border-color:var(--admin-gold);">
-            <h3 style="color:var(--admin-gold); text-align:center;">BAŞVURU DOSYASI</h3>
-            <div id="app-view-content" style="margin-bottom:20px; max-height: 500px; overflow-y: auto;"></div>
-            <div style="display:flex; gap:10px;">
-                <button class="cyber-btn btn-green" onclick="app.approveAppCurrent()">ONAYLA</button>
-                <button class="cyber-btn btn-red" onclick="app.rejectAppCurrent()">REDDET</button>
-                <button class="cyber-btn" onclick="document.getElementById('app-view-modal').style.display='none'">KAPAT</button>
+    <div id="login-modal" style="display: flex;">
+        <div class="glass-box" style="width: 400px; text-align: center;">
+            <i class="fas fa-shield-alt fa-3x" style="color: var(--accent); margin-bottom: 15px;"></i>
+            <h3>GÜVENLİK PROTOKOLÜ v45</h3>
+            <p style="color:#666; font-size: 0.8rem; margin-bottom: 15px;">YETKİ SEVİYENİZE GÖRE PANEL AÇILACAKTIR.</p>
+            <input type="password" id="login-pass" placeholder="ERİŞİM KODU" style="text-align: center; letter-spacing: 5px;">
+            <button class="cyber-btn" style="width: 100%;" onclick="app.login()">GİRİŞ</button>
+            <div style="margin-top: 15px; font-size: 0.7rem; color: #444;">
+                <p>ADM-001 (Admin): TURAN</p>
+                <p>SIB-002 (Siber): KOD123</p>
+                <p>SAH-003 (Saha): OPERASYON</p>
+                <p>STF-004 (Personel): 1234</p>
             </div>
         </div>
-    </div>
-
-    <div id="lockdown-screen">
-        <i class="fas fa-biohazard fa-6x" style="margin-bottom:30px; animation: pulseAlert 1s infinite;"></i>
-        <h1 style="font-size:4rem; margin-bottom:10px; font-family: 'Orbitron';">SİSTEM KİLİTLENDİ</h1>
-        <p style="letter-spacing: 5px; font-size:1.5rem;">YETKİSİZ ERİŞİM TESPİTİ</p>
     </div>
 
     <div class="app-wrapper" id="main-app">
         <header>
-            <div style="display:flex; align-items:center; gap:20px;">
-                <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="50">
                 <div>
-                    <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v44.0</small>
+                    <h1 style="font-size:1.5rem; line-height:1;">KIZIL ELMA <span style="color:var(--accent); font-size:0.8rem;">v45.0</span></h1>
+                    <small style="color:#666;">YETKİ TABANLI ERİŞİM SİSTEMİ</small>
                 </div>
             </div>
-            <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
-                <div id="sys-clock" style="font-size:1.4rem; color:white;">00:00:00</div>
-                <div id="net-status" style="font-size:0.8rem; color:var(--accent);"><i class="fas fa-shield-alt"></i> BAĞLANTI GÜVENLİ</div>
+            <div style="text-align:right;">
+                <div id="u-role-disp" style="color: var(--admin-gold); font-weight: bold;">MİSAFİR</div>
+                <div id="sys-clock" style="font-family:'Share Tech Mono'; color: #888;">00:00:00</div>
             </div>
         </header>
 
         <div class="workspace">
             <aside>
-                <div style="text-align:center; padding: 20px; border-bottom: 1px solid #333; margin-bottom: 10px;">
-                    <div style="width:70px; height:70px; border-radius:50%; border:2px solid var(--accent); margin:0 auto 15px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px var(--accent-glow); overflow:hidden; background:#000;">
-                        <i class="fas fa-user-secret fa-2x" id="u-icon" style="color:white;"></i>
-                        <img id="u-photo" style="display:none; width:100%; height:100%; object-fit:cover;">
+                <div style="padding: 20px; text-align: center; border-bottom: 1px solid #222;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent); margin: 0 auto 10px; overflow: hidden;">
+                        <img id="u-img" src="https://randomuser.me/api/portraits/men/33.jpg" style="width:100%; height:100%;">
                     </div>
-                    <h3 id="u-name" style="font-size:1rem; margin-bottom:5px;">MİSAFİR</h3>
-                    <p id="u-code" style="font-size:0.9rem; color:var(--staff-blue); font-weight:bold; letter-spacing:1px; display:none;">KOD: YOK</p>
-                    <p id="u-role" style="font-size:0.7rem; color:#666;">ERİŞİM KISITLI</p>
+                    <div id="u-name">Misafir</div>
+                    <small id="u-code" style="color:var(--staff-blue);">---</small>
                 </div>
 
-                <div id="menu-guest">
-                    <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-globe"></i> Duyurular</button>
-                    <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-user-plus"></i> Başvuru</button>
-                    <button class="nav-btn" onclick="app.showLogin()" style="color:var(--accent);"><i class="fas fa-fingerprint"></i> Personel</button>
+                <div id="nav-container">
+                    <button class="nav-btn" data-perm="public" onclick="app.nav('public')"><i class="fas fa-globe"></i> Duyurular</button>
+                    <button class="nav-btn" data-perm="dashboard" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Komuta</button>
+                    <button class="nav-btn" data-perm="chat" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Güvenli Hat</button>
+                    <button class="nav-btn" data-perm="ops" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
+                    <button class="nav-btn" data-perm="cyber" onclick="app.nav('cyber')"><i class="fas fa-code"></i> Siber / Kripto</button>
+                    <button class="nav-btn" data-perm="ai" onclick="app.nav('ai')"><i class="fas fa-brain"></i> Y.Z. Görüntü</button>
+                    <button class="nav-btn" data-perm="gen" onclick="app.nav('gen')" style="color:#ffaa00;"><i class="fas fa-id-card"></i> Kimlik Üretici</button>
+                    <button class="nav-btn" data-perm="reports" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Raporlar</button>
+                    <button class="nav-btn" data-perm="hr" onclick="app.nav('hr')"><i class="fas fa-users"></i> Personel</button>
                 </div>
 
-                <div id="menu-staff" style="display:none;">
-                    <button class="nav-btn active" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Komuta</button>
-                    <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Rapor</button>
-                    <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
-                    <button class="nav-btn" onclick="app.nav('generator')" style="color: #ffaa00;"><i class="fas fa-id-card"></i> KİMLİK ÜRETİCİ</button>
-                    <button id="nav-cyber" class="nav-btn" onclick="app.nav('cyber')" style="color:var(--cyber-green);"><i class="fas fa-code"></i> SİBER</button>
-                    <button id="nav-ai" class="nav-btn" onclick="app.nav('ai')" style="color:var(--ai-purple);"><i class="fas fa-brain"></i> Y.Z. GÖRÜNTÜ</button>
-                    <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Chat</button>
-                    <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip</button>
-                    <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> Sorgu</button>
-                    <button class="nav-btn" onclick="app.logout()" style="color:var(--accent);"><i class="fas fa-power-off"></i> Çıkış</button>
-                </div>
+                <button class="nav-btn" onclick="location.reload()" style="margin-top: auto; color: var(--accent);"><i class="fas fa-power-off"></i> ÇIKIŞ</button>
             </aside>
 
             <main>
                 <div id="panel-public" class="panel active">
-                    <div class="glass-box"><h2><i class="fas fa-bullhorn"></i> RESMİ DUYURULAR</h2><div id="feed-public"></div></div>
-                    <div class="glass-box"><h3>ARANANLAR</h3><div class="table-container"><table class="cyber-table" id="wanted-table"><thead><tr><th>KOD</th><th>SUÇ</th><th>DURUM</th></tr></thead><tbody></tbody></table></div></div>
-                </div>
-
-                <div id="panel-basvuru" class="panel">
-                     <div class="glass-box" style="max-width:800px; margin:0 auto;">
-                        <h2 style="text-align:center;">MİLLİ İSTİHBARAT AKADEMİSİ</h2>
-                        <div id="app-step-1">
-                            <h3 style="color:var(--staff-blue);">AŞAMA 1: KİMLİK DOĞRULAMA</h3>
-                            <label>TC Kimlik</label><input id="app-tc" maxlength="30"><label>Ad Soyad</label><input id="app-name">
-                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-                                <div><label>Cinsiyet</label><select id="app-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select></div>
-                                <div><label>Branş</label><select id="app-skill"><option value="siber">Siber İstihbarat</option><option value="saha">Saha Operasyon</option><option value="analiz">Stratejik Analiz</option></select></div>
-                            </div>
-                            <button class="cyber-btn" style="margin-top:20px;" onclick="app.goToExam()">SINAVA GEÇ <i class="fas fa-arrow-right"></i></button>
-                        </div>
-                        <div id="app-step-2" style="display:none;">
-                            <h3 style="color:var(--accent);">AŞAMA 2: PERSONEL YETERLİLİK SINAVI</h3>
-                            <div class="exam-q-box"><span class="exam-label">1. MİT'e katılma motivasyonunuzu tek cümle ile özetleyin.</span><input id="q1"></div>
-                            <div class="exam-q-box"><span class="exam-label">2. "Devletin Bekası" kavramı sizin için ne ifade ediyor?</span><textarea id="q2" rows="2"></textarea></div>
-                            <div class="exam-q-box"><span class="exam-label">3. Operasyonda emir sivillere zarar verirse?</span><div class="exam-radio-group"><label><input type="radio" name="q3" value="A"> Uygularım</label><label><input type="radio" name="q3" value="B"> Reddederim</label><label><input type="radio" name="q3" value="C"> Çözüm ararım</label></div></div>
-                            <div class="exam-q-box"><span class="exam-label">4. Arkadaşınız ihanet ederse?</span><div class="exam-radio-group"><label><input type="radio" name="q4" value="A"> Konuşurum</label><label><input type="radio" name="q4" value="B"> Rapor ederim</label><label><input type="radio" name="q4" value="C"> Keserim</label></div></div>
-                            <div class="exam-q-box"><span class="exam-label">5. Yakalanırsanız?</span><div class="exam-radio-group"><label><input type="radio" name="q5" value="A"> İmha/Kaçış</label><label><input type="radio" name="q5" value="B"> Pazarlık</label><label><input type="radio" name="q5" value="C"> Teslim</label></div></div>
-                            <div class="exam-q-box"><span class="exam-label">6. Stres Puanı (1-10)</span><select id="q6"><option value="10">10 (Soğukkanlı)</option><option value="8">8</option><option value="5">5</option><option value="1">1</option></select></div>
-                            <div class="exam-q-box"><span class="exam-label">7. Yetkinlik Alanı</span><div class="exam-radio-group"><label><input type="radio" name="q7" value="Teknik"> Teknik</label><label><input type="radio" name="q7" value="Fiziki"> Fiziki</label></div></div>
-                            <div class="exam-q-box"><span class="exam-label">8. Yasadışı Örgüt Geçmişi?</span><div class="exam-radio-group"><label><input type="radio" name="q8" value="Hayır"> Hayır</label><label><input type="radio" name="q8" value="Evet"> Evet</label></div></div>
-                            <div class="exam-q-box"><span class="exam-label">9. Ailenizden vazgeçebilir misiniz?</span><textarea id="q9" rows="2"></textarea></div>
-                            <div class="exam-q-box"><span class="exam-label">10. "Vatan söz konusuysa..."</span><input id="q10"></div>
-                            <button class="cyber-btn btn-gold" onclick="app.submitExam()">BAŞVURUYU TAMAMLA</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="panel-generator" class="panel">
-                    <div class="glass-box" style="border-color: #ffaa00;">
-                        <h2 style="color: #ffaa00;"><i class="fas fa-id-card"></i> SAHTE / GİZLİ KİMLİK ÜRETİCİ</h2>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                            <div>
-                                <h3 style="color:white; font-size:1rem;">PARAMETRELER</h3>
-                                <label>Cinsiyet</label>
-                                <select id="gen-gender">
-                                    <option value="random">Rastgele</option>
-                                    <option value="men">Erkek</option>
-                                    <option value="women">Kadın</option>
-                                </select>
-                                <label>Uyruk / Köken (Simülasyon)</label>
-                                <select id="gen-origin">
-                                    <option value="tr">T.C. Vatandaşı (Standart)</option>
-                                    <option value="spy">Yabancı Uyruk (Operasyonel)</option>
-                                </select>
-                                <button class="cyber-btn" onclick="app.generator.generate()" style="border-color:#ffaa00; color:#ffaa00; margin-top:20px;">
-                                    <i class="fas fa-cogs"></i> KİMLİK OLUŞTUR
-                                </button>
-                                
-                                <div id="gen-data-display" class="gen-result-box" style="display:none;">
-                                    <div class="gen-field">TC KİMLİK: <span class="gen-val" id="res-tc"></span></div>
-                                    <div class="gen-field">AD: <span class="gen-val" id="res-name"></span></div>
-                                    <div class="gen-field">SOYAD: <span class="gen-val" id="res-surname"></span></div>
-                                    <div class="gen-field">DOĞUM TARİHİ: <span class="gen-val" id="res-dob"></span></div>
-                                    <div class="gen-field">DOĞUM YERİ: <span class="gen-val" id="res-city"></span></div>
-                                    <div class="gen-field">ANA ADI: <span class="gen-val" id="res-mother"></span></div>
-                                    <div class="gen-field">BABA ADI: <span class="gen-val" id="res-father"></span></div>
-                                </div>
-                            </div>
-                            <div style="text-align: center;">
-                                <h3 style="color:white; font-size:1rem;">KİMLİK KARTI ÖNİZLEME</h3>
-                                <canvas id="genCanvas" width="1000" height="600" style="width:100%; border:1px solid #333; border-radius:10px; box-shadow:0 0 20px rgba(0,0,0,0.8);"></canvas>
-                                <br><br>
-                                <button class="cyber-btn btn-small" onclick="app.generator.download()">KARTI İNDİR (.PNG)</button>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="glass-box"><h2>DUYURULAR</h2><div id="feed-public">Yükleniyor...</div></div>
                 </div>
 
                 <div id="panel-dashboard" class="panel">
-                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:20px; margin-bottom:20px;">
-                        <div class="glass-box" style="text-align:center;"><small>TEHDİT SEVİYESİ</small><h1 id="defcon-disp" style="color:var(--accent); font-size:3rem; margin-top:5px;">1</h1></div>
-                        <div class="glass-box" style="text-align:center;"><small>PERSONEL</small><h1 id="stat-staff" style="color:white;">0</h1></div>
-                        <div class="glass-box" style="text-align:center;"><small>GÖREV</small><h1 id="stat-ops" style="color:var(--staff-blue);">0</h1></div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                        <div class="glass-box" style="text-align:center;">
+                            <h3>TEHDİT SEVİYESİ</h3>
+                            <h1 id="defcon-disp" style="font-size: 3rem; color: var(--accent);">1</h1>
+                        </div>
+                        <div class="glass-box" style="text-align:center;"><h3>PERSONEL</h3><h1 id="stat-staff">0</h1></div>
+                        <div class="glass-box" style="text-align:center;"><h3>AKTİF GÖREV</h3><h1 id="stat-ops">0</h1></div>
                     </div>
-                    <div class="glass-box" style="padding:0; height:400px;"><div id="map" style="height:100%;"></div></div>
+                    <div class="glass-box" style="padding:0; height: 400px;"><div id="map" style="height:100%;"></div></div>
+                </div>
+
+                <div id="panel-chat" class="panel">
+                    <div class="glass-box">
+                        <h2 style="text-align:center; color: var(--staff-blue);">GÜVENLİ İLETİŞİM HATTI</h2>
+                        <div class="chat-container">
+                            <div style="display:flex; flex-direction:column; height:100%;">
+                                <div id="chat-window" class="chat-window"></div>
+                                <div class="chat-inputs">
+                                    <input id="chat-input" placeholder="Mesajınızı yazın...">
+                                    <button class="cyber-btn" onclick="app.chat.send()">GÖNDER</button>
+                                </div>
+                            </div>
+                            <div class="chat-sidebar">
+                                <h4 style="color:var(--accent); border-bottom:1px solid #333; padding-bottom:5px;">AKTİF PERSONEL</h4>
+                                <div id="active-user-list">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-ops" class="panel">
+                    <div class="glass-box">
+                        <div style="display:flex; justify-content:space-between;">
+                            <h2>OPERASYONLAR</h2>
+                            <button class="cyber-btn btn-small" onclick="app.ops.add()">+ YENİ</button>
+                        </div>
+                        <table class="cyber-table" id="table-ops"><thead><tr><th>KOD</th><th>LİDER</th><th>DURUM</th></tr></thead><tbody></tbody></table>
+                    </div>
                 </div>
 
                 <div id="panel-cyber" class="panel">
-                    <div class="glass-box" style="border-color:var(--cyber-green);">
-                        <h2 style="color:var(--cyber-green);">KRİPTO MERKEZİ</h2>
-                        <input id="crypto-input" placeholder="Gizli Mesaj İçeriği">
-                        <button class="cyber-btn" onclick="app.createCryptoMessage()" style="color:var(--cyber-green); border-color:var(--cyber-green);">ŞİFRELE VE GÖNDER</button>
-                        <div id="cyber-messages-list" style="margin-top:20px;"></div>
+                    <div class="glass-box" style="border-color: var(--cyber-green);">
+                        <h2 style="color: var(--cyber-green);">KRİPTO MERKEZİ</h2>
+                        <input id="crypto-in" placeholder="Mesaj...">
+                        <button class="cyber-btn btn-green" onclick="app.cyber.encrypt()">ŞİFRELE & GÖNDER</button>
+                        <div id="crypto-list" style="margin-top: 20px;"></div>
                     </div>
                 </div>
 
                 <div id="panel-ai" class="panel">
-                    <div class="glass-box" style="border-color:var(--ai-purple);">
-                        <h2 style="color:var(--ai-purple);">Y.Z. GÖRÜNTÜ İSTİHBARATI</h2>
-                        <input id="ai-prompt" placeholder="Görüntü parametrelerini girin...">
-                        <button class="cyber-btn btn-ai" onclick="app.generateAIImage()">OLUŞTUR</button>
-                        <div id="ai-preview-area"><div class="ai-loading-scan" id="ai-loader"></div><img id="ai-generated-img" style="display:none; max-width:100%;"></div>
+                    <div class="glass-box" style="border-color: var(--ai-purple);">
+                        <h2 style="color: var(--ai-purple);">GÖRÜNTÜ İSTİHBARATI (AI)</h2>
+                        <input id="ai-prompt" placeholder="Görüntü tanımı (örn: satellite view of istanbul)...">
+                        <button class="cyber-btn" style="border-color: var(--ai-purple); color: var(--ai-purple);" onclick="app.ai.gen()">OLUŞTUR</button>
+                        <div id="ai-result" style="margin-top: 20px; text-align: center;"></div>
                     </div>
                 </div>
 
-                <div id="panel-chat" class="panel">
-                    <div class="glass-box" style="max-width:1000px; margin:0 auto;">
-                        <h2 style="text-align:center; color:var(--staff-blue);">GÜVENLİ HAT</h2>
-                        <div class="chat-container">
-                            <div class="chat-main">
-                                <div class="chat-window" id="chat-window"></div>
-                                <div class="chat-inputs">
-                                    <input id="chat-input" placeholder="Mesajınız..." style="margin:0; flex:1;">
-                                    <button class="cyber-btn" onclick="app.sendChat()" style="width:100px;">GÖNDER</button>
-                                </div>
+                <div id="panel-gen" class="panel">
+                    <div class="glass-box" style="border-color: #ffaa00;">
+                        <h2 style="color: #ffaa00;">GİZLİ KİMLİK OLUŞTURUCU</h2>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <label>Cinsiyet</label><select id="gen-sex"><option value="men">Erkek</option><option value="women">Kadın</option></select>
+                                <button class="cyber-btn" onclick="app.gen.create()" style="color:#ffaa00; border-color:#ffaa00;">ÜRET</button>
+                                <div id="gen-text" class="gen-result"></div>
                             </div>
-                            <div class="chat-sidebar"><h3 style="font-size:1rem; border-bottom:1px solid #333;">AKTİF</h3><div id="active-user-list"></div></div>
+                            <canvas id="gen-canvas" width="500" height="300" style="width:100%; border:1px solid #333;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div id="panel-ops" class="panel"><div class="glass-box"><h2>OPERASYONLAR</h2><button class="cyber-btn btn-small" onclick="document.getElementById('new-op-modal').style.display='block'">+ YENİ</button><div id="new-op-modal" style="display:none; padding:20px; background:#000; border:1px solid var(--accent);"><input id="op-name" placeholder="Kod Adı"><select id="op-lead"></select><button class="cyber-btn" onclick="app.addOp()">EKLE</button><button class="nav-btn" onclick="document.getElementById('new-op-modal').style.display='none'">İPTAL</button></div><table class="cyber-table" id="ops-table"><tbody></tbody></table></div></div>
-                
-                <div id="panel-reports" class="panel"><div class="glass-box"><h2>RAPORLAR</h2><div style="display:grid; grid-template-columns:1fr 2fr; gap:20px;"><div><input id="report-subj"><textarea id="report-content"></textarea><button class="cyber-btn" onclick="app.submitReport()">GÖNDER</button></div><div id="reports-feed"></div></div></div></div>
-
-                <div id="panel-hr" class="panel">
-                    <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px;">
-                        <div class="glass-box"><h3>EKİP LİSTESİ</h3><table class="cyber-table" id="hr-staff-table"><thead id="hr-table-head"></thead><tbody id="hr-table-body"></tbody></table></div>
-                        <div class="glass-box" style="text-align:center;"><h3>KİMLİK KARTI</h3><canvas id="idCardCanvas" width="1000" height="600" style="width:100%; border-radius:5px;"></canvas><div id="id-actions"></div></div>
+                <div id="panel-reports" class="panel">
+                    <div class="glass-box">
+                        <h2>RAPOR HAVUZU</h2>
+                        <input id="rep-sub" placeholder="Konu"><textarea id="rep-bod" placeholder="Detay"></textarea>
+                        <button class="cyber-btn" onclick="app.reports.send()">GÖNDER</button>
+                        <div id="rep-list" style="margin-top:20px;"></div>
                     </div>
                 </div>
 
-                <div id="panel-db" class="panel"><div class="glass-box"><h2>SORGU</h2><input id="db-q"><button class="cyber-btn" onclick="app.queryDB()">ARA</button><div id="db-res"></div></div></div>
+                <div id="panel-hr" class="panel">
+                    <div class="glass-box">
+                        <h2>PERSONEL LİSTESİ (HR)</h2>
+                        <table class="cyber-table" id="table-hr"><tbody></tbody></table>
+                    </div>
+                </div>
 
             </main>
         </div>
     </div>
 
-    <div id="login-modal">
-        <div class="glass-box" style="width:450px; text-align:center; border:2px solid var(--accent);">
-            <i class="fas fa-lock hidden-trigger" onclick="app.secretUnlock()"></i>
-            <h3>GÜVENLİK PROTOKOLÜ</h3>
-            <div id="login-form-init"><input type="password" id="login-pass" placeholder="ERİŞİM ANAHTARI"><button class="cyber-btn" onclick="app.loginStep1()">DOĞRULA</button><p id="login-msg"></p></div>
-            <div id="login-form-sec" style="display:none;"><div class="sec-matrix"><div class="sec-circle"></div><div class="sec-circle"></div></div><button class="cyber-btn" onclick="app.fakeScan()">TARAMA</button></div>
-        </div>
-    </div>
-    <div id="edit-modal"><div class="glass-box"><input id="edit-id" type="hidden"><input id="edit-name"><input id="edit-code"><select id="edit-role"><option value="staff">Personel</option><option value="admin">Yönetici</option></select><input id="edit-pass"><button class="cyber-btn" onclick="app.saveEdit()">KAYDET</button><button class="nav-btn" onclick="document.getElementById('edit-modal').style.display='none'">İPTAL</button></div></div>
-
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    // --- CONF ---
     const firebaseConfig = { apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU", authDomain: "mit-sistemi.firebaseapp.com", databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app", projectId: "mit-sistemi", storageBucket: "mit-sistemi.firebasestorage.app", messagingSenderId: "195453377116", appId: "1:195453377116:web:85067f5070ecf983bb6499" };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const SFX={ctx:new(window.AudioContext||window.webkitAudioContext)(),playTone:function(f,t,d){if(this.ctx.state==='suspended')this.ctx.resume();const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(this.ctx.destination);o.start();g.gain.exponentialRampToValueAtTime(0.00001,this.ctx.currentTime+d);o.stop(this.ctx.currentTime+d);},click:function(){this.playTone(1200,'sine',0.1);},error:function(){this.playTone(150,'sawtooth',0.3);},success:function(){this.playTone(800,'sine',0.1);setTimeout(()=>this.playTone(1200,'sine',0.2),100);},hack:function(){this.playTone(3000,'square',0.05);},ring:function(){const n=this.ctx.currentTime;const o=this.ctx.createOscillator();const g=this.ctx.createGain();o.connect(g);g.connect(this.ctx.destination);o.frequency.setValueAtTime(800,n);o.frequency.setValueAtTime(600,n+0.4);g.gain.setValueAtTime(0.1,n);g.gain.exponentialRampToValueAtTime(0.00001,n+0.8);o.start(n);o.stop(n+0.8);}};
-    const ROLE_DEFS={'admin':{label:'YÖNETİCİ',color:'#ffcc00'},'staff':{label:'PERSONEL',color:'#fff'},'cyber':{label:'SİBER',color:'#00ff41'},'agent':{label:'AJAN',color:'#00ccff'},'analyst':{label:'ANALİST',color:'#bd00ff'}};
+    const db = firebase.database();
 
-    const phoneSystem = {
-        peer: null, activeCall: null, myStream: null, ringInterval: null,
-        init: function(uid) { const id=uid+"_"+Math.floor(Math.random()*10000); this.peer=new Peer(id); this.peer.on('open',pid=>{ database.ref('online_users/'+uid).set({peerId:pid,name:app.state.user.codename,status:'online'}); database.ref('online_users/'+uid).onDisconnect().remove(); }); this.peer.on('call',c=>this.incomingCall(c)); },
-        callUser: function(tid,tname) { navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{this.myStream=s;const c=this.peer.call(tid,s);this.setupUI(c,tname,"ARANIYOR...");}).catch(e=>alert("Mikrofon izni yok")); },
-        incomingCall: function(c) { this.activeCall=c; document.getElementById('call-modal').style.display='flex'; document.getElementById('call-caller').innerText="BİLİNMEYEN"; this.ringInterval=setInterval(()=>SFX.ring(),1500); },
-        answerCall: function() { clearInterval(this.ringInterval); navigator.mediaDevices.getUserMedia({audio:true}).then(s=>{this.myStream=s;this.activeCall.answer(s);this.setupUI(this.activeCall,"BAĞLANDI","SÜRÜYOR");}); },
-        rejectCall: function() { clearInterval(this.ringInterval); if(this.activeCall)this.activeCall.close(); document.getElementById('call-modal').style.display='none'; },
-        endCall: function() { if(this.activeCall)this.activeCall.close(); if(this.myStream)this.myStream.getTracks().forEach(t=>t.stop()); document.getElementById('call-modal').style.display='none'; },
-        setupUI: function(c,n,s) { this.activeCall=c; document.getElementById('call-modal').style.display='flex'; document.getElementById('call-status').innerText=s; document.getElementById('call-caller').innerText=n||"HAT"; document.getElementById('call-actions').style.display='none'; document.getElementById('in-call-ui').style.display='block'; let sec=0; const t=document.getElementById('call-timer'); const i=setInterval(()=>{if(!this.activeCall||!this.activeCall.open){clearInterval(i);return;}sec++;t.innerText=`${Math.floor(sec/60).toString().padStart(2,'0')}:${(sec%60).toString().padStart(2,'0')}`;},1000); c.on('stream',rs=>{const a=document.getElementById('remote-audio');a.srcObject=rs;a.play();}); c.on('close',()=>{clearInterval(i);this.endCall();}); }
+    // --- ROL VE YETKİ MATRİSİ (PERMISSION MATRIX) ---
+    // Her rolün hangi panellere ve aksiyonlara erişebileceği burada tanımlanır.
+    const ROLES = {
+        admin: {
+            label: 'YÖNETİCİ',
+            color: '#ffcc00',
+            perms: ['public', 'dashboard', 'chat', 'ops', 'cyber', 'ai', 'gen', 'reports', 'hr', 'call', 'admin_ops'] 
+        },
+        cyber: {
+            label: 'SİBER UZMAN',
+            color: '#00ff41',
+            perms: ['public', 'chat', 'cyber', 'ai', 'gen', 'call'] // Ops ve HR yok
+        },
+        agent: {
+            label: 'SAHA AJANI',
+            color: '#00ccff',
+            perms: ['public', 'chat', 'ops', 'reports', 'gen', 'call'] // Cyber ve AI yok
+        },
+        staff: {
+            label: 'PERSONEL',
+            color: '#ffffff',
+            perms: ['public', 'chat'] // Sadece chat ve duyuru
+        }
+    };
+
+    const SFX = {
+        play: (freq, type) => {
+            const ctx = new (window.AudioContext||window.webkitAudioContext)();
+            const o=ctx.createOscillator(), g=ctx.createGain();
+            o.type=type; o.frequency.value=freq; o.connect(g); g.connect(ctx.destination);
+            o.start(); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.1);
+            o.stop(ctx.currentTime+0.1);
+        },
+        click: () => SFX.play(1200, 'sine'),
+        error: () => SFX.play(150, 'sawtooth'),
+        ring: () => {
+            const ctx = new (window.AudioContext||window.webkitAudioContext)();
+            const o=ctx.createOscillator(), g=ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.frequency.setValueAtTime(800, ctx.currentTime);
+            o.frequency.setValueAtTime(600, ctx.currentTime+0.4);
+            o.start(); o.stop(ctx.currentTime+0.8);
+        }
     };
 
     const app = {
-        defaultData: { defcon: 1, personnel: [{id:'ADM-001',name:'HAKAN F.',codename:'KARTAL',role:'admin',rank:'MÜSTEŞAR',pass:'TURAN',gender:'men',photoId:33}], reports:[], apps:[], ops:[], chat:[], cryptoMessages:[] },
-        state: { user: null, db: null, onlineUsers: {}, viewingAppIdx: null, fail:0, visiblePass:new Set(), tUser:null },
-        phone: phoneSystem,
+        user: null,
+        data: { personnel: [], chat: [], ops: [] },
+        online: {},
+        peer: null,
+        call: null,
+        
+        init: function() {
+            setTimeout(() => { document.getElementById('boot-screen').style.display='none'; }, 2500);
+            
+            // Firebase Listeners
+            db.ref('mit_database').on('value', s => {
+                const val = s.val() || {};
+                this.data = val;
+                if(!this.data.personnel) this.data.personnel = [
+                    {id:'ADM-001', name:'Hakan F.', codename:'KARTAL', role:'admin', pass:'TURAN'},
+                    {id:'SIB-002', name:'Zeynep K.', codename:'MATRIX', role:'cyber', pass:'KOD123'},
+                    {id:'SAH-003', name:'Burak Y.', codename:'ATMACA', role:'agent', pass:'OPERASYON'},
+                    {id:'STF-004', name:'Mehmet', codename:'MEMUR', role:'staff', pass:'1234'}
+                ];
+                this.refreshUI();
+            });
 
-        // --- NEW: IDENTITY GENERATOR MODULE ---
-        generator: {
-            data: {
-                namesMale: ["ALPARSLAN", "METEHAN", "GÖKTUĞ", "KÜRŞAD", "TİMUR", "CENGİZ", "BATUHAN", "ÇAĞRI", "SENCER", "YİĞİT", "EREN", "BURAK", "MERT", "KAAN", "EMRE", "BARIŞ", "ARDA", "KEREM", "ALP", "BORA", "CAN", "DENİZ", "EFE", "FATİH", "HAKAN", "İSKENDER", "LEVENT", "MURAT", "OĞUZ", "POLAT", "RÜZGAR", "SELİM", "TARIK", "UMUT", "VOLKAN", "YAVUZ", "ZAFER", "ATİLLA", "TARKAN", "KORAY", "ÖZGÜR", "SAVAŞ", "TAYFUN", "UĞUR", "YAMAN", "ALTAY", "BAYBARS", "OĞUZHAN", "TUĞRUL"],
-                namesFemale: ["ASENA", "AYBÜKE", "TOMRİS", "BİLGE", "GÖKÇE", "ALÇİN", "BANU", "UMAY", "SELEN", "ELİF", "ZEYNEP", "AYŞE", "FATMA", "LEYLA", "SİBEL", "DERYA", "ESRA", "GAMZE", "HİLAL", "İREM", "JALE", "KÜBRA", "MERVE", "NUR", "ÖZLEM", "PELİN", "RANA", "SEDA", "TUĞBA", "YAĞMUR", "ZEHRA", "ASLI", "BURCU", "CEREN", "DAMLA", "ECE", "FUNDA", "GİZEM", "HANDE", "IRMAK", "LALE", "MİNA", "NİL", "OYA", "PINAR", "SEVGİ", "YELDA", "ZÜMRÜT", "BEREN", "DEFNE"],
-                surnames: ["KORTEKİN", "BOZKURT", "YILDIRIM", "DEMİR", "KAYA", "ÇELİK", "YILDIZ", "ÖZTÜRK", "AYDIN", "ÖZDEMİR", "ARSLAN", "DOĞAN", "KILIÇ", "ÇETİN", "KARA", "KOÇ", "KURT", "ÖZKAN", "ŞAHİN", "YALÇIN", "ERDOĞAN", "ATALAY", "SÖNMEZ", "YÜKSEL", "AKSOY", "KORKMAZ", "ÇAKIR", "KESKİN", "TURAN", "ÖZER", "VAROL", "AKTAŞ", "GÜNEŞ", "BULUT", "DUMAN", "SEZGİN", "TÜRKYILMAZ", "ERDEM", "GÜLER", "KARACA", "TEKİN", "YAVUZ", "AKIN", "SOYLU", "ENGİN", "BARBAROS", "SANCAK", "VATANSEVER", "BAYRAKTAR", "ALEMDAR"],
-                cities: ["ANKARA", "İSTANBUL", "İZMİR", "BURSA", "ADANA", "ANTALYA", "GAZİANTEP", "KONYA", "KAYSERİ", "MERSİN", "ESKİŞEHİR", "DİYARBAKIR", "SAMSUN", "DENİZLİ", "ŞANLIURFA", "MALATYA", "KAHRAMANMARAŞ", "ERZURUM", "VAN", "TRABZON", "KOCAELİ", "SAKARYA", "MANİSA", "HATAY", "BALIKESİR", "AYDIN", "TEKİRDAĞ", "MUĞLA", "AFYON", "SİVAS", "ÇANAKKALE", "KARS", "RİZE", "ZONGULDAK", "ELAZIĞ"],
-                districts: ["MERKEZ", "SEYHAN", "ÇANKAYA", "KADIKÖY", "KONAK", "NİLÜFER", "MURATPAŞA", "ŞAHİNBEY", "SELÇUKLU", "MELİKGAZİ", "TEPEBAŞI", "BAĞLAR", "İLKADIM", "PAMUKKALE", "HALİLİYE", "BATTALGAZİ", "ONİKİŞUBAT", "YAKUTİYE", "İPEKYOLU", "ORTAHİSAR"]
-            },
-            current: null,
+            db.ref('online_users').on('value', s => {
+                this.online = s.val() || {};
+                this.chat.renderList();
+            });
+            
+            setInterval(() => document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString(), 1000);
+        },
 
-            getRandom: function(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
-            generateTC: function() {
-                // Basit 11 haneli geçerli TC algoritması simülasyonu
-                let digits = [];
-                for(let i=0; i<9; i++) digits.push(Math.floor(Math.random()*10));
-                if(digits[0]===0) digits[0]=1;
-                let d10 = ((digits[0]+digits[2]+digits[4]+digits[6]+digits[8])*7 - (digits[1]+digits[3]+digits[5]+digits[7])) % 10;
-                let d11 = (digits.reduce((a,b)=>a+b, 0) + d10) % 10;
-                digits.push(d10, d11);
-                return digits.join('');
-            },
-            generateDate: function(start, end) {
-                return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime())).toLocaleDateString('tr-TR');
-            },
-
-            generate: function() {
+        // --- GİRİŞ VE YETKİ KONTROLÜ ---
+        login: function() {
+            const p = document.getElementById('login-pass').value;
+            const u = this.data.personnel.find(x => x.pass === p);
+            
+            if(u) {
+                this.user = u;
                 SFX.click();
-                const genderInput = document.getElementById('gen-gender').value;
-                const origin = document.getElementById('gen-origin').value; // tr or spy
+                document.getElementById('login-modal').style.display = 'none';
                 
-                let gender = genderInput;
-                if(gender === 'random') gender = Math.random() > 0.5 ? 'men' : 'women';
+                // UI Güncelle
+                document.getElementById('u-name').innerText = u.name;
+                document.getElementById('u-code').innerText = u.codename;
+                const rInfo = ROLES[u.role];
+                document.getElementById('u-role-disp').innerText = rInfo.label;
+                document.getElementById('u-role-disp').style.color = rInfo.color;
                 
-                const dataPool = this.data;
-                const name = this.getRandom(gender === 'men' ? dataPool.namesMale : dataPool.namesFemale);
-                const surname = this.getRandom(dataPool.surnames);
-                const mother = this.getRandom(dataPool.namesFemale);
-                const father = this.getRandom(dataPool.namesMale);
-                const city = this.getRandom(dataPool.cities);
-                
-                // Photo ID Randomizer
-                const photoId = Math.floor(Math.random() * 99);
+                // PEERJS (Telefon) Başlat
+                const pid = u.id + "_" + Math.floor(Math.random()*9999);
+                this.peer = new Peer(pid);
+                this.peer.on('open', id => {
+                    db.ref('online_users/'+u.id).set({peerId: id, name: u.codename, role: u.role});
+                    db.ref('online_users/'+u.id).onDisconnect().remove();
+                });
+                this.peer.on('call', call => this.phone.incoming(call));
 
-                this.current = {
-                    tc: this.generateTC(),
-                    name: name,
-                    surname: surname,
-                    fullName: name + " " + surname,
-                    gender: gender,
-                    dob: this.generateDate(new Date(1980, 0, 1), new Date(2003, 0, 1)),
-                    city: city,
-                    mother: mother,
-                    father: father,
-                    photoId: photoId
-                };
-
-                // UI Update
-                document.getElementById('res-tc').innerText = this.current.tc;
-                document.getElementById('res-name').innerText = name;
-                document.getElementById('res-surname').innerText = surname;
-                document.getElementById('res-dob').innerText = this.current.dob;
-                document.getElementById('res-city').innerText = city;
-                document.getElementById('res-mother').innerText = mother;
-                document.getElementById('res-father').innerText = father;
-                document.getElementById('gen-data-display').style.display = 'block';
-
-                this.draw(this.current);
-            },
-
-            draw: function(data) {
-                const cvs = document.getElementById('genCanvas');
-                const ctx = cvs.getContext('2d');
-                const w = cvs.width; const h = cvs.height;
-
-                // Background
-                const grd = ctx.createLinearGradient(0, 0, w, h);
-                grd.addColorStop(0, "#1a1a1a"); grd.addColorStop(1, "#000000");
-                ctx.fillStyle = grd; ctx.fillRect(0, 0, w, h);
-
-                // Red Strip
-                ctx.fillStyle = "#e30a17"; ctx.fillRect(0, 0, w, 120);
-
-                // Titles
-                ctx.textAlign = "center"; ctx.fillStyle = "#ffffff";
-                ctx.font = "bold 45px 'Arial'"; ctx.fillText("TÜRKİYE CUMHURİYETİ", w/2, 60);
-                ctx.font = "30px 'Arial'"; ctx.fillText("NÜFUS CÜZDANI", w/2, 100);
-
-                const logo = new Image(); logo.crossOrigin = "Anonymous"; 
-                logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png";
-                
-                logo.onload = () => {
-                    ctx.save(); ctx.globalAlpha = 0.1; ctx.drawImage(logo, w/2 - 200, h/2 - 200, 400, 400); ctx.restore();
-                    ctx.drawImage(logo, w - 150, 10, 100, 100);
-
-                    // Photo
-                    const photo = new Image(); photo.crossOrigin = "Anonymous";
-                    photo.src = `https://randomuser.me/api/portraits/${data.gender}/${data.photoId}.jpg`;
-                    
-                    photo.onload = () => {
-                        const px = 50, py = 150, pw = 250, ph = 300;
-                        ctx.save(); ctx.strokeStyle = "#aaa"; ctx.lineWidth = 5; ctx.strokeRect(px, py, pw, ph); ctx.drawImage(photo, px, py, pw, ph);
-                        ctx.restore();
-                        
-                        // Text Data
-                        ctx.textAlign = "left"; const lx = 350; let ly = 180; const gap = 60;
-                        const drawField = (l, v) => {
-                            ctx.fillStyle = "#888"; ctx.font = "20px 'Courier New'"; ctx.fillText(l, lx, ly);
-                            ctx.fillStyle = "#fff"; ctx.font = "bold 35px 'Arial'"; ctx.fillText(v, lx, ly + 35); ly += gap + 20;
-                        };
-
-                        drawField("TC KİMLİK NO", data.tc);
-                        drawField("AD SOYAD", data.fullName);
-                        drawField("DOĞUM TARİHİ", data.dob);
-                        
-                        // Chip
-                        ctx.fillStyle = "#ffd700"; ctx.fillRect(80, 480, 80, 60); ctx.strokeStyle = "#b8860b"; ctx.strokeRect(80, 480, 80, 60);
-                        ctx.beginPath(); ctx.moveTo(80,510); ctx.lineTo(160,510); ctx.stroke();
-
-                        // MRZ
-                        ctx.fillStyle = "#fff"; ctx.fillRect(350, h - 80, 600, 50);
-                        ctx.fillStyle = "#000"; ctx.font = "30px 'OCR A Std', monospace";
-                        const mrz = `IDTUR${data.tc}<<<<<<<<<<<<<<<<\n${data.gender === 'men' ? 'M' : 'F'}<<<<<<${data.surname.toUpperCase()}<<${data.name.toUpperCase()}<<<<<`;
-                        ctx.fillText(mrz, 650, h - 45);
-                    };
-                };
-            },
-
-            download: function() {
-                const l = document.createElement('a');
-                l.download = `COVER_ID_${this.current ? this.current.tc : 'GEN'}.png`;
-                l.href = document.getElementById('genCanvas').toDataURL();
-                l.click();
+                // Yetkiye Göre Menüyü Düzenle
+                this.applyPermissions();
+                this.nav('public'); // Varsayılan sayfa
+            } else {
+                SFX.error();
+                alert("HATALI KOD!");
             }
         },
 
-        hack: {
-            activeMsgId: null, progress: 0,
-            startHack: function(id) { this.activeMsgId = id; this.progress = 0; document.getElementById('hack-modal').style.display = 'flex'; this.renderTerminal(); },
-            renderTerminal: function() { const term = document.getElementById('hack-terminal'); term.innerHTML = ''; for(let i=0; i<15; i++) { const row = document.createElement('div'); row.className = 'hack-row'; row.innerHTML = Array(20).fill(0).map(() => `<span class="hack-char">${Math.floor(Math.random()*2)}</span>`).join(''); term.appendChild(row); } },
-            processHack: function() { this.progress += 5; SFX.hack(); document.getElementById('hack-progress-bar').style.width = this.progress + '%'; if(this.progress >= 100) this.finishHack(); },
-            finishHack: function() { SFX.success(); alert("ŞİFRE ÇÖZÜLDÜ!"); const msg = app.state.db.cryptoMessages.find(m => m.id === this.activeMsgId); if(msg) msg.status = 'OPEN'; app.save(); this.closeHack(); app.renderCyber(); },
-            closeHack: function() { document.getElementById('hack-modal').style.display = 'none'; this.progress = 0; }
+        applyPermissions: function() {
+            const userPerms = ROLES[this.user.role].perms;
+            const navBtns = document.querySelectorAll('#nav-container .nav-btn');
+            
+            navBtns.forEach(btn => {
+                const reqPerm = btn.getAttribute('data-perm');
+                if(userPerms.includes(reqPerm)) {
+                    btn.classList.remove('disabled');
+                } else {
+                    btn.classList.add('disabled');
+                }
+            });
         },
 
-        init: function() { this.bootSequence(); this.listenToCloud(); document.querySelectorAll('button,.nav-btn').forEach(b=>{b.addEventListener('mouseenter',()=>SFX.hover());b.addEventListener('click',()=>SFX.click());}); },
-        listenToCloud: function() { database.ref('mit_database').on('value', s => { this.state.db = s.val() || this.defaultData; this.refreshCurrentView(); this.applyDefcon(this.state.db.defcon); }); database.ref('online_users').on('value', s => { this.state.onlineUsers = s.val() || {}; if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR(); }); },
-        save: function() { if(this.state.db) database.ref('mit_database').set(this.state.db); },
-        refreshCurrentView: function() { if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR(); if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic(); if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps(); if(document.getElementById('panel-db').classList.contains('active')) this.renderLogs(); if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports(); if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash(); if(document.getElementById('panel-cyber').classList.contains('active')) this.renderCyber(); },
-        bootSequence: function() { const s=document.getElementById('boot-screen'); if(!s){this.initAppLogic();return;} const t=document.getElementById('boot-text'); const l=["BIOS DATE 01/20/26", "uplink established...", "KIZIL_ELMA PROTOCOL INIT..."]; let i=0; const int=setInterval(()=>{if(i<l.length){t.innerHTML+=l[i]+"<br>";i++;}else{clearInterval(int);s.style.opacity='0';document.getElementById('main-app').style.opacity='1';setTimeout(()=>{s.style.display='none';this.initAppLogic();},1000);}},200); },
-        initAppLogic: function() { this.updateClock(); setInterval(()=>this.updateClock(),1000); this.initParticles(); this.nav('public'); },
-        setDefcon: function(l) { this.state.db.defcon=l; this.save(); },
-        applyDefcon: function(l) { document.body.className=`defcon-${l}`; const e=document.getElementById('defcon-disp'); if(e)e.innerText=l; },
-        initParticles: function() { const cvs=document.getElementById('particles-js'),ctx=cvs.getContext('2d'); cvs.width=window.innerWidth; cvs.height=window.innerHeight; let pts=[]; for(let i=0;i<50;i++)pts.push({x:Math.random()*cvs.width,y:Math.random()*cvs.height,vx:(Math.random()-.5),vy:(Math.random()-.5)}); function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cvs.width)p.vx*=-1;if(p.y<0||p.y>cvs.height)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,1.5,0,6.28);ctx.fill();}); requestAnimationFrame(anim); } anim(); },
-        nav: function(id) { document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active')); document.getElementById('panel-'+id).classList.add('active'); if(id==='map')setTimeout(()=>this.initMap(),200); this.refreshCurrentView(); },
-        showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('login-form-init').style.display='block'; document.getElementById('login-form-sec').style.display='none'; document.getElementById('login-pass').value=''; this.state.fail=0; },
-        loginStep1: function() { if(!this.state.db)return alert("Yükleniyor..."); const p=document.getElementById('login-pass').value.trim(); const u=this.state.db.personnel.find(x=>x.pass===p); if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } else { SFX.error(); this.failLogin(); } },
-        fakeScan: function() { SFX.error(); alert("⚠️ ERİŞİM REDDEDİLDİ: BİYOMETRİK VERİ UYUŞMAZLIĞI!"); this.failLogin(); },
-        secretUnlock: function() { if(!this.state.tUser)return; SFX.success(); this.finishLogin(); },
-        finishLogin: function() { this.state.user=this.state.tUser; this.state.fail=0; this.phone.init(this.state.user.id); document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block'; document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename; document.getElementById('u-code').style.display='block'; document.getElementById('u-role').innerText=ROLE_DEFS[this.state.user.role].label; document.getElementById('u-role').style.color=ROLE_DEFS[this.state.user.role].color; document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none'; this.nav('dashboard'); },
-        failLogin: function() { this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3){SFX.error();document.getElementById('lockdown-screen').style.display='flex';} },
-        logout: function() { location.reload(); },
-        createCryptoMessage: function() { if(this.state.user.role!=='admin')return alert("Yetkisiz!"); const t=document.getElementById('crypto-input').value; if(!t)return; const e=btoa(unescape(encodeURIComponent(t))).split('').map(c=>c.charCodeAt(0).toString(16)).join(' ').toUpperCase(); if(!this.state.db.cryptoMessages)this.state.db.cryptoMessages=[]; this.state.db.cryptoMessages.unshift({id:Date.now(),sender:this.state.user.codename,content:t,encrypted:e.substring(0,50)+"...",status:'LOCKED',date:new Date().toLocaleString()}); this.save(); alert("Kriptolandı."); document.getElementById('crypto-input').value=''; },
-        generateAIImage: function() { const p=document.getElementById('ai-prompt').value.trim(); if(!p){SFX.error();return alert("Prompt girilmedi!");} document.getElementById('ai-loader').style.display='block'; document.getElementById('ai-generated-img').style.display='none'; setTimeout(()=>{const i=document.getElementById('ai-generated-img'); i.src=`https://image.pollinations.ai/prompt/photorealistic, surveillance footage, ${encodeURIComponent(p)}?nologo=true`; i.onload=()=>{document.getElementById('ai-loader').style.display='none';i.style.display='block';SFX.success();};},2000); },
-        renderCyber: function() { const l=document.getElementById('cyber-messages-list'); l.innerHTML=''; if(!this.state.db.cryptoMessages)return; this.state.db.cryptoMessages.forEach(m=>{ let b=m.status==='LOCKED'?`<div class="crypto-glitch">${m.encrypted}</div><div style="margin-top:10px;"><button class="cyber-btn btn-small" onclick="app.hack.startHack(${m.id})">ŞİFREYİ ÇÖZ</button></div>`:`<div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">${m.content}</div><div style="margin-top:5px; color:#666; font-size:0.8rem;">DEŞİFRE EDİLDİ</div>`; l.innerHTML+=`<div class="crypto-card"><div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;"><span style="color:#aaa;">GÖNDEREN: ${m.sender}</span><span style="color:#aaa;">${m.date}</span></div>${b}</div>`; }); },
-        renderReports: function() { const f=document.getElementById('reports-feed'); f.innerHTML=''; if(!this.state.db.reports)return; this.state.db.reports.forEach(r=>{f.innerHTML+=`<div class="report-card"><div class="discord-tag">SENT</div><span style="color:white;font-weight:bold;">${r.subject}</span><span style="color:#666;font-size:0.7rem;float:right;">${r.author}</span><p style="color:#aaa;margin-top:5px;">${r.content}</p></div>`;}); },
-        submitReport: function() { const s=document.getElementById('report-subj').value,c=document.getElementById('report-content').value; if(!s||!c){SFX.error();return alert("Eksik!");} if(!this.state.db.reports)this.state.db.reports=[]; this.state.db.reports.unshift({author:this.state.user.codename,subject:s,content:c,date:new Date().toLocaleString()}); this.save(); document.getElementById('report-subj').value=''; document.getElementById('report-content').value=''; SFX.success(); },
-        renderOps: function() { const t=document.querySelector('#ops-table tbody'); t.innerHTML=''; const s=document.getElementById('op-lead'); s.innerHTML=''; if(!this.state.db.ops)return; this.state.db.personnel.forEach(p=>s.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`); this.state.db.ops.forEach((o,i)=>{t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td></tr>`;}); },
-        addOp: function() { const n=document.getElementById('op-name').value,l=document.getElementById('op-lead').value; if(!n)return; if(!this.state.db.ops)this.state.db.ops=[]; this.state.db.ops.unshift({name:n,lead:l,status:'AKTİF'}); this.save(); document.getElementById('new-op-modal').style.display='none'; SFX.success(); },
-        renderHR: function() { if(!this.state.user)return; const isAdmin=this.state.user.role==='admin'; document.getElementById('hr-table-head').innerHTML=isAdmin?`<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th><th>İLETİŞİM</th></tr>`; const b=document.getElementById('hr-table-body'); b.innerHTML=''; this.state.db.personnel.forEach(p=>{ const isOnline=this.state.onlineUsers[p.id]?true:false; const peerId=isOnline?this.state.onlineUsers[p.id].peerId:null; const isMe=p.id===this.state.user.id; if(isAdmin){ b.innerHTML+=`<tr><td>${p.name}</td><td>${p.codename}</td><td>${p.role}</td><td><button class="cyber-btn btn-small" onclick="app.editUser('${p.id}')">DÜZENLE</button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">KİMLİK</button></td></tr>`; } else { let c='-'; if(isOnline&&!isMe)c=`<button class="cyber-btn btn-small btn-green" onclick="app.phone.callUser('${peerId}','${p.codename}')">ARA</button>`; b.innerHTML+=`<tr><td>${p.codename}</td><td>${ROLE_DEFS[p.role].label}</td><td style="color:${isOnline?'lime':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${c}</td></tr>`; } }); document.getElementById('id-actions').innerHTML=isAdmin?`<button class="cyber-btn btn-small" onclick="app.generator.download()">İNDİR</button>`:'<span style="color:#666">Yetkisiz</span>'; },
-        editUser: function(id) { const p=this.state.db.personnel.find(x=>x.id===id); document.getElementById('edit-id').value=p.id; document.getElementById('edit-name').value=p.name; document.getElementById('edit-code').value=p.codename; document.getElementById('edit-role').value=p.role; document.getElementById('edit-pass').value=''; document.getElementById('edit-modal').style.display='flex'; },
-        saveEdit: function() { const id=document.getElementById('edit-id').value,p=this.state.db.personnel.find(x=>x.id===id); if(p){p.name=document.getElementById('edit-name').value;p.codename=document.getElementById('edit-code').value;p.role=document.getElementById('edit-role').value; const pass=document.getElementById('edit-pass').value; if(pass)p.pass=pass; this.save(); document.getElementById('edit-modal').style.display='none'; this.renderHR();} },
-        drawID: function(id, mode) { const p=this.state.db.personnel.find(x=>x.id===id); if(!p)return; const cvs=document.getElementById('idCardCanvas'); const ctx=cvs.getContext('2d'); const w=cvs.width; const h=cvs.height; const grd=ctx.createLinearGradient(0,0,w,h); grd.addColorStop(0,"#1a1a1a"); grd.addColorStop(1,"#000000"); ctx.fillStyle=grd; ctx.fillRect(0,0,w,h); ctx.fillStyle="#e30a17"; ctx.fillRect(0,0,w,120); ctx.textAlign="center"; ctx.fillStyle="#ffffff"; ctx.font="bold 45px 'Arial'"; ctx.fillText("TÜRKİYE CUMHURİYETİ",w/2,60); ctx.font="30px 'Arial'"; ctx.fillText("MİLLİ İSTİHBARAT TEŞKİLATI",w/2,100); const logo=new Image(); logo.crossOrigin="Anonymous"; logo.src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png"; logo.onload=()=>{ ctx.save(); ctx.globalAlpha=0.1; ctx.drawImage(logo,w/2-200,h/2-200,400,400); ctx.restore(); ctx.drawImage(logo,w-150,10,100,100); const photo=new Image(); photo.crossOrigin="Anonymous"; photo.src=`https://randomuser.me/api/portraits/${p.gender}/${p.photoId}.jpg`; photo.onload=()=>{ const px=50,py=150,pw=250,ph=300; ctx.drawImage(photo,px,py,pw,ph); ctx.strokeStyle="#e30a17"; ctx.lineWidth=5; ctx.strokeRect(px,py,pw,ph); ctx.fillStyle="rgba(0,255,0,0.2)"; ctx.fillRect(px,py+50,pw,2); ctx.textAlign="left"; const lx=350; let ly=180; const gap=60; const df=(l,v,c="#fff")=>{ctx.fillStyle="#888";ctx.font="20px 'Courier New'";ctx.fillText(l,lx,ly);ctx.fillStyle=c;ctx.font="bold 35px 'Arial'";ctx.fillText(v.toUpperCase(),lx,ly+35);ly+=gap+20;}; df("AD SOYAD",p.name); const rTC=Math.floor(10000000000+Math.random()*90000000000); df("TC KİMLİK NO",rTC.toString()); df("GÖREV",p.rank||"MEMUR"); df("KOD ADI",p.codename,"#e30a17"); ctx.save(); ctx.translate(w-200,h-150); ctx.rotate(-0.2); ctx.strokeStyle="rgba(255,0,0,0.5)"; ctx.lineWidth=4; ctx.strokeRect(0,0,180,60); ctx.fillStyle="rgba(255,0,0,0.5)"; ctx.font="bold 40px 'Arial'"; ctx.fillText("ÇOK GİZLİ",90,45); ctx.restore(); }; }; },
-        renderPublic: function(){ document.getElementById('feed-public').innerHTML=''; if(!this.state.db.announcements)return; this.state.db.announcements.forEach(a=>{document.getElementById('feed-public').innerHTML+=`<div style="padding:15px; background:rgba(0,0,0,0.5); border-left:4px solid ${a.type==='critical'?'var(--accent)':'var(--staff-blue)'}; margin-bottom:10px;"><strong style="color:white">${a.title}</strong> <span style="float:right;font-size:0.7rem;color:#666">${a.date}</span><p style="color:#aaa;margin-top:5px;">${a.msg}</p></div>`;}); const t=document.querySelector('#wanted-table tbody'); t.innerHTML=''; if(this.state.db.wanted)this.state.db.wanted.forEach(w=>t.innerHTML+=`<tr><td>${w.name}</td><td>${w.crime}</td><td style="color:var(--accent)">${w.status}</td></tr>`); },
-        updateDash: function(){ if(!this.state.db)return; document.getElementById('stat-staff').innerText=this.state.db.personnel?this.state.db.personnel.length:0; document.getElementById('stat-ops').innerText=this.state.db.ops?this.state.db.ops.filter(o=>o.status==='AKTİF').length:0; },
-        renderChat: function(){ const w=document.getElementById('chat-window'); w.innerHTML=''; if(this.state.db.chat){this.state.db.chat.forEach(c=>{const me=this.state.user&&c.user===this.state.user.codename; w.innerHTML+=`<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${c.user}</span>${c.msg}</div>`;}); w.scrollTop=w.scrollHeight;} const ul=document.getElementById('active-user-list'); ul.innerHTML=''; this.state.db.personnel.forEach(p=>{const on=this.state.onlineUsers[p.id]; if(on) ul.innerHTML+=`<div style="padding:5px; border-bottom:1px solid #333;"><span class="status-online"></span> ${p.codename}</div>`;}); },
-        sendChat: function(){ const i=document.getElementById('chat-input'); const m=i.value; if(!m)return; if(!this.state.db.chat)this.state.db.chat=[]; this.state.db.chat.push({user:this.state.user.codename,msg:m}); if(this.state.db.chat.length>50)this.state.db.chat.shift(); this.save(); i.value=''; SFX.click(); },
-        queryDB: function(){ const q=document.getElementById('db-q').value; if(!q){SFX.error();return;} SFX.success(); const b=["A Rh+","0 Rh+","B Rh-","AB Rh+"][Math.floor(Math.random()*4)]; const s=Math.floor(Math.random()*100); const st=s>80?"<span style='color:red'>KRİMİNAL</span>":"<span style='color:lime'>TEMİZ</span>"; document.getElementById('db-res').innerHTML=`<div class="bio-grid"><img src="https://randomuser.me/api/portraits/${Math.random()>0.5?'men':'women'}/${Math.floor(Math.random()*80)}.jpg" class="bio-img"><div class="bio-data"><div><span class="bio-label">KİMLİK</span><span>${q.toUpperCase()}</span></div><div><span class="bio-label">KAN</span><span>${b}</span></div><div><span class="bio-label">SKOR</span><span>${s}/100</span></div><div><span class="bio-label">DURUM</span><strong>${st}</strong></div></div></div>`; },
-        initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; },
-        updateClock: function(){ document.getElementById('sys-clock').innerText=new Date().toLocaleTimeString(); },
-        
-        // --- BAŞVURU SİSTEMİ EKSİK KALMAMASI İÇİN ---
-        goToExam: function() { const tc=document.getElementById('app-tc').value,n=document.getElementById('app-name').value; if(!tc||!n){SFX.error();return alert("Bilgiler eksik");} document.getElementById('app-step-1').style.display='none'; document.getElementById('app-step-2').style.display='block'; SFX.click(); },
-        submitExam: function() { const a={q1:document.getElementById('q1').value,q2:document.getElementById('q2').value,q9:document.getElementById('q9').value}; if(!a.q1||!a.q9){SFX.error();return alert("Soruları cevaplayın");} if(!this.state.db.apps)this.state.db.apps=[]; this.state.db.apps.push({tc:document.getElementById('app-tc').value,name:document.getElementById('app-name').value,skill:document.getElementById('app-skill').value,gender:document.getElementById('app-gender').value,date:new Date().toLocaleDateString(),exam:a}); this.save(); alert("Başvuru alındı."); location.reload(); },
-        approveAppCurrent: function() { const i=this.state.viewingAppIdx; if(i===null)return; const a=this.state.db.apps[i]; this.state.db.personnel.push({id:"AG-"+Math.floor(Math.random()*999),name:a.name,codename:"YENİ-"+Math.floor(Math.random()*99),role:'staff',rank:'ADAY',pass:'1234',gender:a.gender,photoId:Math.floor(Math.random()*99)}); this.state.db.apps.splice(i,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
-        rejectAppCurrent: function() { const i=this.state.viewingAppIdx; if(i===null)return; this.state.db.apps.splice(i,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); }
+        hasPerm: function(p) {
+            return this.user && ROLES[this.user.role].perms.includes(p);
+        },
+
+        nav: function(p) {
+            document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(x => x.classList.remove('active'));
+            
+            document.getElementById('panel-'+p).classList.add('active');
+            const btn = document.querySelector(`.nav-btn[data-perm="${p}"]`);
+            if(btn) btn.classList.add('active');
+            
+            if(p==='dashboard') this.dashboard.render();
+            SFX.click();
+        },
+
+        // --- TELEFON SİSTEMİ (ÖZEL ARAMA) ---
+        phone: {
+            incoming: function(call) {
+                app.call = call;
+                document.getElementById('call-modal').style.display = 'flex';
+                document.getElementById('btn-answer').style.display = 'inline-block';
+                document.getElementById('call-status').innerText = "GELEN ARAMA";
+                // Zil sesi
+                this.ringInt = setInterval(SFX.ring, 2000);
+            },
+            callUser: function(peerId, name) {
+                if(!peerId) return alert("Kullanıcı hatta değil.");
+                navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
+                    const call = app.peer.call(peerId, stream);
+                    app.phone.setupUI(call, name);
+                }).catch(e => alert("Mikrofon izni yok: "+e));
+            },
+            answer: function() {
+                clearInterval(this.ringInt);
+                navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
+                    app.call.answer(stream);
+                    app.phone.setupUI(app.call, "Bilinmeyen");
+                });
+            },
+            setupUI: function(call, name) {
+                app.call = call;
+                document.getElementById('call-modal').style.display = 'flex';
+                document.getElementById('btn-answer').style.display = 'none';
+                document.getElementById('call-status').innerText = "BAĞLANDI";
+                document.getElementById('call-name').innerText = name;
+                document.getElementById('call-timer').style.display = 'block';
+                
+                call.on('stream', remote => {
+                    document.getElementById('remote-audio').srcObject = remote;
+                });
+                call.on('close', () => app.phone.hangup());
+            },
+            hangup: function() {
+                if(app.call) app.call.close();
+                document.getElementById('call-modal').style.display = 'none';
+                clearInterval(this.ringInt);
+                location.reload(); // Temizle
+            }
+        },
+
+        // --- CHAT SİSTEMİ ---
+        chat: {
+            renderList: function() {
+                const div = document.getElementById('active-user-list');
+                div.innerHTML = '';
+                
+                app.data.personnel.forEach(p => {
+                    const isOnline = app.online[p.id];
+                    const isMe = app.user && p.id === app.user.id;
+                    
+                    let statusDot = isOnline ? 'status-online' : '';
+                    let opacity = isOnline ? 1 : 0.5;
+                    
+                    // ARAMA BUTONU EKLENDİ (BURASI DÜZELTİLDİ)
+                    let callBtn = '';
+                    if(isOnline && !isMe && app.hasPerm('call')) {
+                        callBtn = `<button class="cyber-btn btn-small btn-green" onclick="app.phone.callUser('${isOnline.peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`;
+                    }
+
+                    div.innerHTML += `
+                        <div class="chat-user-card" style="opacity:${opacity}">
+                            <div style="display:flex; align-items:center;">
+                                <span class="user-status-dot ${statusDot}"></span>
+                                <div>
+                                    <strong style="color:white; font-size:0.9rem;">${p.codename}</strong>
+                                    <div style="font-size:0.7rem; color:#666;">${ROLES[p.role].label}</div>
+                                </div>
+                            </div>
+                            <div>${callBtn}</div>
+                        </div>
+                    `;
+                });
+            },
+            send: function() {
+                const inp = document.getElementById('chat-input');
+                const msg = inp.value;
+                if(!msg) return;
+                const newMsg = { user: app.user.codename, text: msg, time: Date.now() };
+                const list = app.data.chat || [];
+                list.push(newMsg);
+                if(list.length > 50) list.shift();
+                db.ref('mit_database/chat').set(list);
+                inp.value = '';
+            }
+        },
+
+        // --- DİĞER FONKSİYONLAR ---
+        dashboard: {
+            render: function() {
+                document.getElementById('stat-staff').innerText = app.data.personnel.length;
+                document.getElementById('stat-ops').innerText = (app.data.ops || []).length;
+                // Harita (Leaflet)
+                if(!this.map) {
+                    this.map = L.map('map').setView([39.93, 32.85], 6);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+                }
+            }
+        },
+        cyber: {
+            encrypt: function() {
+                const t = document.getElementById('crypto-in').value;
+                if(!t) return;
+                const enc = btoa(t).split('').reverse().join(''); // Basit şifreleme
+                const l = document.getElementById('crypto-list');
+                l.innerHTML = `<div style="border:1px solid var(--cyber-green); padding:10px; margin-top:5px; color:var(--cyber-green);">Encrypted: ${enc}</div>` + l.innerHTML;
+                document.getElementById('crypto-in').value = '';
+            }
+        },
+        ops: {
+            add: function() {
+                const code = prompt("Operasyon Kod Adı:");
+                if(code) {
+                    const list = app.data.ops || [];
+                    list.push({code: code, lead: app.user.codename, status: 'AKTİF'});
+                    db.ref('mit_database/ops').set(list);
+                }
+            }
+        },
+        gen: {
+            create: function() {
+                const sex = document.getElementById('gen-sex').value;
+                const names = sex==='men' ? ['AHMET','MEHMET','ALİ','CAN'] : ['AYŞE','FATMA','ZEYNEP','ELİF'];
+                const surn = ['YILMAZ','DEMİR','KAYA','ÇELİK'];
+                const name = names[Math.floor(Math.random()*names.length)] + ' ' + surn[Math.floor(Math.random()*surn.length)];
+                const tc = Math.floor(10000000000 + Math.random() * 90000000000);
+                
+                document.getElementById('gen-text').style.display='block';
+                document.getElementById('gen-text').innerHTML = `TC: ${tc}<br>AD SOYAD: ${name}<br>DURUM: OLUŞTURULDU`;
+                
+                // Canvas Çizim
+                const cvs = document.getElementById('gen-canvas');
+                const ctx = cvs.getContext('2d');
+                ctx.fillStyle = "#111"; ctx.fillRect(0,0,500,300);
+                ctx.fillStyle = "#e30a17"; ctx.fillRect(0,0,500,50);
+                ctx.fillStyle = "white"; ctx.font = "20px Arial"; ctx.fillText("TÜRKİYE CUMHURİYETİ", 140, 35);
+                ctx.font = "16px monospace"; ctx.fillText("TC: "+tc, 20, 100);
+                ctx.font = "24px Arial"; ctx.fillText(name, 20, 150);
+                ctx.strokeStyle = "gold"; ctx.strokeRect(350, 80, 120, 150);
+                ctx.font = "12px monospace"; ctx.fillText("GİZLİ BELGE", 370, 160);
+            }
+        },
+        ai: {
+            gen: function() {
+                const p = document.getElementById('ai-prompt').value;
+                const r = document.getElementById('ai-result');
+                r.innerHTML = "Görüntü işleniyor...";
+                setTimeout(() => {
+                    r.innerHTML = `<img src="https://image.pollinations.ai/prompt/${encodeURIComponent(p)}" style="max-width:100%; border:2px solid var(--ai-purple);">`;
+                }, 2000);
+            }
+        },
+        reports: {
+            send: function() {
+                alert("Rapor havuza iletildi.");
+            }
+        },
+
+        refreshUI: function() {
+            // Chat
+            const w = document.getElementById('chat-window');
+            w.innerHTML = '';
+            (this.data.chat || []).forEach(m => {
+                const isMe = app.user && m.user === app.user.codename;
+                w.innerHTML += `<div class="msg ${isMe?'msg-me':'msg-other'}"><b>${m.user}:</b> ${m.text}</div>`;
+            });
+            w.scrollTop = w.scrollHeight;
+            this.chat.renderList();
+
+            // Ops
+            const t = document.querySelector('#table-ops tbody');
+            t.innerHTML = '';
+            (this.data.ops || []).forEach(o => {
+                t.innerHTML += `<tr><td>${o.code}</td><td>${o.lead}</td><td style="color:var(--accent)">${o.status}</td></tr>`;
+            });
+
+            // HR
+            const h = document.querySelector('#table-hr tbody');
+            h.innerHTML = '';
+            this.data.personnel.forEach(p => {
+                h.innerHTML += `<tr><td>${p.codename}</td><td>${ROLES[p.role].label}</td></tr>`;
+            });
+            
+            // Duyurular
+            document.getElementById('feed-public').innerHTML = 
+                `<div style="padding:10px; background:rgba(255,255,255,0.1); border-left:3px solid var(--accent);">
+                    <h3>SİSTEM GÜNCELLEMESİ v45.0</h3>
+                    <p>Yetki sistemi aktif edildi. Sesli görüşme protokolü düzeltildi.</p>
+                </div>`;
+        }
     };
+
     window.onload = () => app.init();
 </script>
 </body>
