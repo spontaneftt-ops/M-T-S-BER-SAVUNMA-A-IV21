@@ -3,209 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v42.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v42.0 (GHOST PROTOCOL)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
     <style>
-        /* CSS Kısmı Mevcut Tasarımınla Aynı Kalmıştır, Sadece Sınav Alanı İçin Eklemeler Yapıldı */
-        :root { --hue: 0; --bg-deep: #020202; --accent: hsl(var(--hue), 100%, 50%); --text-main: #e0e0e0; }
-        body { background-color: var(--bg-deep); color: var(--text-main); font-family: 'Rajdhani', sans-serif; overflow: hidden; }
-        .app-wrapper { opacity: 0; transition: opacity 1s; height: 100vh; display: flex; flex-direction: column; }
-        header { height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px; border-bottom: 3px solid var(--accent); background: #000; }
+        /* Orijinal CSS yapınız korunmuştur */
+        :root {
+            --hue: 0; 
+            --bg-deep: #020202;
+            --bg-panel: rgba(10, 11, 14, 0.96);
+            --primary: #0a0a0a;
+            --accent: hsl(var(--hue), 100%, 50%); 
+            --accent-dim: hsl(var(--hue), 100%, 20%);
+            --accent-glow: hsla(var(--hue), 100%, 50%, 0.35);
+            --discord: #5865F2;
+            --staff-blue: #00ccff;
+            --admin-gold: #ffcc00;
+            --cyber-green: #00ff41;
+            --ai-purple: #bd00ff;
+            --text-main: #e0e0e0;
+        }
+
+        body.defcon-5 { --hue: 120; }
+        body.defcon-4 { --hue: 60; }
+        body.defcon-3 { --hue: 30; }
+        body.defcon-1 { --hue: 0; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) var(--primary); }
+        
+        body { 
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh; overflow: hidden; user-select: none;
+            transition: --accent 0.5s ease;
+        }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            animation: scanlineMove 10s linear infinite;
+            opacity: 0.15;
+        }
+        @keyframes scanlineMove { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
+
+        #boot-screen {
+            position: fixed; inset: 0; background: #000; z-index: 5000;
+            font-family: 'Share Tech Mono'; color: var(--accent); padding: 50px;
+            display: flex; flex-direction: column; justify-content: flex-start;
+            font-size: 1.2rem;
+        }
+
+        #particles-js { position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        .app-wrapper { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 10; opacity: 0; transition: opacity 1s; }
+        
+        header {
+            height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
+            background: rgba(5, 0, 0, 0.95); border-bottom: 3px solid var(--accent);
+            box-shadow: 0 0 30px var(--accent-glow); z-index: 100;
+        }
+
         .workspace { display: flex; flex: 1; overflow: hidden; }
-        aside { width: 300px; background: #050505; border-right: 1px solid #222; padding: 20px 0; }
-        main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.8); }
-        .glass-box { background: rgba(10,11,14,0.96); border: 1px solid #222; padding: 25px; border-radius: 4px; margin-bottom: 25px; border-left: 2px solid var(--accent); }
-        .nav-btn { background: transparent; border: none; color: #888; padding: 15px 25px; text-align: left; cursor: pointer; width: 100%; display: flex; gap: 10px; }
-        .nav-btn.active { background: rgba(255,0,0,0.1); color: var(--accent); border-right: 3px solid var(--accent); }
-        .cyber-btn { background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 12px; cursor: pointer; font-family: 'Orbitron'; font-weight: bold; width: 100%; }
-        .cyber-btn:hover { background: var(--accent); color: #000; }
-        input, select, textarea { width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 10px; color: #fff; margin-bottom: 10px; }
-        .exam-scroll { max-height: 500px; overflow-y: auto; padding-right: 10px; }
-        .exam-q { margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        .exam-q label { display: block; margin-bottom: 8px; color: var(--accent); font-weight: bold; }
+        
+        aside {
+            width: 300px; background: #050505; border-right: 1px solid #222;
+            display: flex; flex-direction: column; padding: 20px 0; transition: 0.3s;
+            flex-shrink: 0;
+        }
+
+        main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.4); position: relative; }
+
+        .glass-box {
+            background: var(--bg-panel); border: 1px solid #222; padding: 25px; 
+            border-radius: 4px; margin-bottom: 25px; position: relative; 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9); overflow: hidden;
+            border-left: 2px solid var(--accent);
+            transition: border-color 0.5s;
+        }
+        
+        h2, h3 { font-family: 'Orbitron'; color: var(--accent); margin-bottom: 15px; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px var(--accent-glow); transition: color 0.5s; }
+
+        .nav-btn {
+            background: transparent; border: none; color: #888; padding: 16px 25px;
+            text-align: left; cursor: pointer; font-family: 'Rajdhani'; font-weight: 600; font-size: 1.1rem;
+            display: flex; align-items: center; gap: 15px; transition: 0.3s; width: 100%;
+            border-right: 3px solid transparent;
+        }
+        .nav-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
+        .nav-btn.active { background: var(--accent-dim); color: white; border-right-color: var(--accent); }
+
+        input, textarea, select {
+            width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 12px;
+            color: white; font-family: 'Share Tech Mono'; margin-bottom: 15px; outline: none; transition: 0.3s;
+        }
+
+        .cyber-btn {
+            width: 100%; background: transparent; border: 1px solid var(--accent);
+            color: var(--accent); padding: 12px; font-family: 'Orbitron'; cursor: pointer;
+            transition: 0.3s; text-transform: uppercase; font-weight: bold; letter-spacing: 1px;
+            position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        .cyber-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px var(--accent); }
+
+        /* Sınav alanı için ek stil */
+        .exam-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .exam-q-box { 
+            background: rgba(0,0,0,0.4); 
+            padding: 15px; 
+            border-left: 3px solid var(--accent); 
+            margin-bottom: 20px; 
+        }
     </style>
 </head>
 <body class="defcon-1">
+    <div class="scanlines"></div>
+    <canvas id="particles-js"></canvas>
 
-    <div class="app-wrapper" id="main-app" style="opacity:1;">
+    <div id="boot-screen"><div id="boot-text"></div></div>
+
+    <div class="app-wrapper" id="main-app">
         <header>
             <div style="display:flex; align-items:center; gap:20px;">
-                <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="50">
-                <h1 style="font-family:'Orbitron';">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
+                <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
+                <div>
+                    <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v42.0 (GHOST)</small>
+                </div>
             </div>
-            <div id="sys-clock" style="font-family:'Share Tech Mono'; font-size:1.5rem;">00:00:00</div>
+            <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
+                <div id="sys-clock" style="font-size:1.4rem; color:white;">00:00:00</div>
+                <div id="net-status" style="font-size:0.8rem; color:var(--accent);"><i class="fas fa-shield-alt"></i> BAĞLANTI GÜVENLİ</div>
+            </div>
         </header>
 
         <div class="workspace">
-            <aside id="sidebar-content">
+            <aside>
+                <div style="text-align:center; padding: 20px; border-bottom: 1px solid #333; margin-bottom: 10px;">
+                    <div style="width:70px; height:70px; border-radius:50%; border:2px solid var(--accent); margin:0 auto 15px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 20px var(--accent-glow); overflow:hidden; background:#000;">
+                        <i class="fas fa-user-secret fa-2x" id="u-icon" style="color:white;"></i>
+                        <img id="u-photo" style="display:none; width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <h3 id="u-name" style="font-size:1rem; margin-bottom:5px;">MİSAFİR</h3>
+                    <p id="u-code" style="font-size:0.9rem; color:var(--staff-blue); font-weight:bold; letter-spacing:1px; display:none;">KOD: YOK</p>
+                    <p id="u-role" style="font-size:0.7rem; color:#666;">ERİŞİM KISITLI</p>
+                </div>
+
                 <div id="menu-guest">
-                    <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-home"></i> Duyurular</button>
+                    <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-globe"></i> Duyurular</button>
                     <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-user-plus"></i> Başvuru</button>
+                    <button class="nav-btn" onclick="app.showLogin()" style="color:var(--accent);"><i class="fas fa-fingerprint"></i> Personel Girişi</button>
+                </div>
+
+                <div id="menu-staff" style="display:none;">
+                    <button class="nav-btn active" onclick="app.nav('dashboard')"><i class="fas fa-th"></i> Komuta</button>
+                    <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Rapor</button>
+                    <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
+                    <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> Sorgu / GBT</button>
+                    <button class="nav-btn" onclick="app.nav('idgen')"><i class="fas fa-id-card"></i> Kimlik Oluştur</button>
+                    <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Güvenli Hat</button>
+                    <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Personel</button>
+                    <button class="nav-btn" onclick="app.logout()" style="color:var(--accent);"><i class="fas fa-power-off"></i> Çıkış</button>
                 </div>
             </aside>
 
             <main>
                 <div id="panel-public" class="panel active">
-                    <div class="glass-box"><h2>SİSTEM AKTİF</h2><p>Milli İstihbarat Teşkilatı Siber Savunma Ağına Hoşgeldiniz.</p></div>
+                    <div class="glass-box"><h2><i class="fas fa-bullhorn"></i> RESMİ DUYURULAR</h2><div id="feed-public"></div></div>
                 </div>
 
-                <div id="panel-basvuru" class="panel" style="display:none;">
-                    <div class="glass-box">
+                <div id="panel-basvuru" class="panel">
+                    <div class="glass-box" style="max-width:800px; margin:0 auto;">
+                        <h2 style="text-align:center;">MİLLİ İSTİHBARAT AKADEMİSİ</h2>
                         <div id="app-step-1">
-                            <h3>AŞAMA 1: KİMLİK BİLGİLERİ</h3>
-                            <input id="app-tc" placeholder="TC Kimlik No" maxlength="11">
-                            <input id="app-name" placeholder="Ad Soyad">
-                            <select id="app-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select>
-                            <button class="cyber-btn" onclick="app.startExam()">SINAVI BAŞLAT</button>
+                            <h3 style="color:var(--staff-blue); border-bottom:1px solid #333; padding-bottom:10px;">AŞAMA 1: KİMLİK DOĞRULAMA</h3>
+                            <label>TC Kimlik</label><input id="app-tc" maxlength="11">
+                            <label>Ad Soyad</label><input id="app-name">
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+                                <div><label>Cinsiyet</label><select id="app-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select></div>
+                                <div><label>Branş</label><select id="app-skill"><option value="siber">Siber İstihbarat</option><option value="saha">Saha Operasyon</option><option value="analiz">Stratejik Analiz</option></select></div>
+                            </div>
+                            <button class="cyber-btn" style="margin-top:20px;" onclick="app.goToExam()">SINAVA GEÇ <i class="fas fa-arrow-right"></i></button>
                         </div>
                         <div id="app-step-2" style="display:none;">
-                            <h3 style="color:var(--accent)">AŞAMA 2: AKADEMİ MÜLAKAT SINAVI</h3>
-                            <div class="exam-scroll" id="exam-questions-container">
+                            <h3 style="color:var(--accent);">AŞAMA 2: YETERLİLİK SINAVI (20 SORU)</h3>
+                            <p style="color:#666; font-size:0.8rem; margin-bottom:20px;">Soruları devlet disiplini ve ciddiyetiyle cevaplayınız.</p>
+                            <div class="exam-container" id="exam-questions-list">
                                 </div>
-                            <button class="cyber-btn" onclick="app.submitExam()">BAŞVURUYU TAMAMLA</button>
+                            <button class="cyber-btn btn-gold" onclick="app.submitExam()">BAŞVURUYU TAMAMLA</button>
+                            <button class="nav-btn" onclick="document.getElementById('app-step-2').style.display='none'; document.getElementById('app-step-1').style.display='block';">GERİ</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="panel-idgen" class="panel">
+                    <div class="glass-box" style="max-width:900px; margin:0 auto; border-color:var(--staff-blue);">
+                        <h2 style="color:var(--staff-blue); text-align:center;"><i class="fas fa-id-card"></i> SAHTE KİMLİK OLUŞTURUCU</h2>
+                        <div style="display:flex; gap:15px; justify-content:center; margin-bottom:20px;">
+                            <button class="cyber-btn" style="width:auto;" onclick="app.idGen.generate('men')"><i class="fas fa-male"></i> ERKEK KİMLİĞİ</button>
+                            <button class="cyber-btn" style="width:auto;" onclick="app.idGen.generate('women')"><i class="fas fa-female"></i> KADIN KİMLİĞİ</button>
+                        </div>
+                        <div id="idgen-preview" style="text-align:center; display:none;">
+                            <canvas id="idGenCanvas" style="width:100%; max-width:600px; border-radius:10px; box-shadow:0 0 30px rgba(0,0,0,0.8);"></canvas>
+                            <br><br>
+                            <button class="cyber-btn btn-green" onclick="app.idGen.download()" style="width:200px; margin:0 auto;">KİMLİĞİ İNDİR</button>
                         </div>
                     </div>
                 </div>
 
-                <div id="panel-idgen" class="panel" style="display:none;">
-                    <div class="glass-box" style="text-align:center;">
-                        <h2>OPERASYONEL KİMLİK OLUŞTURUCU</h2>
-                        <div style="display:flex; gap:10px; margin-top:20px;">
-                            <button class="cyber-btn" onclick="app.idGen.generate('men')">ERKEK MASKE</button>
-                            <button class="cyber-btn" onclick="app.idGen.generate('women')">KADIN MASKE</button>
-                        </div>
-                        <canvas id="idGenCanvas" style="max-width:100%; margin-top:20px; border:2px solid var(--accent); display:none;"></canvas>
-                    </div>
-                </div>
-            </main>
+                </main>
         </div>
     </div>
 
-    <script>
-        const POOL = {
-            namesMen: ["Adnan","Alparslan","Baturay","Cihangir","Doğan","Ertuğrul","Fatih","Gökhan","Hakan","İbrahim","Kadir","Metehan","Oğuzhan","Ömer","Polat","Süleyman","Tamer","Ufuk","Yavuz","Ziya","Bora","Caner","Demir","Ege","Furkan","Görkem","Haluk","Kaan","Levent","Murat","Numan","Orhan","Özgür","Ramazan","Selim","Tarık","Umut","Volkan","Yasin","Zafer"],
-            namesWomen: ["Asena","Bahar","Ceren","Derya","Elif","Funda","Gamze","Hande","Irmak","Jale","Kübra","Leyla","Merve","Neslihan","Özlem","Pınar","Rüya","Selin","Tuğba","Umay","Vildan","Yağmur","Zehra","Ayşe","Burcu","Defne","Ebru","Gökçe","Hilal","İrem","Melek","Nilgün","Oya","Pelin","Seda","Tülay","Ülkü","Yeşim","Zeynep"],
-            surnames: ["Korkmaz","Yılmaz","Kaya","Demir","Çelik","Şahin","Yıldız","Yıldırım","Öztürk","Aydın","Arslan","Doğan","Kılıç","Aslan","Çetin","Kara","Koç","Kurt","Özkan","Şimşek","Polat","Akar","Sönmez","Güneş","Bozkurt","Bulut","Keskin","Turan","Avcı","Işık","Kaplan","Taş","Ateş","Sarı","Tekin","Aksoy","Uçar","Erdem","Fidan","Güler"],
-            cities: ["Ankara","İstanbul","İzmir","Bursa","Erzurum","Sivas","Diyarbakır","Trabzon","Antalya","Konya","Adana","Gaziantep","Şanlıurfa","Kocaeli","Mersin","Hatay","Manisa","Samsun","Balıkesir","Kahramanmaraş"]
-        };
+    <div id="login-modal">...</div> 
 
-        const EXAM_QUESTIONS = [
-            "Teşkilat-ı Mahsusa'nın kuruluş yılı nedir?",
-            "MİT'in temel görevi nedir?",
-            "İstihbarat çarkının ilk aşaması hangisidir?",
-            "HUMINT (İnsan İstihbaratı) kavramını açıklayınız.",
-            "SIGINT (Sinyal İstihbaratı) nedir?",
-            "Devletin bekası kavramı sizin için ne ifade ediyor?",
-            "Bir operasyonda deşifre olursanız ilk kuralınız ne olur?",
-            "Siber istihbaratın günümüzdeki önemi nedir?",
-            "Kritik altyapıların korunmasında MİT'in rolü nedir?",
-            "Yabancı servislerin (CIA, Mossad vb.) çalışma yöntemleri hakkında ne biliyorsunuz?",
-            "Stratejik analiz yaparken hangi kriterler önceliklidir?",
-            "Açık kaynak istihbaratı (OSINT) nedir?",
-            "Vatan sevgisi ve görev bilinci arasındaki dengeyi nasıl kurarsınız?",
-            "İstihbaratta 'Ölü Mektup Kutusu' tabiri neyi ifade eder?",
-            "Kriptoloji nedir ve istihbaratta neden hayati öneme sahiptir?",
-            "Karşı istihbarat (Counter-Intelligence) faaliyetinin amacı nedir?",
-            "Hibrit savaş kavramı Türkiye için neden bir tehdittir?",
-            "MİT'in doğrudan Cumhurbaşkanlığına bağlı olması operasyonel kabiliyeti nasıl etkiler?",
-            "Psikolojik harp yöntemlerine karşı nasıl bir duruş sergilenmelidir?",
-            "MİT logosundaki yıldızlar ve amblem neyi temsil eder?"
-        ];
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        const app = {
-            nav: function(id) {
-                document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
-                document.getElementById('panel-' + id).style.display = 'block';
-            },
+<script>
+    // --- FIREBASE AYARLARI (Orijinal Ayarlarınız) ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
+        authDomain: "mit-sistemi.firebaseapp.com",
+        databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mit-sistemi",
+        storageBucket: "mit-sistemi.firebasestorage.app",
+        messagingSenderId: "195453377116",
+        appId: "1:195453377116:web:85067f5070ecf983bb6499"
+    };
 
-            startExam: function() {
-                const tc = document.getElementById('app-tc').value;
-                const name = document.getElementById('app-name').value;
-                if(tc.length < 11 || name.length < 3) return alert("Bilgileri eksiksiz girin!");
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // --- GENİŞLETİLMİŞ İSİM HAVUZU ---
+    const POOL = {
+        namesMen: ["Ahmet", "Mehmet", "Mustafa", "Ali", "Hüseyin", "Hasan", "İbrahim", "İsmail", "Osman", "Yusuf", "Murat", "Ömer", "Ramazan", "Halil", "Süleyman", "Abdullah", "Mahmut", "Salih", "Kemal", "Recep", "Sinan", "Metin", "Adem", "Fatih", "Hakan", "Kadir", "Emre", "Burak", "Furkan", "Tolga", "Serkan", "Gökhan", "Uğur", "Ozan", "Cem", "Barış", "Onur", "Alper", "Arda", "Berk", "Can", "Deniz", "Ege", "Eren", "Kaan", "Mert", "Sarp", "Utku", "Yiğit", "Tuna", "Selim", "Volkan", "Yasin", "Kenan", "Bora", "Tayfun", "Yavuz", "Talat", "Numan", "Ertuğrul", "Mete", "Alparslan", "Cihan", "Levent", "Sertaç"],
+        namesWomen: ["Ayşe", "Fatma", "Emine", "Hatice", "Zeynep", "Elif", "Meryem", "Şerife", "Zehra", "Sultan", "Hanife", "Merve", "Havva", "Zeliha", "Esra", "Fadime", "Özlem", "Hacer", "Yasemin", "Hülya", "Dilek", "Sevim", "Melek", "Aslı", "Büşra", "Seda", "Sibel", "Gamze", "Gizem", "Ebru", "Pınar", "Derya", "Tuğba", "Aysel", "Leyla", "Bahar", "Burcu", "Ceren", "Çiğdem", "Deniz", "Didem", "Duygu", "Ece", "Fulya", "Gözde", "Hande", "Irem", "Melis", "Nazlı", "Selin", "Sude", "Pelin", "Buse", "Dilan", "Beril", "Cansel", "Gizem", "Süreyya", "Nalan", "Demet"],
+        surnames: ["Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Yıldırım", "Öztürk", "Aydın", "Özdemir", "Arslan", "Doğan", "Kılıç", "Aslan", "Çetin", "Kara", "Koç", "Kurt", "Özkan", "Şimşek", "Polat", "Özcan", "Korkmaz", "Çakır", "Erdoğan", "Yavuz", "Can", "Acar", "Şen", "Aktaş", "Güler", "Yalçın", "Güneş", "Bozkurt", "Bulut", "Keskin", "Ünal", "Turan", "Gül", "Avcı", "Işık", "Kaplan", "Taş", "Köse", "Ateş", "Sarı", "Tekin", "Yüksel", "Aksoy", "Uçar", "Akar", "Fidan", "Sönmez", "Öz", "Erten", "Savaş", "Yurt", "Bayrak", "Tuna"],
+        cities: ["İstanbul", "Ankara", "İzmir", "Bursa", "Antalya", "Adana", "Konya", "Gaziantep", "Şanlıurfa", "Kocaeli", "Mersin", "Diyarbakır", "Hatay", "Manisa", "Kayseri", "Samsun", "Balıkesir", "Kahramanmaraş", "Van", "Aydın", "Tekirdağ", "Sakarya", "Denizli", "Muğla", "Eskişehir", "Mardin", "Trabzon", "Malatya", "Erzurum", "Ordu", "Sivas", "Afyon", "Uşak", "Isparta", "Burdur", "Kırklareli", "Edirne", "Çanakkale", "Zonguldak", "Rize", "Artvin"]
+    };
+
+    // --- MÜLAKAT SORULARI (20 ADET) ---
+    const MİT_EXAM_QUESTIONS = [
+        "Milli İstihbarat Teşkilatı'nın kuruluş amacı ve devlet içindeki önemi nedir?",
+        "Teşkilat-ı Mahsusa ile MİT arasındaki tarihsel bağ hakkında ne biliyorsunuz?",
+        "İstihbarat çarkı (Haber Toplama, Analiz, Dağıtım vb.) nasıl çalışır?",
+        "Siber İstihbaratın modern savaşlardaki yeri nedir?",
+        "Devletin bekası için gerekirse kimliğinizden vazgeçebilir misiniz?",
+        "Bir operasyon sırasında deşifre olma riskinde ilk önceliğiniz ne olmalıdır?",
+        "Kriptoloji nedir ve neden hayati öneme sahiptir?",
+        "Açık kaynak istihbaratı (OSINT) nedir?",
+        "Yabancı bir servis tarafından temas kurulursa protokolünüz ne olur?",
+        "Psikolojik harp ve dezenformasyonla mücadele yöntemleri nelerdir?",
+        "Sahada çalışırken en önemli özelliğiniz ne olurdu? (Sabır, Hız, Analiz vb.)",
+        "Türkiye'nin jeopolitik konumunun istihbarat faaliyetlerine etkisi nedir?",
+        "Dost ve düşman unsurları ayırt ederken hangi kriterleri esas alırsınız?",
+        "Büyük veri (Big Data) analizi istihbaratta nasıl kullanılır?",
+        "İstihbaratta 'Ölü Mektup Kutusu' (Dead Drop) terimi ne ifade eder?",
+        "Vatan sevgisi ile profesyonel görev bilinci arasındaki dengeyi nasıl kurarsınız?",
+        "Kritik altyapılara yönelik siber saldırıları önleme yöntemleri nelerdir?",
+        "İnsan istihbaratı (HUMINT) ile Sinyal istihbaratı (SIGINT) farkı nedir?",
+        "Karşı istihbarat faaliyetlerinin temel amacı nedir?",
+        "MİT'in 'Kızıl Elma' doktrini hakkında ne düşünüyorsunuz?"
+    ];
+
+    const app = {
+        state: { user: null, db: null, onlineUsers: {}, viewingAppIdx: null },
+        
+        // ... (Orijinal init, save, nav, login metotlarınız aynen kalmalı) ...
+
+        init: function() {
+            this.bootSequence();
+            this.listenToCloud();
+            // ...
+        },
+
+        // --- HATA GİDERİLMİŞ KİMLİK OLUŞTURUCU ---
+        idGen: {
+            generate: function(gender) {
+                const cvs = document.getElementById('idGenCanvas');
+                const ctx = cvs.getContext('2d');
+                cvs.width = 1000; cvs.height = 630;
                 
-                const container = document.getElementById('exam-questions-container');
-                container.innerHTML = "";
-                EXAM_QUESTIONS.forEach((q, i) => {
-                    container.innerHTML += `
-                        <div class="exam-q">
-                            <label>${i+1}. ${q}</label>
-                            <textarea id="q-${i}" placeholder="Cevabınızı buraya yazınız..."></textarea>
-                        </div>
-                    `;
-                });
-                document.getElementById('app-step-1').style.display = 'none';
-                document.getElementById('app-step-2').style.display = 'block';
+                const name = POOL[gender === 'men' ? 'namesMen' : 'namesWomen'][Math.floor(Math.random() * POOL.namesMen.length)];
+                const surname = POOL['surnames'][Math.floor(Math.random() * POOL.surnames.length)];
+                const city = POOL['cities'][Math.floor(Math.random() * POOL.cities.length)];
+                const photoId = Math.floor(Math.random() * 99);
+                const birthYear = 1980 + Math.floor(Math.random() * 25);
+                const tc = Math.floor(10000000000 + Math.random() * 90000000000);
+                
+                const bg = new Image();
+                bg.crossOrigin = "Anonymous";
+                // DÜZELTME: Daha güvenilir bir placeholder veya yerel bir link kullanın.
+                // Eğer link kırılırsa 'onerror' ile siyah bir şablon oluşturuyoruz.
+                bg.src = "https://i.ibb.co/L50HjHn/mit-template-base.jpg"; 
+                
+                bg.onerror = () => {
+                    console.warn("Dış arka plan yüklenemedi, yerel şablon çiziliyor.");
+                    ctx.fillStyle = "#111";
+                    ctx.fillRect(0, 0, cvs.width, cvs.height);
+                    ctx.strokeStyle = "#ff0000";
+                    ctx.lineWidth = 10;
+                    ctx.strokeRect(5, 5, 990, 620);
+                    this.drawText(ctx, name, surname, city, birthYear, tc, gender, photoId);
+                };
+
+                bg.onload = () => {
+                    ctx.drawImage(bg, 0, 0, cvs.width, cvs.height);
+                    this.drawText(ctx, name, surname, city, birthYear, tc, gender, photoId);
+                };
+                
+                document.getElementById('idgen-preview').style.display = 'block';
             },
-
-            submitExam: function() {
-                alert("Başvurunuz şifrelendi ve veritabanına iletildi. Değerlendirme sonrası size ulaşılacaktır.");
-                this.nav('public');
+            drawText: function(ctx, name, surname, city, birthYear, tc, gender, photoId) {
+                const photo = new Image();
+                photo.crossOrigin = "Anonymous";
+                photo.src = `https://randomuser.me/api/portraits/${gender}/${photoId}.jpg`;
+                photo.onload = () => {
+                    ctx.drawImage(photo, 58, 250, 285, 310);
+                    ctx.font = "bold 34px 'Courier New'"; ctx.fillStyle = "#333";
+                    ctx.fillText(`${name.toUpperCase()} ${surname.toUpperCase()}`, 420, 295);
+                    ctx.fillText(`D.YERİ: ${city.toUpperCase()} / ${birthYear}`, 420, 475);
+                    ctx.font = "16px monospace"; ctx.fillText(`TC: ${tc}`, 750, 580);
+                };
             },
-
-            idGen: {
-                generate: function(gender) {
-                    const cvs = document.getElementById('idGenCanvas');
-                    const ctx = cvs.getContext('2d');
-                    cvs.width = 1000; cvs.height = 630;
-                    
-                    const name = POOL[gender === 'men' ? 'namesMen' : 'namesWomen'][Math.floor(Math.random() * 40)];
-                    const surname = POOL['surnames'][Math.floor(Math.random() * 40)];
-                    const city = POOL['cities'][Math.floor(Math.random() * 20)];
-                    const tc = Math.floor(10000000000 + Math.random() * 90000000000);
-                    const photoId = Math.floor(Math.random() * 70);
-
-                    // GÜVENLİ GÖRSEL YÜKLEME (CORS HATASI GİDERİLDİ)
-                    const bg = new Image();
-                    bg.crossOrigin = "Anonymous";
-                    // Hizliresim yerine daha stabil bir placeholder veya tasarım linki kullanıldı
-                    bg.src = "https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=1000"; 
-                    
-                    bg.onload = () => {
-                        // Arka planı koyulaştırıp şablon oluşturma
-                        ctx.fillStyle = "#111";
-                        ctx.fillRect(0,0,1000,630);
-                        ctx.strokeStyle = "#ff0000";
-                        ctx.lineWidth = 10;
-                        ctx.strokeRect(0,0,1000,630);
-                        
-                        // MİT Logo Süsü
-                        ctx.fillStyle = "rgba(255,0,0,0.1)";
-                        ctx.font = "bold 150px Orbitron";
-                        ctx.fillText("MİT", 350, 350);
-
-                        const photo = new Image();
-                        photo.crossOrigin = "Anonymous";
-                        photo.src = `https://randomuser.me/api/portraits/${gender}/${photoId}.jpg`;
-                        
-                        photo.onload = () => {
-                            ctx.drawImage(photo, 50, 150, 300, 350);
-                            ctx.fillStyle = "#fff";
-                            ctx.font = "bold 40px Share Tech Mono";
-                            ctx.fillText(`AD: ${name.toUpperCase()}`, 400, 200);
-                            ctx.fillText(`SOYAD: ${surname.toUpperCase()}`, 400, 280);
-                            ctx.fillText(`MEMLEKET: ${city.toUpperCase()}`, 400, 360);
-                            ctx.fillText(`TC: ${tc}`, 400, 440);
-                            ctx.fillStyle = "#ff0000";
-                            ctx.fillText("OPERASYONEL MASKE KİMLİK", 400, 550);
-                            
-                            cvs.style.display = "block";
-                        };
-                    };
-                    bg.onerror = () => {
-                        // Eğer link bozulursa düz renk arka plan ile devam et (Hata önleyici)
-                        ctx.fillStyle = "#050505";
-                        ctx.fillRect(0,0,1000,630);
-                        alert("Görsel sunucusu yanıt vermedi, standart şablon yüklendi.");
-                        bg.onload(); 
-                    };
-                }
+            download: function() {
+                const link = document.createElement('a');
+                link.download = `MASK_ID_${Date.now()}.png`;
+                link.href = document.getElementById('idGenCanvas').toDataURL();
+                link.click();
             }
-        };
+        },
 
-        setInterval(() => {
-            document.getElementById('sys-clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-    </script>
+        // --- GÜNCELLENMİŞ SINAV MANTIĞI ---
+        goToExam: function() {
+            const tc = document.getElementById('app-tc').value;
+            const name = document.getElementById('app-name').value;
+            if(!tc || !name) return alert("Bilgileri doldurun!");
+            
+            const list = document.getElementById('exam-questions-list');
+            list.innerHTML = "";
+            MİT_EXAM_QUESTIONS.forEach((q, i) => {
+                list.innerHTML += `
+                    <div class="exam-q-box">
+                        <span class="exam-label">${i+1}. ${q}</span>
+                        <textarea id="exam-q-${i}" placeholder="Yanıtınızı buraya yazın..."></textarea>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('app-step-1').style.display = 'none';
+            document.getElementById('app-step-2').style.display = 'block';
+        },
+
+        submitExam: function() {
+            const tc = document.getElementById('app-tc').value;
+            const name = document.getElementById('app-name').value;
+            const skill = document.getElementById('app-skill').value;
+            
+            // Tüm yanıtları topla
+            let answers = [];
+            for(let i=0; i<20; i++) {
+                answers.push(document.getElementById(`exam-q-${i}`).value);
+            }
+
+            if(answers.some(a => !a)) return alert("Lütfen tüm soruları cevaplayınız!");
+
+            if(!this.state.db.apps) this.state.db.apps = [];
+            this.state.db.apps.push({ tc, name, skill, answers, date: new Date().toLocaleDateString() });
+            this.save();
+            alert("BAŞVURUNUZ KRİPTOLANARAK MERKEZE İLETİLDİ.");
+            location.reload();
+        },
+
+        // ... (Diğer orijinal metotlarınız: bootSequence, listenToCloud, nav, login, chat vb.) ...
+    };
+
+    // Main logic runner (Orijinaldeki gibi)
+    window.onload = () => app.init();
+</script>
 </body>
 </html>
