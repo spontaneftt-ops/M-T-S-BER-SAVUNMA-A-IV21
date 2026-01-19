@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v31.0 (CRYPTO OPS)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v32.0 (CHAT FIX)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -125,7 +125,6 @@
         .cyber-table td { padding: 12px 10px; border-bottom: 1px solid #222; font-family: 'Share Tech Mono'; font-size: 0.9rem; vertical-align: middle; }
         .cyber-table tr:hover { background: rgba(255,255,255,0.03); }
 
-        /* KİMLİK CANVAS */
         #idCardCanvas { max-width: 100%; height: auto; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
         /* CHAT LAYOUT */
@@ -138,36 +137,31 @@
         .user-status-dot { width: 8px; height: 8px; border-radius: 50%; background: #444; margin-right: 8px; display: inline-block; }
         .status-online { background: #00ff00; box-shadow: 0 0 5px #00ff00; }
         
-        .msg { padding: 10px; border-radius: 4px; max-width: 80%; font-size: 0.9rem; position: relative; }
+        .msg { padding: 10px; border-radius: 4px; max-width: 80%; font-size: 0.9rem; position: relative; word-wrap: break-word; }
         .msg-me { background: var(--accent-dim); align-self: flex-end; border: 1px solid var(--accent); color: white; }
         .msg-other { background: #151515; align-self: flex-start; border: 1px solid #333; color: #ccc; }
         .msg-sender { font-size: 0.7rem; color: var(--staff-blue); display: block; margin-bottom: 3px; font-weight: bold; }
-        .chat-img { max-width: 100%; border-radius: 4px; border: 1px solid #444; margin-top: 5px; cursor: pointer; }
-        .chat-audio { width: 100%; margin-top: 5px; height: 30px; }
+        .chat-img { max-width: 200px; border-radius: 4px; border: 1px solid #444; margin-top: 5px; cursor: pointer; }
+        .chat-audio { width: 200px; margin-top: 5px; height: 30px; }
 
         .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 15px; border: 1px solid var(--accent); padding: 10px; background: rgba(0,0,0,0.5); margin-top: 10px; }
         .bio-img { width: 100%; height: 100px; object-fit: cover; border: 1px solid #444; }
         .bio-data div { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: 'Share Tech Mono'; font-size: 0.9rem; }
         .bio-label { color: var(--accent); font-size: 0.8rem; }
 
-        /* KRİPTO / HACK STİLLERİ */
         .crypto-card { border: 1px solid var(--cyber-green); background: rgba(0, 20, 0, 0.8); padding: 15px; margin-bottom: 15px; font-family: 'Share Tech Mono'; position: relative; overflow: hidden; }
         .crypto-glitch { animation: glitchText 0.3s infinite; color: var(--cyber-green); font-weight: bold; font-size: 1.1rem; word-break: break-all; }
-        .crypto-locked { filter: blur(2px); pointer-events: none; opacity: 0.7; }
         
         #hack-terminal { background: #000; border: 2px solid var(--cyber-green); height: 300px; padding: 20px; font-family: 'Share Tech Mono'; color: var(--cyber-green); overflow: hidden; position: relative; }
         .hack-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1.2rem; }
         .hack-char { width: 20px; text-align: center; cursor: pointer; transition: 0.1s; }
         .hack-char:hover { background: var(--cyber-green); color: black; }
-        .hack-char.solved { color: white; text-shadow: 0 0 10px white; }
         
         #hack-progress-bar { width: 0%; height: 5px; background: var(--cyber-green); transition: width 0.1s; box-shadow: 0 0 10px var(--cyber-green); }
 
-        /* MODALLAR */
         #lockdown-screen { background: #000; display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); text-align: center; }
         #login-modal, #edit-modal, #call-modal, #app-view-modal, #hack-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
 
-        /* GÜVENLİK SİSTEMİ STİLLERİ */
         .sec-matrix { position: relative; width: 100%; height: 200px; background: #000; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column; }
         .sec-circle { position: absolute; border: 2px dashed var(--accent); border-radius: 50%; animation: spinSec 10s linear infinite; opacity: 0.5; }
         .sec-circle:nth-child(1) { width: 150px; height: 150px; border-color: var(--staff-blue); animation-duration: 5s; }
@@ -183,7 +177,6 @@
         @keyframes scanDown { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
         @keyframes glitchText { 0% { opacity: 1; transform: translate(0); } 20% { opacity: 0.8; transform: translate(-2px, 2px); } 40% { opacity: 1; transform: translate(2px, -2px); } 100% { opacity: 1; transform: translate(0); } }
 
-        /* ARAMA MODALI */
         #call-modal { flex-direction: column; }
         .call-pulse { animation: callPulse 1.5s infinite; border-radius: 50%; width: 100px; height: 100px; background: var(--accent); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         @keyframes callPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); } 70% { box-shadow: 0 0 0 30px rgba(255, 255, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); } }
@@ -196,7 +189,6 @@
         .recording-pulse { animation: recPulse 1s infinite; color: red !important; border-color: red !important; }
         @keyframes recPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); } }
 
-        /* MOBIL */
         @media screen and (max-width: 900px) {
             body { overflow: auto; }
             header { height: auto; flex-direction: column; gap: 10px; padding: 15px; text-align: center; }
@@ -259,8 +251,7 @@
     <div id="hack-modal">
         <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
             <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
-            <div id="hack-terminal">
-                </div>
+            <div id="hack-terminal"></div>
             <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
                 <div id="hack-progress-bar"></div>
             </div>
@@ -283,7 +274,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v31.0</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v32.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -341,7 +332,6 @@
                 <div id="panel-basvuru" class="panel">
                     <div class="glass-box" style="max-width:700px; margin:0 auto;">
                         <h2 style="text-align:center;">AKADEMİ BAŞVURU & MÜLAKAT</h2>
-                        
                         <div id="app-step-1">
                             <h3 style="color:var(--staff-blue);">ADIM 1: KİMLİK DOĞRULAMA</h3>
                             <label>TC Kimlik</label><input id="app-tc" maxlength="11">
@@ -352,24 +342,17 @@
                             </div>
                             <button class="cyber-btn" onclick="app.goToStep2()">MÜLAKATA GEÇ <i class="fas fa-arrow-right"></i></button>
                         </div>
-
                         <div id="app-step-2" style="display:none;">
                             <h3 style="color:var(--accent);">ADIM 2: YAZILI MÜLAKAT</h3>
-                            <p style="color:#888; font-size:0.9rem; margin-bottom:20px;">Aşağıdaki sorulara vereceğiniz cevaplar, teşkilat mantalitesine uygunluğunuzu belirleyecektir. Dürüst ve net olunuz.</p>
-                            
-                            <label style="color:white; font-weight:bold;">SORU 1: Vatan ve devlet güvenliği sizin için ne ifade ediyor? Kişisel hırslarınızın önüne geçebilir mi?</label>
+                            <label style="color:white; font-weight:bold;">SORU 1: Vatan ve devlet güvenliği sizin için ne ifade ediyor?</label>
                             <textarea id="app-q1" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
-                            
-                            <label style="color:white; font-weight:bold;">SORU 2: Bir operasyon sırasında sivil kaybı riski ile görevin başarısı arasında kalsanız, karar mekanizmanız nasıl işler?</label>
+                            <label style="color:white; font-weight:bold;">SORU 2: Kriz anında karar mekanizmanız nasıl işler?</label>
                             <textarea id="app-q2" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
-                            
-                            <label style="color:white; font-weight:bold;">SORU 3: Görev gereği en yakınlarınızdan (aile, eş) gerçek kimliğinizi yıllarca saklamanız gerekse, bu psikolojik yükü kaldırabilir misiniz?</label>
+                            <label style="color:white; font-weight:bold;">SORU 3: Gizlilik ilkesine bakışınız nedir?</label>
                             <textarea id="app-q3" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
-
                             <button class="cyber-btn" onclick="app.submitAppFull()">BAŞVURUYU TAMAMLA</button>
                             <button class="nav-btn" style="text-align:center; width:100%; margin-top:10px;" onclick="document.getElementById('app-step-2').style.display='none'; document.getElementById('app-step-1').style.display='block';">GERİ DÖN</button>
                         </div>
-
                     </div>
                 </div>
 
@@ -395,8 +378,7 @@
                 <div id="panel-cyber" class="panel">
                     <div class="glass-box" style="border-color:var(--cyber-green);">
                         <h2 style="color:var(--cyber-green);">SİBER SAVAŞ & KRİPTO MERKEZİ</h2>
-                        <div id="cyber-messages-list">
-                            </div>
+                        <div id="cyber-messages-list"></div>
                     </div>
                 </div>
 
@@ -420,7 +402,6 @@
                 <div id="panel-chat" class="panel">
                     <div class="glass-box" style="max-width:1000px; margin:0 auto;">
                         <h2 style="text-align:center; color:var(--staff-blue);">GÜVENLİ HAT (KOD ADI)</h2>
-                        
                         <div class="chat-container">
                             <div class="chat-main">
                                 <div class="chat-window" id="chat-window"></div>
@@ -432,15 +413,11 @@
                                     <button class="cyber-btn" onclick="app.sendChat()" style="width:100px; border-color:var(--staff-blue); color:var(--staff-blue);">GÖNDER</button>
                                 </div>
                             </div>
-
                             <div class="chat-sidebar">
                                 <h3 style="color:var(--accent); font-size:1rem; border-bottom:1px solid #333; padding-bottom:5px;">AKTİF PERSONEL</h3>
-                                <div id="active-user-list">
-                                    <small style="color:#666">Yükleniyor...</small>
-                                </div>
+                                <div id="active-user-list"><small style="color:#666">Yükleniyor...</small></div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -452,7 +429,6 @@
                         </div>
                         <div id="new-op-modal" style="display:none; background:#000; padding:20px; border:1px solid var(--accent); margin:20px 0;">
                             <h3>GÖREV EMRİ</h3>
-                            <p style="color:var(--discord); font-size:0.7rem;">Operasyon emri Discord kanalına düşecektir.</p>
                             <input id="op-name" placeholder="Kod Adı">
                             <label>Lider</label><select id="op-lead"></select>
                             <button class="cyber-btn" onclick="app.addOp()">BAŞLAT</button>
@@ -468,13 +444,16 @@
                         
                         <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:20px;">
                             <h4 style="color:var(--cyber-green);">KRİPTOLU GÖREV EMRİ OLUŞTUR</h4>
-                            <input id="crypto-input" placeholder="Gizli Mesaj İçeriği (Örn: Ajan X hedefe yönlendirilsin)">
+                            <input id="crypto-input" placeholder="Gizli Mesaj İçeriği">
                             <button class="cyber-btn" style="border-color:var(--cyber-green); color:var(--cyber-green);" onclick="app.createCryptoMessage()">ŞİFRELE VE GÖNDER</button>
+                            
+                            <h4 style="color:var(--accent); margin-top:20px;">KRİPTO MESAJ YÖNETİMİ</h4>
+                            <div id="admin-crypto-list" style="max-height:150px; overflow-y:auto; border:1px solid #333; padding:5px;"></div>
                         </div>
 
                         <h3 style="color:var(--admin-gold); margin-top:15px;">DUYURU YAYINLA</h3>
                         <div style="display:flex; gap:15px; flex-wrap:wrap;">
-                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1; min-width:200px;">
+                            <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1;">
                             <select id="ann-type" style="width:150px;"><option value="info">Bilgi</option><option value="critical">KRİTİK</option></select>
                         </div>
                         <textarea id="ann-msg" rows="2" placeholder="Mesaj..."></textarea>
@@ -498,7 +477,7 @@
                     
                     <div id="admin-apps-section" style="display:none;">
                         <div class="glass-box">
-                            <h3>BEKLEYEN BAŞVURULAR (MÜLAKATLI)</h3>
+                            <h3>BEKLEYEN BAŞVURULAR</h3>
                             <div id="hr-apps-list" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:15px;"></div>
                         </div>
                         <div class="glass-box">
@@ -511,7 +490,7 @@
                 <div id="panel-db" class="panel">
                     <div class="glass-box">
                         <h2>GDBS SORGU</h2>
-                        <input id="db-q" placeholder="TC Kimlik / Ad Soyad (Tam veya kısmi)">
+                        <input id="db-q" placeholder="TC Kimlik / Ad Soyad">
                         <button class="cyber-btn" onclick="app.queryDB()">SİSTEMDE ARA</button>
                         <div id="db-res" style="margin-top:20px;"></div>
                     </div>
@@ -547,7 +526,7 @@
             <input type="hidden" id="edit-id">
             <label>Ad Soyad</label><input id="edit-name">
             <label>Kod Adı</label><input id="edit-code">
-            <label>Rütbe / Ünvan</label><input id="edit-rank" placeholder="Örn: SAHA UZMANI, DAİRE BAŞKANI">
+            <label>Rütbe / Ünvan</label><input id="edit-rank">
             <label>YETKİ ROLÜ</label>
             <select id="edit-role">
                 <option value="admin">MÜSTEŞAR (Tam Yetki)</option>
@@ -557,23 +536,9 @@
                 <option value="analyst">ANALİST (Bilgi/İstihbarat)</option>
             </select>
             <label style="color:var(--accent);">Yeni Şifre (Opsiyonel)</label>
-            <input id="edit-pass" placeholder="Değiştirmek için yeni şifreyi yazın..." style="border:1px dashed var(--accent);">
+            <input id="edit-pass" placeholder="Değiştirmek için yeni şifreyi yazın...">
             <button class="cyber-btn btn-gold" style="width:100%" onclick="app.saveEdit()">KAYDET & GÜNCELLE</button>
             <button class="nav-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="text-align:center; width:100%">İPTAL</button>
-        </div>
-    </div>
-
-    <div id="hack-modal">
-        <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
-            <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
-            <div id="hack-terminal">
-                </div>
-            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
-                <div id="hack-progress-bar"></div>
-            </div>
-            <p id="hack-status" style="font-family:'Share Tech Mono'; color:white; text-align:center; margin-top:5px;">HEDEF: ŞİFREYİ KIR</p>
-            <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
-            <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
         </div>
     </div>
 
@@ -625,7 +590,7 @@
             g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.00001, now + 0.8);
             o.start(now); o.stop(now + 0.8);
         },
-        hack: function() { this.playTone(3000, 'square', 0.05); } // Hack sesi
+        hack: function() { this.playTone(3000, 'square', 0.05); }
     };
 
     const phoneSystem = {
@@ -644,7 +609,7 @@
             if(!targetPeerId) return alert("Hata: Hedef ID bulunamadı.");
             navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
                 this.myStream = stream; const call = this.peer.call(targetPeerId, stream); this.setupCallUI(call, targetName, "ARANIYOR...");
-            }).catch(err => { alert("Mikrofon izni gerekli! Lütfen tarayıcı ayarlarından izin verin."); });
+            }).catch(err => { alert("Mikrofon izni gerekli!"); });
         },
         incomingCall: function(call) {
             this.activeCall = call; document.getElementById('call-modal').style.display = 'flex';
@@ -673,7 +638,7 @@
             const interval = setInterval(() => { if(!this.activeCall || !this.activeCall.open) { clearInterval(interval); return; } sec++; const m = Math.floor(sec/60).toString().padStart(2,'0'); const s = (sec%60).toString().padStart(2,'0'); timer.innerText = `${m}:${s}`; }, 1000);
             call.on('stream', (remoteStream) => { 
                 const audio = document.getElementById('remote-audio'); audio.srcObject = remoteStream; 
-                audio.play().catch(e => console.log("Otomatik oynatma engellendi."));
+                audio.play().catch(e => console.log("Auto-play prevented"));
             });
             call.on('close', () => { clearInterval(interval); this.endCall(); });
         }
@@ -689,76 +654,22 @@
             ],
             citizens: [], reports: [], apps: [], tips: [], ops: [],
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
-            cryptoMessages: [], // YENİ: Kriptolu mesajlar havuzu
+            cryptoMessages: [], 
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v31.0 CRYPTO OPS", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v32.0 CHAT FIX", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
         state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null, db: null, mediaRec: null, audioChunks: [], onlineUsers: {}, viewingAppIdx: null },
         phone: phoneSystem,
 
-        // YENİ SİBER HACK MODÜLÜ
         hack: {
-            activeMsgId: null,
-            progress: 0,
-            interval: null,
-            
-            startHack: function(id) {
-                this.activeMsgId = id;
-                this.progress = 0;
-                document.getElementById('hack-modal').style.display = 'flex';
-                this.renderTerminal();
-            },
-            
-            renderTerminal: function() {
-                const term = document.getElementById('hack-terminal');
-                term.innerHTML = '';
-                // Rastgele Hex Kodları Üret
-                for(let i=0; i<15; i++) {
-                    const row = document.createElement('div');
-                    row.className = 'hack-row';
-                    row.innerHTML = Array(20).fill(0).map(() => `<span class="hack-char">${Math.floor(Math.random()*2)}</span>`).join('');
-                    term.appendChild(row);
-                }
-            },
-            
-            processHack: function() {
-                // Tıklayınca ilerle
-                this.progress += 5; // Her tık %5
-                SFX.hack();
-                document.getElementById('hack-progress-bar').style.width = this.progress + '%';
-                
-                // Görsel efekt: Kodları karıştır
-                const chars = document.querySelectorAll('.hack-char');
-                chars.forEach(c => {
-                    if(Math.random() > 0.7) {
-                        c.innerText = Math.floor(Math.random()*9);
-                        c.style.color = '#fff';
-                        setTimeout(() => c.style.color = '', 100);
-                    }
-                });
-
-                if(this.progress >= 100) {
-                    this.finishHack();
-                }
-            },
-            
-            finishHack: function() {
-                SFX.success();
-                alert("ŞİFRE ÇÖZÜLDÜ! Mesaj kilidi açılıyor...");
-                // Veritabanında mesajı 'OPEN' yap
-                const msg = app.state.db.cryptoMessages.find(m => m.id === this.activeMsgId);
-                if(msg) msg.status = 'OPEN';
-                app.save();
-                this.closeHack();
-                app.renderCyber(); // Listeyi yenile
-            },
-            
-            closeHack: function() {
-                document.getElementById('hack-modal').style.display = 'none';
-                this.progress = 0;
-            }
+            activeMsgId: null, progress: 0,
+            startHack: function(id) { this.activeMsgId = id; this.progress = 0; document.getElementById('hack-modal').style.display = 'flex'; this.renderTerminal(); },
+            renderTerminal: function() { const term = document.getElementById('hack-terminal'); term.innerHTML = ''; for(let i=0; i<15; i++) { const row = document.createElement('div'); row.className = 'hack-row'; row.innerHTML = Array(20).fill(0).map(() => `<span class="hack-char">${Math.floor(Math.random()*2)}</span>`).join(''); term.appendChild(row); } },
+            processHack: function() { this.progress += 5; SFX.hack(); document.getElementById('hack-progress-bar').style.width = this.progress + '%'; if(this.progress >= 100) this.finishHack(); },
+            finishHack: function() { SFX.success(); alert("ŞİFRE ÇÖZÜLDÜ!"); const msg = app.state.db.cryptoMessages.find(m => m.id === this.activeMsgId); if(msg) msg.status = 'OPEN'; app.save(); this.closeHack(); app.renderCyber(); },
+            closeHack: function() { document.getElementById('hack-modal').style.display = 'none'; this.progress = 0; }
         },
 
         can: function(perm) {
@@ -775,14 +686,27 @@
             document.querySelectorAll('button, .nav-btn').forEach(b => { b.addEventListener('mouseenter', ()=>SFX.hover()); b.addEventListener('click', ()=>SFX.click()); });
         },
         listenToCloud: function() {
-            database.ref('mit_database').on('value', (snapshot) => { const data = snapshot.val(); if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); } this.refreshCurrentView(); this.applyDefcon(this.state.db.defcon); });
-            database.ref('online_users').on('value', (snap) => { this.state.onlineUsers = snap.val() || {}; if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); });
+            database.ref('mit_database').on('value', (snapshot) => { 
+                const data = snapshot.val(); 
+                if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); } 
+                this.refreshCurrentView(); 
+                this.applyDefcon(this.state.db.defcon); 
+                
+                // Chat Ekranındaysa Mesajları Güncelle
+                if(document.getElementById('panel-chat').classList.contains('active')) {
+                    this.renderChat();
+                }
+            });
+            database.ref('online_users').on('value', (snap) => { 
+                this.state.onlineUsers = snap.val() || {}; 
+                if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); 
+            });
         },
         save: function() { if(this.state.db) { database.ref('mit_database').set(this.state.db).catch(e => console.error(e)); } },
         refreshCurrentView: function() {
             if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
             if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
-            if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
+            if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); // Önemli
             if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps();
             if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports();
             if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash();
@@ -800,31 +724,16 @@
             function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); }); requestAnimationFrame(anim); } anim();
         },
         nav: function(id) { 
-            // Yetki Kontrolleri
             if(id === 'hr' && !this.can('hr_view') && !this.can('all')) return alert("Erişim Reddedildi: Yetersiz Personel Yetkisi");
             if(id === 'ops' && !this.can('ops_view') && !this.can('ops_manage') && !this.can('all')) return alert("Erişim Reddedildi: Operasyon Yetkisi Yok");
             if(id === 'db' && !this.can('db_query') && !this.can('all')) return alert("Erişim Reddedildi: Veritabanı Yetkisi Yok");
-            if(id === 'cyber' && !this.can('cyber_ops') && !this.can('all')) return alert("Erişim Reddedildi: Sadece Siber Uzmanlar"); // SİBER KONTROL
-            
+            if(id === 'cyber' && !this.can('cyber_ops') && !this.can('all')) return alert("Erişim Reddedildi: Sadece Siber Uzmanlar"); 
             if(id === 'ops') { const btn = document.getElementById('btn-new-op'); if(this.can('all') || this.can('ops_manage')) { btn.style.display = 'block'; } else { btn.style.display = 'none'; } }
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); 
         },
         
-        showLogin: function() { 
-            document.getElementById('login-modal').style.display='flex'; 
-            document.getElementById('login-form-init').style.display='block';
-            document.getElementById('login-form-sec').style.display='none';
-            document.getElementById('login-pass').value=''; 
-            document.getElementById('login-msg').innerText=''; 
-            this.state.fail = 0; 
-        },
-        loginStep1: function() {
-            if(!this.state.db) return alert("Sistem yükleniyor..."); 
-            const p = document.getElementById('login-pass').value.trim(); 
-            const u = this.state.db.personnel.find(x => x.pass === p);
-            if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } 
-            else { SFX.error(); this.failLogin(); }
-        },
+        showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('login-form-init').style.display='block'; document.getElementById('login-form-sec').style.display='none'; document.getElementById('login-pass').value=''; document.getElementById('login-msg').innerText=''; this.state.fail = 0; },
+        loginStep1: function() { if(!this.state.db) return alert("Sistem yükleniyor..."); const p = document.getElementById('login-pass').value.trim(); const u = this.state.db.personnel.find(x => x.pass === p); if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } else { SFX.error(); this.failLogin(); } },
         fakeScan: function() { SFX.error(); alert("⚠️ ERİŞİM REDDEDİLDİ: BİYOMETRİK VERİ UYUŞMAZLIĞI!\n\nGüvenlik protokolü ihlali tespit edildi."); this.failLogin(); },
         secretUnlock: function() { if(!this.state.tUser) return; SFX.success(); this.finishLogin(); },
         finishLogin: function() {
@@ -834,74 +743,38 @@
             const rDef = ROLE_DEFS[this.state.user.role] || {label:'PERSONEL', color:'#ccc'};
             document.getElementById('u-role').innerText=rDef.label; document.getElementById('u-role').style.color=rDef.color;
             document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
-            
-            // SİBER MENÜ GÖSTER
             if(this.can('cyber_ops') || this.can('all')) { document.getElementById('nav-cyber').style.display = 'flex'; }
-            
             this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
         },
         failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3){ SFX.error(); document.getElementById('lockdown-screen').style.display='flex'; } },
         logout: function() { location.reload(); },
 
-        // --- YENİ: KRİPTO OLUŞTURMA (ADMİN) ---
         createCryptoMessage: function() {
             if(!this.can('hr_manage') && !this.can('all')) return alert("Yetkisiz!");
-            const txt = document.getElementById('crypto-input').value;
-            if(!txt) return;
-            
-            // Basit şifreleme simülasyonu (Base64 + random hex görünümü)
+            const txt = document.getElementById('crypto-input').value; if(!txt) return;
             const encrypted = btoa(unescape(encodeURIComponent(txt))).split('').map(c => c.charCodeAt(0).toString(16)).join(' ').toUpperCase();
-            
             if(!this.state.db.cryptoMessages) this.state.db.cryptoMessages = [];
-            this.state.db.cryptoMessages.unshift({
-                id: Date.now(),
-                sender: this.state.user.codename,
-                content: txt,
-                encrypted: encrypted.substring(0, 50) + "...", // Görünen kısım
-                status: 'LOCKED',
-                date: new Date().toLocaleString()
-            });
-            this.save();
-            alert("Görev emri kriptolandı ve havuza iletildi.");
-            document.getElementById('crypto-input').value = '';
+            this.state.db.cryptoMessages.unshift({ id: Date.now(), sender: this.state.user.codename, content: txt, encrypted: encrypted.substring(0, 50) + "...", status: 'LOCKED', date: new Date().toLocaleString() });
+            this.save(); alert("Kriptolandı."); document.getElementById('crypto-input').value = '';
+        },
+        deleteCrypto: function(id) {
+            if(confirm("Mesajı kalıcı olarak sil?")) {
+                const idx = this.state.db.cryptoMessages.findIndex(m => m.id === id);
+                if(idx > -1) {
+                    this.state.db.cryptoMessages.splice(idx, 1);
+                    this.save();
+                    this.renderHR(); // Admin listesini yenile
+                    alert("Mesaj imha edildi.");
+                }
+            }
         },
 
-        // --- YENİ: SİBER PANEL RENDER ---
         renderCyber: function() {
-            const list = document.getElementById('cyber-messages-list');
-            list.innerHTML = '';
-            if(!this.state.db.cryptoMessages || this.state.db.cryptoMessages.length === 0) {
-                list.innerHTML = '<p style="color:#666">Aktif kripto istihbaratı yok.</p>';
-                return;
-            }
-            
+            const list = document.getElementById('cyber-messages-list'); list.innerHTML = '';
+            if(!this.state.db.cryptoMessages || this.state.db.cryptoMessages.length === 0) { list.innerHTML = '<p style="color:#666">Veri yok.</p>'; return; }
             this.state.db.cryptoMessages.forEach(msg => {
-                let bodyHTML = '';
-                if(msg.status === 'LOCKED') {
-                    bodyHTML = `
-                        <div class="crypto-glitch">${msg.encrypted}</div>
-                        <div style="margin-top:10px;">
-                            <button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ (HACK)</button>
-                        </div>
-                    `;
-                } else {
-                    bodyHTML = `
-                        <div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">
-                            ${msg.content}
-                        </div>
-                        <div style="margin-top:5px; color:#666; font-size:0.8rem;">DEŞİFRE EDİLDİ</div>
-                    `;
-                }
-
-                list.innerHTML += `
-                    <div class="crypto-card">
-                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;">
-                            <span style="color:#aaa;">GÖNDEREN: ${msg.sender}</span>
-                            <span style="color:#aaa;">${msg.date}</span>
-                        </div>
-                        ${bodyHTML}
-                    </div>
-                `;
+                let bodyHTML = msg.status === 'LOCKED' ? `<div class="crypto-glitch">${msg.encrypted}</div><div style="margin-top:10px;"><button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ</button></div>` : `<div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">${msg.content}</div><div style="margin-top:5px; color:#666; font-size:0.8rem;">AÇIK MESAJ</div>`;
+                list.innerHTML += `<div class="crypto-card"><div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;"><span style="color:#aaa;">GÖNDEREN: ${msg.sender}</span><span style="color:#aaa;">${msg.date}</span></div>${bodyHTML}</div>`;
             });
         },
 
@@ -916,44 +789,37 @@
             const citForm = document.getElementById('cit-form-container');
             if(citForm) citForm.style.display = canManage ? 'block' : 'none';
             else if(canManage) {
-                 const htmlForm = `
-                    <div id="cit-form-container" style="margin-top:20px; border-top:1px solid #333; padding-top:10px;">
-                        <h3 style="color:var(--admin-gold);">VATANDAŞ & GBT YÖNETİMİ</h3>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                            <input id="cit-tc" placeholder="TC Kimlik No (Zorunlu)">
-                            <input id="cit-name" placeholder="Ad Soyad">
-                            <select id="cit-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select>
-                            <select id="cit-status" style="color:var(--admin-gold); font-weight:bold;">
-                                <option value="TEMİZ">TEMİZ</option>
-                                <option value="ŞÜPHELİ">ŞÜPHELİ</option>
-                                <option value="ARANIYOR">ARANIYOR (KIRMIZI)</option>
-                            </select>
-                        </div>
-                        <input id="cit-photo" placeholder="Fotoğraf Linki (Boş bırakılırsa rastgele atanır)">
-                        <textarea id="cit-notes" rows="3" placeholder="GBT Kayıtları, İşlenen Suçlar..."></textarea>
-                        <button class="cyber-btn btn-gold" onclick="app.saveCitizen()">KAYDET / GÜNCELLE</button>
-                    </div>
-                `;
+                 const htmlForm = `<div id="cit-form-container" style="margin-top:20px; border-top:1px solid #333; padding-top:10px;"><h3 style="color:var(--admin-gold);">VATANDAŞ & GBT YÖNETİMİ</h3><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;"><input id="cit-tc" placeholder="TC Kimlik No"><input id="cit-name" placeholder="Ad Soyad"><select id="cit-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select><select id="cit-status" style="color:var(--admin-gold); font-weight:bold;"><option value="TEMİZ">TEMİZ</option><option value="ŞÜPHELİ">ŞÜPHELİ</option><option value="ARANIYOR">ARANIYOR (KIRMIZI)</option></select></div><input id="cit-photo" placeholder="Fotoğraf Linki"><textarea id="cit-notes" rows="3" placeholder="GBT Kayıtları..."></textarea><button class="cyber-btn btn-gold" onclick="app.saveCitizen()">KAYDET / GÜNCELLE</button></div>`;
                 document.getElementById('admin-tools').insertAdjacentHTML('beforeend', htmlForm);
+            }
+
+            // Kripto Mesaj Yönetimi (Silme)
+            if(canManage) {
+                const cryptoList = document.getElementById('admin-crypto-list');
+                if(cryptoList) {
+                    cryptoList.innerHTML = '';
+                    if(this.state.db.cryptoMessages && this.state.db.cryptoMessages.length > 0) {
+                        this.state.db.cryptoMessages.forEach(m => {
+                            cryptoList.innerHTML += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding:5px;"><span style="color:#aaa; font-size:0.8rem;">${m.date} - ${m.status}</span><button class="cyber-btn btn-small btn-red" onclick="app.deleteCrypto(${m.id})">SİL</button></div>`;
+                        });
+                    } else { cryptoList.innerHTML = '<small style="color:#666">Mesaj yok.</small>'; }
+                }
             }
 
             if(!this.state.db.personnel) this.state.db.personnel = [];
             this.state.db.personnel.forEach(p=>{
-                const isOnline = this.state.onlineUsers[p.id] ? true : false;
+                const isOnline = this.state.onlineUsers[p.id] ? true : false; const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null; const isMe = p.id === this.state.user.id;
+                let callBtn = "-"; if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i> ARA</button>`; } else if (!isOnline) { callBtn = `<span style="color:#666; font-size:0.7rem;">ÇEVRİMDIŞI</span>`; }
                 const rStyle = ROLE_DEFS[p.role] || {label:p.role.toUpperCase(), color:'#fff'};
                 if(canManage){ 
                     const deleteBtn = p.id === this.state.user.id ? '' : `<button class="cyber-btn btn-small btn-red" onclick="app.fireStaff('${p.id}')"><i class="fas fa-times"></i></button>`;
                     body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${rStyle.color}">${rStyle.label}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button>${deleteBtn}</td></tr>`; 
-                } else { body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td><span style="color:${rStyle.color}">${rStyle.label}</span></td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td></tr>`; }
+                } else { body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td><span style="color:${rStyle.color}">${rStyle.label}</span></td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${callBtn}</td></tr>`; }
             });
 
             if(canManage){
                 const l=document.getElementById('hr-apps-list'); l.innerHTML=this.state.db.apps && this.state.db.apps.length?'':'<span style="color:#666">Bekleyen yok.</span>';
-                if(this.state.db.apps) {
-                    this.state.db.apps.forEach((a,i)=>{
-                        l.innerHTML+=`<div style="background:#0a0a0a; border:1px solid #222; padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><strong style="color:white">${a.name}</strong> <span style="color:var(--accent); font-size:0.8rem;">${a.skill}</span></div><small style="color:#666">${a.tc}</small><button class="cyber-btn btn-small" style="width:100%; margin-top:10px; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="app.inspectApp(${i})"><i class="fas fa-file-contract"></i> DOSYAYI İNCELE</button></div>`;
-                    });
-                }
+                if(this.state.db.apps) { this.state.db.apps.forEach((a,i)=>{ l.innerHTML+=`<div style="background:#0a0a0a; border:1px solid #222; padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><strong style="color:white">${a.name}</strong> <span style="color:var(--accent); font-size:0.8rem;">${a.skill}</span></div><small style="color:#666">${a.tc}</small><button class="cyber-btn btn-small" style="width:100%; margin-top:10px; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="app.inspectApp(${i})"><i class="fas fa-file-contract"></i> DOSYAYI İNCELE</button></div>`; }); }
                 const tl=document.getElementById('hr-tips-list'); tl.innerHTML=this.state.db.tips && this.state.db.tips.length?'':'<span style="color:#666">İhbar yok.</span>';
                 if(this.state.db.tips) { this.state.db.tips.forEach((tp, i)=>{ tl.innerHTML += `<div style="border-bottom:1px solid #333; padding:10px;"><strong style="color:var(--accent)">${tp.subject}</strong> <small style="float:right">${tp.date}</small><p style="font-size:0.9rem; color:#ccc; margin-top:5px;">${tp.text}</p><button class="cyber-btn btn-small" style="margin-top:5px; border-color:#555" onclick="app.delTip(${i})">SİL</button></div>` }); }
                 document.getElementById('id-actions').innerHTML=`<button class="cyber-btn btn-small" onclick="app.downloadID()">İNDİR</button>`;
@@ -972,11 +838,141 @@
         fireStaff: function(id){ if(confirm("Bu personeli kalıcı olarak silmek istiyor musunuz?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1){ this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); alert("Personel silindi."); } } },
         drawID: function(id, mode) { const p = this.state.db.personnel.find(x => x.id === id); if (!p) return; const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630; const drawContent = (bgLoaded) => { if (!bgLoaded) { ctx.fillStyle = "#151515"; ctx.fillRect(0, 0, cvs.width, cvs.height); ctx.strokeStyle = "#333"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, cvs.width, cvs.height); const logo = new Image(); logo.crossOrigin = "Anonymous"; logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png"; logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); }; logo.onerror = () => { drawPersonalDetails(); }; } else { drawPersonalDetails(); } }; const drawPersonalDetails = () => { const photo = new Image(); photo.crossOrigin = "Anonymous"; const isReal = (mode === 'REAL'); const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1); photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`; photo.onload = () => { const px = 58, py = 250, pw = 285, ph = 310; ctx.drawImage(photo, px, py, pw, ph); ctx.lineWidth = 4; ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)"; ctx.strokeRect(px, py, pw, ph); ctx.font = "bold 34px 'Courier New', monospace"; ctx.fillStyle = "#ffffff"; ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 5; ctx.textAlign = "left"; const tx = 420; let ty = 295; const gap = 100; ctx.fillText((isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR")).toUpperCase(), tx, ty); ty += gap; ctx.fillText((isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL")).toUpperCase(), tx, ty); ty += gap; if(isReal) { ctx.fillStyle = "#ff3333"; ctx.fillText(p.codename.toUpperCase(), tx, ty); } else { ctx.fillStyle = "#ccc"; ctx.fillText("DOĞUM: 15.04.1990", tx, ty); } ctx.font = "15px Arial"; ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600); }; }; const bg = new Image(); bg.crossOrigin = "Anonymous"; bg.src = "https://cdn.discordapp.com/attachments/1452796022475722975/1462732671464640688/taslak.png?ex=696f4375&is=696df1f5&hm=7aae0c5a29ce3791765946e403b19a4708e5164a081fdc8f7757c03b810a38c9&"; bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); }; bg.onerror = () => { drawContent(false); }; },
         downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
-        renderChat: function(){ const w=document.getElementById('chat-window'); w.innerHTML=''; if(this.state.db.chat) { this.state.db.chat.forEach(c => { const me = this.state.user && c.user === this.state.user.codename; let contentHTML = `<span>${c.msg}</span>`; if (c.type === 'image') contentHTML = `<img src="${c.msg}" class="chat-img" onclick="window.open(this.src)">`; else if (c.type === 'audio') contentHTML = `<audio controls src="${c.msg}" class="chat-audio"></audio>`; w.innerHTML += `<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${contentHTML}</div>`; }); w.scrollTop = w.scrollHeight; } const userList = document.getElementById('active-user-list'); userList.innerHTML = ''; if(this.state.db.personnel) { this.state.db.personnel.forEach(p => { const isOnline = this.state.onlineUsers[p.id] ? true : false; const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null; const isMe = p.id === this.state.user.id; let callBtn = ''; if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" style="padding:2px 8px;" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`; } userList.innerHTML += `<div class="chat-user-card" style="opacity:${isOnline ? 1 : 0.5}"><div style="display:flex; align-items:center;"><span class="user-status-dot ${isOnline ? 'status-online' : ''}"></span><div><strong style="color:white; font-size:0.9rem;">${p.codename}</strong><div style="font-size:0.7rem; color:#666;">${p.role.toUpperCase()}</div></div></div><div>${callBtn}</div></div>`; }); } },
-        sendChat: function(content = null, type = 'text'){ const input = document.getElementById('chat-input'); const msg = content || input.value; if(!msg) return; if(!this.state.db.chat) this.state.db.chat = []; this.state.db.chat.push({ user: this.state.user.codename, msg: msg, type: type, time: new Date().toLocaleTimeString() }); if(this.state.db.chat.length > 50) this.state.db.chat.shift(); this.save(); input.value = ''; SFX.click(); },
-        sendFileChat: function(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { this.sendChat(e.target.result, 'image'); }; reader.readAsDataURL(file); },
-        startVoice: function() { navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => { this.state.mediaRec = new MediaRecorder(stream); this.state.audioChunks = []; document.getElementById('btn-mic').classList.add('recording-pulse'); this.state.mediaRec.ondataavailable = event => { this.state.audioChunks.push(event.data); }; this.state.mediaRec.onstop = () => { document.getElementById('btn-mic').classList.remove('recording-pulse'); const audioBlob = new Blob(this.state.audioChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.readAsDataURL(audioBlob); reader.onloadend = () => { this.sendChat(reader.result, 'audio'); } }; this.state.mediaRec.start(); }).catch(err => alert("Mikrofon izni gerekli!")); },
-        stopVoice: function() { if (this.state.mediaRec && this.state.mediaRec.state !== 'inactive') { this.state.mediaRec.stop(); } },
+        
+        // --- CHAT FIX VE MEDYA GÖNDERME ---
+        renderChat: function(){ 
+            const w=document.getElementById('chat-window'); w.innerHTML=''; 
+            
+            // Mesajları Render Et
+            if(this.state.db.chat) {
+                this.state.db.chat.forEach(c => { 
+                    const me = this.state.user && c.user === this.state.user.codename; 
+                    let contentHTML = `<span>${c.msg}</span>`;
+                    
+                    if (c.type === 'image') {
+                        contentHTML = `<img src="${c.msg}" class="chat-img" onclick="window.open(this.src)">`;
+                    } else if (c.type === 'audio') {
+                        contentHTML = `<audio controls src="${c.msg}" class="chat-audio"></audio>`;
+                    }
+
+                    w.innerHTML += `<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${contentHTML}</div>`; 
+                }); 
+                w.scrollTop = w.scrollHeight;
+            }
+
+            // Sağ Panel: Online Listesi
+            const userList = document.getElementById('active-user-list');
+            userList.innerHTML = '';
+            
+            if(this.state.db.personnel) {
+                this.state.db.personnel.forEach(p => {
+                    const isOnline = this.state.onlineUsers[p.id] ? true : false;
+                    const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null;
+                    const isMe = p.id === this.state.user.id;
+                    
+                    let callBtn = '';
+                    if(isOnline && !isMe) {
+                        callBtn = `<button class="cyber-btn btn-small btn-green" style="padding:2px 8px;" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`;
+                    }
+
+                    userList.innerHTML += `
+                        <div class="chat-user-card" style="opacity:${isOnline ? 1 : 0.5}">
+                            <div style="display:flex; align-items:center;">
+                                <span class="user-status-dot ${isOnline ? 'status-online' : ''}"></span>
+                                <div>
+                                    <strong style="color:white; font-size:0.9rem;">${p.codename}</strong>
+                                    <div style="font-size:0.7rem; color:#666;">${p.role.toUpperCase()}</div>
+                                </div>
+                            </div>
+                            <div>${callBtn}</div>
+                        </div>
+                    `;
+                });
+            }
+        },
+        
+        sendChat: function(content = null, type = 'text'){ 
+            const input = document.getElementById('chat-input');
+            const msg = content || input.value;
+            
+            if(!msg) return; 
+            
+            if(!this.state.db.chat) this.state.db.chat = [];
+            
+            this.state.db.chat.push({
+                user: this.state.user.codename, 
+                msg: msg, 
+                type: type,
+                time: new Date().toLocaleTimeString()
+            });
+            
+            // 50 mesaj sınırı
+            if(this.state.db.chat.length > 50) this.state.db.chat.shift();
+
+            this.save(); 
+            if(input) input.value = ''; 
+            SFX.click(); 
+        },
+
+        sendFileChat: function(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Dosya boyutu kontrolü (örn: 2MB)
+            if(file.size > 2 * 1024 * 1024) {
+                alert("Dosya çok büyük! Maksimum 2MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.sendChat(e.target.result, 'image');
+            };
+            reader.readAsDataURL(file);
+        },
+
+        startVoice: function() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                this.state.mediaRec = new MediaRecorder(stream);
+                this.state.audioChunks = [];
+                
+                document.getElementById('btn-mic').classList.add('recording-pulse');
+
+                this.state.mediaRec.ondataavailable = event => {
+                    this.state.audioChunks.push(event.data);
+                };
+
+                this.state.mediaRec.onstop = () => {
+                    document.getElementById('btn-mic').classList.remove('recording-pulse');
+                    const audioBlob = new Blob(this.state.audioChunks, { type: 'audio/webm' });
+                    
+                    // Basit boyut kontrolü
+                    if(audioBlob.size > 1 * 1024 * 1024) {
+                        alert("Ses kaydı çok uzun!");
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.readAsDataURL(audioBlob); 
+                    reader.onloadend = () => {
+                        this.sendChat(reader.result, 'audio');
+                    }
+                };
+
+                this.state.mediaRec.start();
+            })
+            .catch(err => {
+                alert("Mikrofon izni gerekli!");
+                console.error(err);
+            });
+        },
+
+        stopVoice: function() {
+            if (this.state.mediaRec && this.state.mediaRec.state !== 'inactive') {
+                this.state.mediaRec.stop();
+            }
+        },
+        
         queryDB: function(){ const q = document.getElementById('db-q').value.trim(); if(!q){ SFX.error(); return; } this.logAudit('SORGU', `Aranan: ${q}`); SFX.success(); const list = this.state.db.citizens || []; const record = list.find(c => c.tc === q || c.name.toLowerCase().includes(q.toLowerCase())); const resDiv = document.getElementById('db-res'); if (!record) { SFX.error(); resDiv.innerHTML = `<div class="glass-box" style="border-color:red; text-align:center;"><i class="fas fa-times-circle fa-3x" style="color:red; margin-bottom:10px;"></i><h3 style="color:red;">KAYIT BULUNAMADI</h3></div>`; return; } let statusColor = "lime"; if(record.status === "SABIKALI" || record.status === "ŞÜPHELİ") statusColor = "orange"; if(record.status === "ARANIYOR") statusColor = "red"; if(record.status === "ARANIYOR") { setTimeout(() => SFX.error(), 200); setTimeout(() => SFX.error(), 400); } resDiv.innerHTML = `<div class="bio-grid" style="border-color:${statusColor}; box-shadow: 0 0 15px ${statusColor};"><img src="${record.photo}" class="bio-img" onerror="this.src='https://i.imgur.com/vM09c5C.png'"><div class="bio-data"><div><span class="bio-label">TC</span> <span>${record.tc}</span></div><div><span class="bio-label">AD</span> <span>${record.name}</span></div><div><span class="bio-label">DURUM</span> <strong style="color:${statusColor}">${record.status}</strong></div><p style="margin-top:5px;font-size:0.8rem;color:#ccc;">${record.notes}</p></div></div>`; },
         renderLogs: function(){ const t=document.querySelector('#audit-table tbody'); t.innerHTML=''; if(this.state.db.audit) this.state.db.audit.slice().reverse().forEach(l=>t.innerHTML+=`<tr><td>${l.time}</td><td>${l.user}</td><td>${l.detail}</td></tr>`); },
         logAudit: function(act, det){ if(!this.state.db.audit) this.state.db.audit = []; this.state.db.audit.push({time:new Date().toLocaleString(), user:this.state.user?this.state.user.name:'SİSTEM', detail:`${act}: ${det}`}); this.save(); },
