@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v22.2</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v23.0</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
         :root {
-            /* Varsayılan Tema (Kırmızı - DEFCON 1) */
+            /* TEMA RENKLERİ */
             --hue: 0; 
             --bg-deep: #020202;
             --bg-panel: rgba(10, 11, 14, 0.96);
@@ -28,11 +28,10 @@
             --border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        /* DEFCON THEMES */
-        body.defcon-5 { --hue: 120; } /* YEŞİL - GÜVENLİ */
-        body.defcon-4 { --hue: 60; }  /* SARI - DİKKAT */
-        body.defcon-3 { --hue: 30; }  /* TURUNCU - TEHDİT */
-        body.defcon-1 { --hue: 0; }   /* KIRMIZI - KRİTİK */
+        body.defcon-5 { --hue: 120; } /* YEŞİL */
+        body.defcon-4 { --hue: 60; }  /* SARI */
+        body.defcon-3 { --hue: 30; }  /* TURUNCU */
+        body.defcon-1 { --hue: 0; }   /* KIRMIZI */
 
         * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--accent) var(--primary); }
         
@@ -44,7 +43,7 @@
             transition: --accent 0.5s ease;
         }
 
-        /* CRT SCANLINE EFFECT */
+        /* EFEKTLER */
         .scanlines {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
@@ -54,7 +53,6 @@
         }
         @keyframes scanlineMove { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
 
-        /* BOOT SCREEN */
         #boot-screen {
             position: fixed; inset: 0; background: #000; z-index: 5000;
             font-family: 'Share Tech Mono'; color: var(--accent); padding: 50px;
@@ -62,10 +60,9 @@
             font-size: 1.2rem;
         }
 
-        /* BACKGROUND */
         #particles-js { position: absolute; top:0; left:0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
-        /* LAYOUT */
+        /* ARAYÜZ */
         .app-wrapper { display: flex; flex-direction: column; height: 100%; position: relative; z-index: 10; opacity: 0; transition: opacity 1s; }
         
         header {
@@ -84,7 +81,6 @@
 
         main { flex: 1; padding: 30px; overflow-y: auto; background: rgba(0,0,0,0.4); position: relative; }
 
-        /* COMPONENTS */
         .glass-box {
             background: var(--bg-panel); border: 1px solid #222; padding: 25px; 
             border-radius: 4px; margin-bottom: 25px; position: relative; 
@@ -104,7 +100,6 @@
         .nav-btn:hover { background: rgba(255, 255, 255, 0.05); color: var(--text-main); }
         .nav-btn.active { background: var(--accent-dim); color: white; border-right-color: var(--accent); }
 
-        /* INPUTS & BUTTONS */
         input, textarea, select {
             width: 100%; background: #0a0a0a; border: 1px solid #333; padding: 12px;
             color: white; font-family: 'Share Tech Mono'; margin-bottom: 15px; outline: none; transition: 0.3s;
@@ -122,18 +117,24 @@
         
         .btn-small { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
         .btn-blue { border-color: var(--staff-blue); color: var(--staff-blue); }
-        .btn-blue:hover { background: var(--staff-blue); color: #000; box-shadow: 0 0 15px var(--staff-blue); }
         .btn-gold { border-color: var(--admin-gold); color: var(--admin-gold); }
-        .btn-gold:hover { background: var(--admin-gold); color: #000; box-shadow: 0 0 15px var(--admin-gold); }
+        .btn-fake { border-color: #888; color: #888; } /* Sahte kimlik butonu stili */
 
-        /* TABLES & DATA */
         .table-container { overflow-x: auto; }
         .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
         .cyber-table th { text-align: left; border-bottom: 1px solid var(--accent); padding: 10px; color: #aaa; font-size: 0.8rem; }
         .cyber-table td { padding: 12px 10px; border-bottom: 1px solid #222; font-family: 'Share Tech Mono'; font-size: 0.9rem; vertical-align: middle; }
         .cyber-table tr:hover { background: rgba(255,255,255,0.03); }
 
-        /* CHAT & REPORTS */
+        /* KİMLİK CANVAS */
+        #idCardCanvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Diğer Bileşenler */
         .chat-window { height: 400px; overflow-y: auto; background: #050505; border: 1px solid #333; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { padding: 10px; border-radius: 4px; max-width: 80%; font-size: 0.9rem; position: relative; }
         .msg-me { background: var(--accent-dim); align-self: flex-end; border: 1px solid var(--accent); color: white; }
@@ -144,13 +145,12 @@
         .report-op { border-left-color: var(--accent); }
         .discord-tag { position: absolute; top: 5px; right: 5px; font-size: 0.6rem; color: var(--discord); opacity: 0.8; font-weight: bold; }
 
-        /* BIO CARD */
         .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 15px; border: 1px solid var(--accent); padding: 10px; background: rgba(0,0,0,0.5); margin-top: 10px; }
         .bio-img { width: 100%; height: 100px; object-fit: cover; border: 1px solid #444; }
         .bio-data div { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: 'Share Tech Mono'; font-size: 0.9rem; }
         .bio-label { color: var(--accent); font-size: 0.8rem; }
 
-        /* ALERTS */
+        /* MODALLAR */
         #lockdown-screen { background: #000; display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); text-align: center; }
         #login-modal, #edit-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
 
@@ -159,7 +159,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulseAlert { 0% { opacity: 1; text-shadow: 0 0 30px var(--accent); } 50% { opacity: 0.4; } 100% { opacity: 1; text-shadow: 0 0 30px var(--accent); } }
 
-        /* MOBIL */
+        /* MOBIL UYUMLULUK */
         @media screen and (max-width: 900px) {
             body { overflow: auto; }
             header { height: auto; flex-direction: column; gap: 10px; padding: 15px; text-align: center; }
@@ -173,6 +173,9 @@
             main { padding: 15px; }
             div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; gap: 15px !important; }
         }
+        
+        .blur-text { filter: blur(5px); transition: 0.3s; cursor: pointer; }
+        .blur-text.visible { filter: blur(0); }
     </style>
 </head>
 <body class="defcon-1">
@@ -197,7 +200,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v22.2</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v23.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -354,7 +357,7 @@
                         </div>
                         <div class="glass-box" style="text-align:center;">
                             <h3>KİMLİK KARTI</h3>
-                            <canvas id="idCardCanvas" width="500" height="300"></canvas>
+                            <canvas id="idCardCanvas" style="width:100%; border-radius:5px;"></canvas>
                             <br><br>
                             <div id="id-actions"></div>
                         </div>
@@ -413,7 +416,7 @@
             <label>Kod Adı</label>
             <input id="edit-code">
             
-            <label>Rütbe / Ünvan</label>
+            <label>Rütbe / Ünvan (Kimlikte Görünür)</label>
             <input id="edit-rank" placeholder="Örn: SAHA UZMANI, DAİRE BAŞKANI">
             
             <label>Yetki Seviyesi</label>
@@ -432,11 +435,10 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // --- 1. FIREBASE AYARLARI (KENDİ BİLGİLERİNLE DOLDUR) ---
+    // --- FIREBASE AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
         authDomain: "mit-sistemi.firebaseapp.com",
@@ -447,7 +449,6 @@
         appId: "1:195453377116:web:85067f5070ecf983bb6499"
     };
 
-    // Firebase'i Başlat
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
@@ -477,7 +478,6 @@
 
     // --- ANA UYGULAMA ---
     const app = {
-        // Varsayılan Veriler (Veritabanı boşsa bunlar yüklenir)
         defaultData: {
             defcon: 1,
             personnel: [
@@ -490,63 +490,32 @@
             ops: [],
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00'}],
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v22.2 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v23.0 KIZIL ELMA", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
-        state: { 
-            user: null, 
-            fail: 0, 
-            visiblePass: new Set(), 
-            tUser: null, 
-            genCode: null,
-            db: null // Veriler Firebase'den buraya dolacak
-        },
+        state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null, db: null },
 
         init: function() {
             this.bootSequence();
-            this.listenToCloud(); // Firebase Dinlemeyi Başlat
-            
+            this.listenToCloud();
             document.querySelectorAll('button, .nav-btn').forEach(b => {
                 b.addEventListener('mouseenter', ()=>SFX.hover());
                 b.addEventListener('click', ()=>SFX.click());
             });
         },
 
-        // --- YENİ: FIREBASE BAĞLANTISI ---
         listenToCloud: function() {
-            console.log("Bulut bağlantısı kuruluyor...");
-            // 'mit_database' başlığı altındaki tüm verileri dinle
             database.ref('mit_database').on('value', (snapshot) => {
                 const data = snapshot.val();
-                
-                if (data) {
-                    // Veri varsa state'e yükle
-                    this.state.db = data;
-                } else {
-                    // Veri yoksa (ilk kurulum), varsayılanları yükle ve kaydet
-                    this.state.db = this.defaultData;
-                    this.save(); 
-                }
-
-                // Veri değiştiğinde ekranı o an yenile (Canlı update)
+                if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); }
                 this.refreshCurrentView();
-                
-                // Defcon seviyesini uygula
                 this.applyDefcon(this.state.db.defcon);
             });
         },
 
-        // --- YENİ: KAYDETME FONKSİYONU ---
-        save: function() {
-            // LocalStorage yerine Firebase'e yaz
-            if(this.state.db) {
-                database.ref('mit_database').set(this.state.db)
-                    .catch(e => console.error("Kayıt hatası:", e));
-            }
-        },
+        save: function() { if(this.state.db) { database.ref('mit_database').set(this.state.db).catch(e => console.error(e)); } },
 
-        // Veri değişince açık olan paneli yeniler
         refreshCurrentView: function() {
             if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
             if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
@@ -561,7 +530,7 @@
             const s = document.getElementById('boot-screen');
             if(!s) { this.initAppLogic(); return; }
             const t = document.getElementById('boot-text');
-            const lines = ["BIOS DATE 01/18/26 15:00:00", "establishing uplink...... SUCCESS", "INITIATING KIZIL_ELMA PROTOCOL..."];
+            const lines = ["BIOS DATE 01/19/26 15:00:00", "establishing uplink...... SUCCESS", "INITIATING KIZIL_ELMA PROTOCOL..."];
             let i = 0;
             try { SFX.boot(); } catch(e){}
             const int = setInterval(() => {
@@ -570,22 +539,9 @@
             }, 150);
         },
 
-        initAppLogic: function() {
-            this.updateClock(); setInterval(() => this.updateClock(), 1000);
-            this.initParticles();
-            this.nav('public');
-        },
-
-        setDefcon: function(lvl) { 
-            this.state.db.defcon = lvl; 
-            this.save(); // Değişikliği buluta gönder
-        },
-        
-        applyDefcon: function(lvl) { 
-            document.body.className = `defcon-${lvl}`; 
-            const el = document.getElementById('defcon-disp'); 
-            if(el) el.innerText = lvl; 
-        },
+        initAppLogic: function() { this.updateClock(); setInterval(() => this.updateClock(), 1000); this.initParticles(); this.nav('public'); },
+        setDefcon: function(lvl) { this.state.db.defcon = lvl; this.save(); },
+        applyDefcon: function(lvl) { document.body.className = `defcon-${lvl}`; const el = document.getElementById('defcon-disp'); if(el) el.innerText = lvl; },
 
         initParticles: function() {
             const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d');
@@ -595,7 +551,7 @@
         },
 
         sendDiscord: async function(url, tag, title, desc, color, fields) {
-            const p = { username: "MİT İSTİHBARAT", avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", content: tag, embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v22.2" }, timestamp: new Date()}] };
+            const p = { username: "MİT İSTİHBARAT", avatar_url: "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png", content: tag, embeds: [{title, description: desc, color, fields, footer: { text: "KIZIL ELMA v23.0" }, timestamp: new Date()}] };
             try { await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(p) }); } catch(e){}
         },
 
@@ -603,16 +559,13 @@
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById('panel-' + id).classList.add('active');
             if(id === 'map') setTimeout(() => this.initMap(), 200);
-            // Render fonksiyonlarını burada çağırmıyoruz, listenToCloud otomatik çağırıyor
             this.refreshCurrentView();
         },
 
         showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('2fa-box').style.display='none'; document.getElementById('btn-l1').style.display='inline-block'; document.getElementById('btn-l2').style.display='none'; document.getElementById('login-pass').value=''; document.getElementById('login-2fa').value=''; document.getElementById('login-msg').innerText=''; this.state.fail = 0; },
         
         loginStep1: function() {
-            // Veri henüz yüklenmediyse bekle
             if(!this.state.db) return alert("Sistem yükleniyor...");
-            
             const p = document.getElementById('login-pass').value.trim();
             const u = this.state.db.personnel.find(x => x.pass === p);
             if(u){ this.state.tUser=u; this.state.genCode=Math.floor(1000+Math.random()*9000); document.getElementById('2fa-code').innerText=this.state.genCode; document.getElementById('2fa-box').style.display='block'; document.getElementById('btn-l1').style.display='none'; document.getElementById('btn-l2').style.display='inline-block'; SFX.success(); } 
@@ -642,13 +595,9 @@
         submitReport: function() {
             const t=document.getElementById('report-type').value, s=document.getElementById('report-subj').value, c=document.getElementById('report-content').value;
             if(!s||!c){ SFX.error(); return alert("Eksik!"); }
-            
-            // Veri dizisini güvenli güncelle
             if(!this.state.db.reports) this.state.db.reports = [];
             this.state.db.reports.unshift({author:this.state.user.codename, type:t, subject:s, content:c, date:new Date().toLocaleString()}); 
-            
-            this.save(); // Firebase'e gönder
-            
+            this.save(); 
             this.sendDiscord(CONFIG.WEB_REP, CONFIG.TAG_REP, "📝 SAHA RAPORU", `**${s}**`, 3447003, [{name:"Ajan",value:this.state.user.codename, inline:true}, {name:"Tip",value:t.toUpperCase(), inline:true}, {name:"İçerik",value:c}]);
             document.getElementById('report-subj').value=''; document.getElementById('report-content').value=''; SFX.success();
         },
@@ -657,7 +606,6 @@
             const t=document.querySelector('#ops-table tbody'); t.innerHTML=''; 
             const sel=document.getElementById('op-lead'); sel.innerHTML=''; 
             if(!this.state.db || !this.state.db.ops) return;
-
             this.state.db.personnel.forEach(p=>sel.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`); 
             this.state.db.ops.forEach((o,i)=>{ t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td><td>${o.status==='AKTİF'?`<button class="cyber-btn btn-small" onclick="app.endOp(${i})">BİTİR</button>`:'-'}</td></tr>`; }); 
         },
@@ -670,11 +618,10 @@
             document.getElementById('new-op-modal').style.display='none'; 
             this.sendDiscord(CONFIG.WEB_OPS, CONFIG.TAG_OPS, "🚨 YENİ GÖREV EMRİ", `**Operasyon:** ${n}`, 15158332, [{name:"Tim Lideri",value:l,inline:true}, {name:"Durum",value:"BAŞLATILDI",inline:true}]); SFX.success(); 
         },
-        
         endOp: function(i) { this.state.db.ops[i].status='PASİF'; this.save(); },
 
         renderHR: function() {
-            if(!this.state.user) return; // Kullanıcı yoksa render etme
+            if(!this.state.user) return;
             const isAdmin = this.state.user.role==='admin';
             document.getElementById('admin-tools').style.display=isAdmin?'block':'none';
             document.getElementById('admin-apps-section').style.display=isAdmin?'block':'none';
@@ -715,16 +662,24 @@
             document.getElementById('edit-pass').value = ''; 
             document.getElementById('edit-modal').style.display='flex'; 
         },
+
+        // --- MANUEL GÜNCELLEME VE KAYDETME ---
         saveEdit: function() { 
-            const id=document.getElementById('edit-id').value, p=this.state.db.personnel.find(x=>x.id===id); 
+            const id = document.getElementById('edit-id').value;
+            const p = this.state.db.personnel.find(x => x.id === id); 
+            
             if(p){ 
-                p.name=document.getElementById('edit-name').value; 
-                p.codename=document.getElementById('edit-code').value; 
-                p.role=document.getElementById('edit-role').value; 
-                p.rank = document.getElementById('edit-rank').value.toUpperCase();
+                p.name = document.getElementById('edit-name').value; 
+                p.codename = document.getElementById('edit-code').value; 
+                p.role = document.getElementById('edit-role').value; 
+                p.rank = document.getElementById('edit-rank').value.toUpperCase(); // Rütbe güncelleme
                 const newPass = document.getElementById('edit-pass').value.trim();
                 if(newPass.length > 0) p.pass = newPass;
-                this.save(); document.getElementById('edit-modal').style.display='none'; 
+
+                this.save(); 
+                document.getElementById('edit-modal').style.display = 'none'; 
+                this.renderHR();
+                alert("Personel bilgileri güncellendi. Kimliği yenilemek için 'R' butonuna basın.");
             } 
         },
         
@@ -734,26 +689,87 @@
         fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); }},
         togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
 
-        drawID: function(id,mode) {
-            const p=this.state.db.personnel.find(x=>x.id===id); if(!p)return;
-            const cvs=document.getElementById('idCardCanvas'), ctx=cvs.getContext('2d');
-            const w=cvs.width, h=cvs.height, isReal=mode==='REAL';
-            const bgC=isReal?["#0a0000","#1c0000"]:["#ffffff","#e0e0e0"];
-            const grd=ctx.createLinearGradient(0,0,w,h); grd.addColorStop(0,bgC[0]); grd.addColorStop(1,bgC[1]);
-            ctx.fillStyle=grd; ctx.fillRect(0,0,w,h);
-            if(isReal){ ctx.save(); ctx.globalAlpha=0.1; ctx.fillStyle="red"; ctx.beginPath(); ctx.arc(w/2,h/2,90,0,6.28); ctx.fill(); ctx.restore(); }
-            ctx.fillStyle=isReal?"#ff0000":"#005588"; ctx.fillRect(0,0,w,60);
-            ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.font="bold 20px Arial"; ctx.fillText(isReal?"T.C. MİLLİ İSTİHBARAT TEŞKİLATI":"TÜRKİYE CUMHURİYETİ",w/2,30);
-            ctx.font="12px monospace"; ctx.fillText(isReal?"RESMİ KİMLİK":"KİMLİK KARTI",w/2,50);
-            const img=new Image(); img.crossOrigin="Anonymous"; img.src=`https://randomuser.me/api/portraits/${p.gender}/${isReal?p.photoId:p.cover.fakePhotoId}.jpg`;
-            const px=30,py=80,pw=120,ph=150; ctx.strokeStyle=isReal?"#ff0000":"#005588"; ctx.lineWidth=3; ctx.strokeRect(px,py,pw,ph); ctx.fillStyle="#222"; ctx.fillRect(px,py,pw,ph);
-            const tx=170; ctx.textAlign="left";
-            const df=(l,v,y)=>{ ctx.fillStyle=isReal?"#888":"#555"; ctx.font="10px Arial"; ctx.fillText(l,tx,y); ctx.fillStyle=isReal?"#fff":"#000"; ctx.font="bold 16px Arial"; ctx.fillText(v.toUpperCase(),tx,y+18); };
-            df("ADI SOYADI",isReal?p.name:p.cover.fakeName,90); df("GÖREVİ",isReal?p.rank:p.cover.fakeJob,130);
-            if(isReal){ df("KOD ADI",p.codename,170); ctx.fillStyle="red"; ctx.font="bold 12px monospace"; ctx.fillText("GİZLİ",tx,220); } else { df("DOĞUM", "15.04.1990",170); }
-            img.onload=()=>{ ctx.drawImage(img,px,py,pw,ph); };
+        // --- GELİŞMİŞ KİMLİK KARTI OLUŞTURMA (Hızlıresim Entegreli) ---
+        drawID: function(id, mode) {
+            const p = this.state.db.personnel.find(x => x.id === id);
+            if (!p) return;
+
+            const cvs = document.getElementById('idCardCanvas');
+            const ctx = cvs.getContext('2d');
+
+            // 1. Canvas Boyutlandırma
+            cvs.width = 1000;
+            cvs.height = 630;
+
+            // 2. Taslak Resmini Yükle (Direkt JPG Linki)
+            const bg = new Image();
+            bg.crossOrigin = "Anonymous";
+            bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; // Kullanıcının şablonu
+
+            bg.onerror = () => {
+                ctx.fillStyle = "#000"; ctx.fillRect(0,0,cvs.width,cvs.height);
+                ctx.fillStyle = "red"; ctx.font="30px Arial"; ctx.fillText("ŞABLON YÜKLENEMEDİ. İNTERNETİ KONTROL EDİN.", 50, 300);
+            };
+
+            bg.onload = () => {
+                ctx.drawImage(bg, 0, 0, cvs.width, cvs.height);
+
+                // 3. Personel Fotoğrafı
+                const photo = new Image();
+                photo.crossOrigin = "Anonymous";
+                const isReal = (mode === 'REAL');
+                const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1);
+                photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`;
+
+                photo.onload = () => {
+                    // Koordinatlar (Şablona göre ayarlı)
+                    const px = 58, py = 250, pw = 285, ph = 310;
+                    ctx.drawImage(photo, px, py, pw, ph);
+                    
+                    // Fotoğraf Çerçevesi
+                    ctx.lineWidth = 4;
+                    ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)";
+                    ctx.strokeRect(px, py, pw, ph);
+
+                    // 4. Metinleri Yazdır
+                    ctx.font = "bold 34px 'Courier New', monospace";
+                    ctx.fillStyle = "#ffffff";
+                    ctx.shadowColor = "rgba(0,0,0,0.9)";
+                    ctx.shadowBlur = 5;
+                    ctx.textAlign = "left";
+
+                    const tx = 420; // Yazı sol hiza
+                    let ty = 295;   // İlk satır Y
+                    const gap = 100; // Satır arası
+
+                    // İsim
+                    const nameVal = isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR");
+                    ctx.fillText(nameVal.toUpperCase(), tx, ty);
+
+                    // Rütbe
+                    ty += gap;
+                    const rankVal = isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL");
+                    ctx.fillText(rankVal.toUpperCase(), tx, ty);
+
+                    // Kod Adı / Tarih
+                    ty += gap;
+                    if(isReal) {
+                        ctx.fillStyle = "#ff3333";
+                        ctx.fillText(p.codename.toUpperCase(), tx, ty);
+                    } else {
+                        ctx.fillStyle = "#ccc";
+                        ctx.fillText("DOĞUM: 15.04.1990", tx, ty);
+                    }
+                    
+                    // Alt Bilgi
+                    ctx.font = "15px Arial";
+                    ctx.fillStyle = "rgba(255,255,255,0.4)";
+                    ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600);
+                };
+            };
         },
-        downloadID: function(){ const l=document.createElement('a'); l.download='ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
+
+        downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
 
         renderPublic: function(){ 
             document.getElementById('feed-public').innerHTML=''; 
