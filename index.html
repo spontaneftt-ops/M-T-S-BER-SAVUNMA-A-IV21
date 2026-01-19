@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v26.0 (INTEL)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v27.0 (RBAC)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -109,6 +109,7 @@
         }
         .cyber-btn:hover { background: var(--accent); color: #000; box-shadow: 0 0 25px var(--accent); }
         .cyber-btn:active { transform: scale(0.98); }
+        .cyber-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #333; color: #333; box-shadow: none; }
         
         .btn-small { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
         .btn-blue { border-color: var(--staff-blue); color: var(--staff-blue); }
@@ -230,7 +231,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v26.0 (INTEL)</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v27.0 (RBAC)</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -324,6 +325,12 @@
                         <div class="glass-box" style="text-align:center;">
                             <small>TEHDİT SEVİYESİ</small>
                             <h1 id="defcon-disp" style="color:var(--accent); font-size:3rem; margin-top:5px;">1</h1>
+                            <div id="defcon-controls" style="display:none; gap:5px; margin-top:10px; justify-content:center;">
+                                <button class="cyber-btn btn-small" style="border-color:#00ff00; color:#00ff00;" onclick="app.setDefcon(5)">5</button>
+                                <button class="cyber-btn btn-small" style="border-color:#ffff00; color:#ffff00;" onclick="app.setDefcon(4)">4</button>
+                                <button class="cyber-btn btn-small" style="border-color:#ff8800; color:#ff8800;" onclick="app.setDefcon(3)">3</button>
+                                <button class="cyber-btn btn-small" style="border-color:#ff0000; color:#ff0000;" onclick="app.setDefcon(1)">1</button>
+                            </div>
                         </div>
                         <div class="glass-box" style="text-align:center;"><small>PERSONEL</small><h1 id="stat-staff" style="color:white;">0</h1></div>
                         <div class="glass-box" style="text-align:center;"><small>GÖREV</small><h1 id="stat-ops" style="color:var(--staff-blue);">0</h1></div>
@@ -367,7 +374,7 @@
                     <div class="glass-box">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <h2>OPERASYON LİSTESİ</h2>
-                            <button class="cyber-btn btn-small" onclick="document.getElementById('new-op-modal').style.display='block'">+ YENİ GÖREV</button>
+                            <button id="btn-new-op" class="cyber-btn btn-small" onclick="document.getElementById('new-op-modal').style.display='block'" style="display:none;">+ YENİ GÖREV</button>
                         </div>
                         <div id="new-op-modal" style="display:none; background:#000; padding:20px; border:1px solid var(--accent); margin:20px 0;">
                             <h3>GÖREV EMRİ</h3>
@@ -384,16 +391,7 @@
                 <div id="panel-hr" class="panel">
                     <div id="admin-tools" class="glass-box" style="display:none; border-color:var(--admin-gold);">
                         <h3 style="color:var(--admin-gold);"><i class="fas fa-cogs"></i> YÖNETİCİ KONSOLU</h3>
-                        <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:15px;">
-                            <label style="color:var(--text-main); font-weight:bold;">TEHDİT SEVİYESİ (DEFCON)</label>
-                            <div style="display:flex; gap:10px; margin-top:5px;">
-                                <button class="cyber-btn btn-small" style="border-color:#00ff00; color:#00ff00;" onclick="app.setDefcon(5)">YEŞİL (5)</button>
-                                <button class="cyber-btn btn-small" style="border-color:#ffff00; color:#ffff00;" onclick="app.setDefcon(4)">SARI (4)</button>
-                                <button class="cyber-btn btn-small" style="border-color:#ff8800; color:#ff8800;" onclick="app.setDefcon(3)">TURUNCU (3)</button>
-                                <button class="cyber-btn btn-small" style="border-color:#ff0000; color:#ff0000;" onclick="app.setDefcon(1)">KIRMIZI (1)</button>
-                            </div>
-                        </div>
-
+                        
                         <h3 style="color:var(--admin-gold); margin-top:15px;">DUYURU YAYINLA</h3>
                         <div style="display:flex; gap:15px; flex-wrap:wrap;">
                             <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1; min-width:200px;">
@@ -474,10 +472,13 @@
             <label>Rütbe / Ünvan (Kimlikte Görünür)</label>
             <input id="edit-rank" placeholder="Örn: SAHA UZMANI, DAİRE BAŞKANI">
             
-            <label>Yetki Seviyesi</label>
+            <label>YETKİ ROLÜ</label>
             <select id="edit-role">
-                <option value="staff">Personel</option>
-                <option value="admin">Yönetici</option>
+                <option value="admin">MÜSTEŞAR (Tam Yetki)</option>
+                <option value="commander">DAİRE BAŞKANI (Yönetici)</option>
+                <option value="cyber">SİBER UZMAN (Teknik)</option>
+                <option value="agent">SAHA AJANI (Operasyon)</option>
+                <option value="analyst">ANALİST (Bilgi/İstihbarat)</option>
             </select>
 
             <label style="color:var(--accent);">Yeni Şifre (Opsiyonel)</label>
@@ -505,6 +506,15 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+
+    // --- ROL TANIMLARI (YETKİ MATRİSİ) ---
+    const ROLE_DEFS = {
+        'admin': { label: 'MÜSTEŞAR', color: '#ff0000', perms: ['all'] },
+        'commander': { label: 'DAİRE BŞK.', color: '#ffcc00', perms: ['hr_view', 'hr_manage', 'ops_manage', 'db_query', 'chat', 'reports_view'] },
+        'cyber': { label: 'SİBER UZMAN', color: '#00ff00', perms: ['logs_view', 'db_query', 'system_manage', 'chat'] },
+        'agent': { label: 'SAHA AJANI', color: '#00ccff', perms: ['ops_view', 'chat', 'reports_write'] },
+        'analyst': { label: 'ANALİST', color: '#aa00ff', perms: ['db_query', 'reports_view', 'chat', 'intel_view'] }
+    };
 
     const SFX = {
         ctx: new (window.AudioContext || window.webkitAudioContext)(),
@@ -579,17 +589,28 @@
             defcon: 1,
             personnel: [
                 { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
-                { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
+                { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'agent', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} },
+                { id: 'CYB-001', name: 'CAN T.', codename: 'HACKER', role: 'cyber', rank: 'SİBER UZMAN', pass: '1111', gender:'men', photoId:12, cover: {fakeName: 'Can', fakeJob: 'Yazılımcı', fakePhotoId: 12} }
             ],
             citizens: [], reports: [], apps: [], tips: [], ops: [],
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v26.0 KIZIL ELMA (INTEL)", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v27.0 RBAC MODÜLÜ", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
         state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null, db: null, mediaRec: null, audioChunks: [], onlineUsers: {}, viewingAppIdx: null },
         phone: phoneSystem,
+
+        // YETKİ KONTROLÜ
+        can: function(perm) {
+            if(!this.state.user) return false;
+            const role = this.state.user.role;
+            const def = ROLE_DEFS[role];
+            if(!def) return false;
+            if(def.perms.includes('all')) return true;
+            return def.perms.includes(perm);
+        },
 
         init: function() {
             this.bootSequence(); this.listenToCloud();
@@ -613,13 +634,20 @@
             const int = setInterval(() => { if(i < lines.length) { t.innerHTML += lines[i] + "<br>"; i++; } else { clearInterval(int); s.style.opacity = '0'; document.getElementById('main-app').style.opacity = '1'; setTimeout(() => { s.style.display='none'; this.initAppLogic(); }, 1000); } }, 150);
         },
         initAppLogic: function() { this.updateClock(); setInterval(() => this.updateClock(), 1000); this.initParticles(); this.nav('public'); },
-        setDefcon: function(lvl) { this.state.db.defcon = lvl; this.save(); },
+        setDefcon: function(lvl) { if(!this.can('all') && !this.can('system_manage')) return alert("Yetkisiz!"); this.state.db.defcon = lvl; this.save(); },
         applyDefcon: function(lvl) { document.body.className = `defcon-${lvl}`; const el = document.getElementById('defcon-disp'); if(el) el.innerText = lvl; },
         initParticles: function() {
             const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d'); cvs.width=window.innerWidth; cvs.height=window.innerHeight; let pts=[]; for(let i=0;i<50;i++) pts.push({x:Math.random()*cvs.width, y:Math.random()*cvs.height, vx:(Math.random()-.5), vy:(Math.random()-.5)});
             function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); }); requestAnimationFrame(anim); } anim();
         },
-        nav: function(id) { document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); },
+        nav: function(id) { 
+            // BASİT YETKİ KONTROLÜ
+            if(id === 'hr' && !this.can('hr_view') && !this.can('all')) return alert("Erişim Reddedildi: Yetersiz Personel Yetkisi");
+            if(id === 'ops' && !this.can('ops_view') && !this.can('ops_manage') && !this.can('all')) return alert("Erişim Reddedildi: Operasyon Yetkisi Yok");
+            if(id === 'db' && !this.can('db_query') && !this.can('all')) return alert("Erişim Reddedildi: Veritabanı Yetkisi Yok");
+            
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); 
+        },
         
         showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('2fa-box').style.display='none'; document.getElementById('btn-l1').style.display='inline-block'; document.getElementById('btn-l2').style.display='none'; document.getElementById('login-pass').value=''; document.getElementById('login-2fa').value=''; document.getElementById('login-msg').innerText=''; this.state.fail = 0; },
         loginStep1: function() {
@@ -631,7 +659,12 @@
                 SFX.success(); this.state.user=this.state.tUser; this.state.fail=0; this.phone.init(this.state.user.id);
                 document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block';
                 document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename; document.getElementById('u-code').style.display='block';
-                document.getElementById('u-role').innerText=this.state.user.role==='admin'?'YÖNETİCİ':this.state.user.rank; document.getElementById('u-role').style.color=this.state.user.role==='admin'?'var(--admin-gold)':'#666';
+                
+                // Rol Rengi ve Adı
+                const rDef = ROLE_DEFS[this.state.user.role] || {label:'PERSONEL', color:'#ccc'};
+                document.getElementById('u-role').innerText=rDef.label; 
+                document.getElementById('u-role').style.color=rDef.color;
+                
                 document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
                 this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
             } else { SFX.error(); this.failLogin(); }
@@ -641,13 +674,20 @@
 
         renderHR: function() {
             if(!this.state.user) return;
-            const isAdmin = this.state.user.role==='admin';
-            document.getElementById('admin-tools').style.display=isAdmin?'block':'none';
-            document.getElementById('admin-apps-section').style.display=isAdmin?'block':'none';
-            document.getElementById('hr-table-head').innerHTML=isAdmin?`<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th><th>İLETİŞİM</th></tr>`;
+            // YETKİ KONTROLÜ
+            const canManage = this.can('hr_manage') || this.can('all');
+            const canView = this.can('hr_view') || canManage;
+
+            document.getElementById('admin-tools').style.display = canManage ? 'block' : 'none';
+            document.getElementById('admin-apps-section').style.display = canManage ? 'block' : 'none';
+            
+            document.getElementById('hr-table-head').innerHTML= canManage ? `<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th><th>İLETİŞİM</th></tr>`;
             const body=document.getElementById('hr-table-body'); body.innerHTML='';
             
-            if(isAdmin && !document.getElementById('cit-form-container')) {
+            // Vatandaş Ekleme Formunu Sadece Yetkililer Görür
+            const citForm = document.getElementById('cit-form-container');
+            if(citForm) citForm.style.display = canManage ? 'block' : 'none';
+            else if(canManage) {
                  const htmlForm = `
                     <div id="cit-form-container" style="margin-top:20px; border-top:1px solid #333; padding-top:10px;">
                         <h3 style="color:var(--admin-gold);">VATANDAŞ & GBT YÖNETİMİ</h3>
@@ -673,14 +713,22 @@
             this.state.db.personnel.forEach(p=>{
                 const isOnline = this.state.onlineUsers[p.id] ? true : false; const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null; const isMe = p.id === this.state.user.id;
                 let callBtn = "-"; if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i> ARA</button>`; } else if (!isOnline) { callBtn = `<span style="color:#666; font-size:0.7rem;">ÇEVRİMDIŞI</span>`; }
-                if(isAdmin){ const vis=this.state.visiblePass.has(p.id); body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${p.role==='admin'?'var(--admin-gold)':'#fff'}">${p.role.toUpperCase()}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><span class="blur-text ${vis?'visible':''}" onclick="app.togglePass('${p.id}')">${p.pass}</span></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button></td></tr>`; } else body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td>${p.rank}</td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${callBtn}</td></tr>`;
+                
+                // Rol Rengi
+                const rStyle = ROLE_DEFS[p.role] || {label:p.role.toUpperCase(), color:'#fff'};
+
+                if(canManage){ 
+                    const vis=this.state.visiblePass.has(p.id); 
+                    body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${rStyle.color}">${rStyle.label}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button></td></tr>`; 
+                } else {
+                    body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td><span style="color:${rStyle.color}">${rStyle.label}</span></td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${callBtn}</td></tr>`;
+                }
             });
 
-            if(isAdmin){
+            if(canManage){
                 const l=document.getElementById('hr-apps-list'); l.innerHTML=this.state.db.apps && this.state.db.apps.length?'':'<span style="color:#666">Bekleyen yok.</span>';
                 if(this.state.db.apps) {
                     this.state.db.apps.forEach((a,i)=>{
-                        // Yeni Başvuru Gösterimi (İnceleme Butonlu)
                         l.innerHTML+=`
                             <div style="background:#0a0a0a; border:1px solid #222; padding:15px; margin-bottom:10px;">
                                 <div style="display:flex; justify-content:space-between;">
@@ -705,130 +753,47 @@
         saveEdit: function() { const id = document.getElementById('edit-id').value; const p = this.state.db.personnel.find(x => x.id === id); if(p){ p.name = document.getElementById('edit-name').value; p.codename = document.getElementById('edit-code').value; p.role = document.getElementById('edit-role').value; p.rank = document.getElementById('edit-rank').value.toUpperCase(); const newPass = document.getElementById('edit-pass').value.trim(); if(newPass.length > 0) p.pass = newPass; this.save(); document.getElementById('edit-modal').style.display = 'none'; this.renderHR(); alert("Güncellendi."); } },
         togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
         
-        // --- YENİ MÜLAKAT FONKSİYONLARI ---
         goToStep2: function() {
-            const tc=document.getElementById('app-tc').value;
-            const name=document.getElementById('app-name').value;
+            const tc=document.getElementById('app-tc').value; const name=document.getElementById('app-name').value;
             if(!tc || !name) { SFX.error(); return alert("Lütfen kimlik bilgilerini eksiksiz doldurun."); }
-            document.getElementById('app-step-1').style.display = 'none';
-            document.getElementById('app-step-2').style.display = 'block';
-            SFX.click();
+            document.getElementById('app-step-1').style.display = 'none'; document.getElementById('app-step-2').style.display = 'block'; SFX.click();
         },
 
         submitAppFull: function() {
-            const tc=document.getElementById('app-tc').value;
-            const name=document.getElementById('app-name').value;
-            const g=document.getElementById('app-gender').value;
-            const s=document.getElementById('app-skill').value;
-            
-            const q1=document.getElementById('app-q1').value;
-            const q2=document.getElementById('app-q2').value;
-            const q3=document.getElementById('app-q3').value;
-
+            const tc=document.getElementById('app-tc').value; const name=document.getElementById('app-name').value; const g=document.getElementById('app-gender').value; const s=document.getElementById('app-skill').value;
+            const q1=document.getElementById('app-q1').value; const q2=document.getElementById('app-q2').value; const q3=document.getElementById('app-q3').value;
             if(!q1 || !q2 || !q3) { SFX.error(); return alert("Mülakat sorularının tamamını cevaplamalısınız."); }
-
             if(!this.state.db.apps) this.state.db.apps = [];
-            this.state.db.apps.push({
-                tc, name, skill:s, gender:g, 
-                date:new Date().toLocaleDateString(),
-                answers: [q1, q2, q3]
-            });
-            
-            this.save();
-            alert("Başvuru ve mülakat cevapları sisteme işlendi. Değerlendirme sonucu bekleniyor.");
-            
-            // Temizle
-            document.getElementById('app-tc').value='';
-            document.getElementById('app-name').value='';
-            document.getElementById('app-q1').value='';
-            document.getElementById('app-q2').value='';
-            document.getElementById('app-q3').value='';
-            document.getElementById('app-step-2').style.display='none';
-            document.getElementById('app-step-1').style.display='block';
-            
-            this.nav('public');
+            this.state.db.apps.push({ tc, name, skill:s, gender:g, date:new Date().toLocaleDateString(), answers: [q1, q2, q3] });
+            this.save(); alert("Başvuru ve mülakat cevapları sisteme işlendi. Değerlendirme sonucu bekleniyor.");
+            document.getElementById('app-tc').value=''; document.getElementById('app-name').value=''; document.getElementById('app-q1').value=''; document.getElementById('app-q2').value=''; document.getElementById('app-q3').value=''; document.getElementById('app-step-2').style.display='none'; document.getElementById('app-step-1').style.display='block'; this.nav('public');
         },
 
         inspectApp: function(idx) {
-            this.state.viewingAppIdx = idx;
-            const a = this.state.db.apps[idx];
-            const modal = document.getElementById('app-view-modal');
-            const content = document.getElementById('app-view-content');
-            
-            content.innerHTML = `
-                <div style="border-bottom:1px solid #333; margin-bottom:15px; padding-bottom:10px;">
-                    <h4 style="color:var(--staff-blue)">${a.name}</h4>
-                    <p>TC: ${a.tc} | Branş: ${a.skill.toUpperCase()}</p>
-                </div>
-                <div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;">
-                    <small style="color:#aaa;">SORU 1: Vatan/Devlet Güvenliği</small>
-                    <p style="color:white; margin-top:5px;">${a.answers ? a.answers[0] : 'Cevap Yok'}</p>
-                </div>
-                <div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;">
-                    <small style="color:#aaa;">SORU 2: Kriz Anı/Etik</small>
-                    <p style="color:white; margin-top:5px;">${a.answers ? a.answers[1] : 'Cevap Yok'}</p>
-                </div>
-                <div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;">
-                    <small style="color:#aaa;">SORU 3: Gizlilik/Psikoloji</small>
-                    <p style="color:white; margin-top:5px;">${a.answers ? a.answers[2] : 'Cevap Yok'}</p>
-                </div>
-                <div style="margin-top:15px;">
-                    <label>Onaylanırsa Atanacak Kod Adı:</label>
-                    <input id="inspect-code" placeholder="Örn: ATMACA">
-                </div>
-            `;
-            modal.style.display = 'flex';
+            this.state.viewingAppIdx = idx; const a = this.state.db.apps[idx]; const modal = document.getElementById('app-view-modal'); const content = document.getElementById('app-view-content');
+            content.innerHTML = `<div style="border-bottom:1px solid #333; margin-bottom:15px; padding-bottom:10px;"><h4 style="color:var(--staff-blue)">${a.name}</h4><p>TC: ${a.tc} | Branş: ${a.skill.toUpperCase()}</p></div><div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;"><small style="color:#aaa;">SORU 1: Vatan/Devlet Güvenliği</small><p style="color:white; margin-top:5px;">${a.answers ? a.answers[0] : 'Cevap Yok'}</p></div><div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;"><small style="color:#aaa;">SORU 2: Kriz Anı/Etik</small><p style="color:white; margin-top:5px;">${a.answers ? a.answers[1] : 'Cevap Yok'}</p></div><div style="background:rgba(0,0,0,0.5); padding:10px; border-left:2px solid var(--accent); margin-bottom:10px;"><small style="color:#aaa;">SORU 3: Gizlilik/Psikoloji</small><p style="color:white; margin-top:5px;">${a.answers ? a.answers[2] : 'Cevap Yok'}</p></div><div style="margin-top:15px;"><label>Onaylanırsa Atanacak Kod Adı:</label><input id="inspect-code" placeholder="Örn: ATMACA"></div>`; modal.style.display = 'flex';
         },
 
         approveAppCurrent: function() {
-            const idx = this.state.viewingAppIdx;
-            const code = document.getElementById('inspect-code').value.toUpperCase();
-            if(!code) return alert("Kod adı girin!");
-            
-            const a = this.state.db.apps[idx];
-            let rank = a.skill==='siber'?"SİBER UZMANI":(a.skill==='saha'?"SAHA AJANI":"ANALİST");
-
-            const nP={
-                id:"AG-"+Math.floor(100+Math.random()*900),
-                name:a.name,
-                codename:code,
-                role:'staff',
-                rank,
-                pass:"MIT"+Math.floor(1000+Math.random()*9000),
-                gender:a.gender,
-                photoId:Math.floor(Math.random()*99),
-                cover:{fakeName:"Sivil "+Math.floor(Math.random()*100),fakeJob:"Mühendis",fakePhotoId:Math.floor(Math.random()*99)}
-            };
-            
-            this.state.db.personnel.push(nP);
-            this.state.db.apps.splice(idx,1);
-            this.save();
-            SFX.success();
-            document.getElementById('app-view-modal').style.display='none';
-            this.renderHR();
+            const idx = this.state.viewingAppIdx; const code = document.getElementById('inspect-code').value.toUpperCase(); if(!code) return alert("Kod adı girin!");
+            const a = this.state.db.apps[idx]; let rank = a.skill==='siber'?"SİBER UZMANI":(a.skill==='saha'?"SAHA AJANI":"ANALİST");
+            const role = a.skill==='siber'?'cyber':(a.skill==='saha'?'agent':'analyst'); // Rol ataması
+            const nP={ id:"AG-"+Math.floor(100+Math.random()*900), name:a.name, codename:code, role:role, rank, pass:"MIT"+Math.floor(1000+Math.random()*9000), gender:a.gender, photoId:Math.floor(Math.random()*99), cover:{fakeName:"Sivil "+Math.floor(Math.random()*100),fakeJob:"Mühendis",fakePhotoId:Math.floor(Math.random()*99)} };
+            this.state.db.personnel.push(nP); this.state.db.apps.splice(idx,1); this.save(); SFX.success(); document.getElementById('app-view-modal').style.display='none'; this.renderHR();
         },
 
-        rejectAppCurrent: function() {
-            const idx = this.state.viewingAppIdx;
-            this.state.db.apps.splice(idx,1);
-            this.save();
-            document.getElementById('app-view-modal').style.display='none';
-            this.renderHR();
-        },
-
+        rejectAppCurrent: function() { const idx = this.state.viewingAppIdx; this.state.db.apps.splice(idx,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
         delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); },
         fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); }},
         
         drawID: function(id, mode) {
             const p = this.state.db.personnel.find(x => x.id === id); if (!p) return;
-            const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d');
-            cvs.width = 1000; cvs.height = 630;
+            const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630;
             const drawContent = (bgLoaded) => {
                 if (!bgLoaded) {
                     ctx.fillStyle = "#151515"; ctx.fillRect(0, 0, cvs.width, cvs.height); ctx.strokeStyle = "#333"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, cvs.width, cvs.height);
                     const logo = new Image(); logo.crossOrigin = "Anonymous"; logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png";
-                    logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); };
-                    logo.onerror = () => { drawPersonalDetails(); }; 
+                    logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); }; logo.onerror = () => { drawPersonalDetails(); }; 
                 } else { drawPersonalDetails(); }
             };
             const drawPersonalDetails = () => {
@@ -848,8 +813,7 @@
             };
             const bg = new Image(); bg.crossOrigin = "Anonymous"; 
             bg.src = "https://cdn.discordapp.com/attachments/1452796022475722975/1462732671464640688/taslak.png?ex=696f4375&is=696df1f5&hm=7aae0c5a29ce3791765946e403b19a4708e5164a081fdc8f7757c03b810a38c9&";
-            bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); };
-            bg.onerror = () => { drawContent(false); };
+            bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); }; bg.onerror = () => { drawContent(false); };
         },
 
         downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
@@ -921,27 +885,12 @@
             if(this.state.db.wanted) this.state.db.wanted.forEach(w=>t.innerHTML+=`<tr><td>${w.name}</td><td>${w.crime}</td><td style="color:var(--accent)">${w.status}</td></tr>`); 
         },
         adminPostAnnounce: function(){ 
-            if(this.state.user.role!=='admin')return; 
+            if(!this.can('system_manage') && !this.can('all')) return alert("Yetkisiz!"); 
             const t=document.getElementById('ann-title').value, m=document.getElementById('ann-msg').value, tp=document.getElementById('ann-type').value; if(!t)return; 
             if(!this.state.db.announcements) this.state.db.announcements = [];
             this.state.db.announcements.unshift({title:t, msg:m, type:tp, date:new Date().toLocaleDateString()}); 
             this.save(); alert("Yayınlandı"); 
         },
-        sendTip: function(){ 
-            const s=document.getElementById('tip-subj').value, t=document.getElementById('tip-text').value; if(!t){ SFX.error(); return; }
-            if(!this.state.db.tips) this.state.db.tips = []; this.state.db.tips.unshift({subject:s||"İsimsiz", text:t, date:new Date().toLocaleString()});
-            this.save(); alert("İletildi."); document.getElementById('tip-subj').value=''; document.getElementById('tip-text').value=''; SFX.success();
-        },
-        updateDash: function(){ 
-            if(!this.state.db) return;
-            document.getElementById('stat-staff').innerText=this.state.db.personnel ? this.state.db.personnel.length : 0; 
-            document.getElementById('stat-ops').innerText=this.state.db.ops ? this.state.db.ops.filter(o=>o.status==='AKTİF').length : 0; 
-            const l=document.getElementById('dash-logs'); l.innerHTML=''; 
-            if(this.state.db.audit) this.state.db.audit.slice(-8).reverse().forEach(x=>l.innerHTML+=`<div style="border-bottom:1px solid #222; padding:5px;"><span style="color:var(--accent)">[${x.time}]</span> ${x.detail}</div>`); 
-        },
-        initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
-        updateClock: function(){ document.getElementById('sys-clock').innerText=new Date().toLocaleTimeString(); },
-        
         submitReport: function() {
             const t=document.getElementById('report-type').value, s=document.getElementById('report-subj').value, c=document.getElementById('report-content').value;
             if(!s||!c){ SFX.error(); return alert("Eksik!"); }
@@ -957,7 +906,19 @@
             this.save(); document.getElementById('new-op-modal').style.display='none'; 
             SFX.success(); 
         },
-        endOp: function(i) { this.state.db.ops[i].status='PASİF'; this.save(); }
+        endOp: function(i) { this.state.db.ops[i].status='PASİF'; this.save(); },
+        updateDash: function(){ 
+            if(!this.state.db) return;
+            document.getElementById('stat-staff').innerText=this.state.db.personnel ? this.state.db.personnel.length : 0; 
+            document.getElementById('stat-ops').innerText=this.state.db.ops ? this.state.db.ops.filter(o=>o.status==='AKTİF').length : 0; 
+            const l=document.getElementById('dash-logs'); l.innerHTML=''; 
+            if(this.state.db.audit) this.state.db.audit.slice(-8).reverse().forEach(x=>l.innerHTML+=`<div style="border-bottom:1px solid #222; padding:5px;"><span style="color:var(--accent)">[${x.time}]</span> ${x.detail}</div>`); 
+            
+            // Defcon Kontrolü Sadece Yetkiliye
+            if(this.can('system_manage') || this.can('all')) { document.getElementById('defcon-controls').style.display='flex'; }
+        },
+        initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
+        updateClock: function(){ document.getElementById('sys-clock').innerText=new Date().toLocaleTimeString(); }
     };
     window.onload = () => app.init();
 </script>
