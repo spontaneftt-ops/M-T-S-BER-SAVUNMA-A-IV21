@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v27.0 (RBAC)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v28.0 (FIXED)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -231,7 +231,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v27.0 (RBAC)</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v28.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -291,7 +291,7 @@
                         
                         <div id="app-step-1">
                             <h3 style="color:var(--staff-blue);">ADIM 1: KİMLİK DOĞRULAMA</h3>
-                            <label>TC Kimlik</label><input id="app-tc" maxlength="60">
+                            <label>TC Kimlik</label><input id="app-tc" maxlength="11">
                             <label>Ad Soyad</label><input id="app-name">
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                                 <div><label>Cinsiyet</label><select id="app-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select></div>
@@ -544,10 +544,15 @@
         peer: null, activeCall: null, myStream: null, ringInterval: null,
         init: function(userId) {
             const cleanId = userId.replace(/[^a-zA-Z0-9]/g, '');
-            this.peer = new Peer(cleanId + "-mit-system");
+            // Unique ID to prevent conflicts on public server
+            this.peer = new Peer(cleanId + "-mit-v28"); 
             this.peer.on('open', (id) => {
                 database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' });
                 database.ref('online_users/' + userId).onDisconnect().remove();
+            });
+            this.peer.on('error', (err) => {
+                console.error(err);
+                alert("Güvenli hat bağlantısı kurulamadı. (PeerJS Error)");
             });
             this.peer.on('call', (call) => { this.incomingCall(call); });
         },
@@ -565,7 +570,9 @@
         answerCall: function() {
             clearInterval(this.ringInterval);
             navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-                this.myStream = stream; this.activeCall.answer(stream); this.setupCallUI(this.activeCall, "BAĞLANDI", "GÖRÜŞME SÜRÜYOR");
+                this.myStream = stream; 
+                this.activeCall.answer(stream); 
+                this.setupCallUI(this.activeCall, "BAĞLANDI", "GÖRÜŞME SÜRÜYOR");
             });
         },
         rejectCall: function() { clearInterval(this.ringInterval); if(this.activeCall) this.activeCall.close(); document.getElementById('call-modal').style.display = 'none'; },
@@ -579,7 +586,12 @@
             document.getElementById('call-actions').style.display = 'none'; document.getElementById('in-call-ui').style.display = 'block';
             let sec = 0; const timer = document.getElementById('call-timer');
             const interval = setInterval(() => { if(!this.activeCall || !this.activeCall.open) { clearInterval(interval); return; } sec++; const m = Math.floor(sec/60).toString().padStart(2,'0'); const s = (sec%60).toString().padStart(2,'0'); timer.innerText = `${m}:${s}`; }, 1000);
-            call.on('stream', (remoteStream) => { const audio = document.getElementById('remote-audio'); audio.srcObject = remoteStream; audio.play(); });
+            
+            call.on('stream', (remoteStream) => { 
+                const audio = document.getElementById('remote-audio'); 
+                audio.srcObject = remoteStream; 
+                audio.play().catch(e => console.log("Otomatik oynatma engellendi, kullanıcı etkileşimi gerekebilir."));
+            });
             call.on('close', () => { clearInterval(interval); this.endCall(); });
         }
     };
@@ -595,7 +607,7 @@
             citizens: [], reports: [], apps: [], tips: [], ops: [],
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v27.0 RBAC MODÜLÜ", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v28.0 FIXED", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
@@ -646,6 +658,16 @@
             if(id === 'ops' && !this.can('ops_view') && !this.can('ops_manage') && !this.can('all')) return alert("Erişim Reddedildi: Operasyon Yetkisi Yok");
             if(id === 'db' && !this.can('db_query') && !this.can('all')) return alert("Erişim Reddedildi: Veritabanı Yetkisi Yok");
             
+            // OPERASYON BUTONU KONTROLÜ (FİX)
+            if(id === 'ops') {
+                const btn = document.getElementById('btn-new-op');
+                if(this.can('all') || this.can('ops_manage')) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            }
+
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); 
         },
         
@@ -719,7 +741,21 @@
 
                 if(canManage){ 
                     const vis=this.state.visiblePass.has(p.id); 
-                    body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${rStyle.color}">${rStyle.label}</td><td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td><td><button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button><button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button></td></tr>`; 
+                    // FİX: Silme Butonu Eklendi (Kendi kendinizi silemezsiniz)
+                    const deleteBtn = isMe ? '' : `<button class="cyber-btn btn-small btn-red" onclick="app.fireStaff('${p.id}')"><i class="fas fa-times"></i></button>`;
+                    
+                    body.innerHTML+=`<tr>
+                        <td>${p.name}</td>
+                        <td style="color:var(--accent);font-weight:bold;">${p.codename}</td>
+                        <td style="color:${rStyle.color}">${rStyle.label}</td>
+                        <td><div style="font-size:0.7rem;color:var(--staff-blue)">${p.cover.fakeName}</div></td>
+                        <td>
+                            <button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button>
+                            <button class="cyber-btn btn-small" onclick="app.drawID('${p.id}','REAL')">R</button>
+                            <button class="cyber-btn btn-small btn-fake" onclick="app.drawID('${p.id}','FAKE')">S</button>
+                            ${deleteBtn}
+                        </td>
+                    </tr>`; 
                 } else {
                     body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td><span style="color:${rStyle.color}">${rStyle.label}</span></td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${callBtn}</td></tr>`;
                 }
@@ -784,7 +820,19 @@
 
         rejectAppCurrent: function() { const idx = this.state.viewingAppIdx; this.state.db.apps.splice(idx,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
         delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); },
-        fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); }},
+        
+        // FİX: SİLME FONKSİYONU ÇAĞRISI
+        fireStaff: function(id){ 
+            if(confirm("Bu personeli kalıcı olarak silmek istiyor musunuz?")){ 
+                const i=this.state.db.personnel.findIndex(x=>x.id===id); 
+                if(i>-1){
+                    this.state.db.personnel.splice(i,1); 
+                    this.save();
+                    this.renderHR(); // Tabloyu yenile
+                    alert("Personel silindi.");
+                }
+            }
+        },
         
         drawID: function(id, mode) {
             const p = this.state.db.personnel.find(x => x.id === id); if (!p) return;
@@ -924,4 +972,3 @@
 </script>
 </body>
 </html>
-
