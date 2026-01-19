@@ -631,7 +631,7 @@
             document.getElementById('hr-table-head').innerHTML=isAdmin?`<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>ŞİFRE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th></tr>`;
             const body=document.getElementById('hr-table-body'); body.innerHTML='';
             
-            // YENİ EKLENEN KISIM: VATANDAŞ EKLEME FORMU
+            // VATANDAŞ EKLEME FORMU
             if(isAdmin && !document.getElementById('cit-form-container')) {
                  const htmlForm = `
                     <div id="cit-form-container" style="margin-top:20px; border-top:1px solid #333; padding-top:10px;">
@@ -651,7 +651,6 @@
                         <button class="cyber-btn btn-gold" onclick="app.saveCitizen()">KAYDET / GÜNCELLE</button>
                     </div>
                 `;
-                // Sadece yoksa ekle (Tekrar render edilmesin)
                 document.getElementById('admin-tools').insertAdjacentHTML('beforeend', htmlForm);
             }
 
@@ -690,7 +689,7 @@
             document.getElementById('edit-modal').style.display='flex'; 
         },
 
-        // --- YENİ EKLENEN: VATANDAŞ KAYDETME ---
+        // VATANDAŞ KAYDETME
         saveCitizen: function() {
             const tc = document.getElementById('cit-tc').value.trim();
             const name = document.getElementById('cit-name').value.trim();
@@ -761,6 +760,7 @@
         fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); }},
         togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
 
+        // --- GÜNCELLENEN KİMLİK OLUŞTURMA FONKSİYONU ---
         drawID: function(id, mode) {
             const p = this.state.db.personnel.find(x => x.id === id);
             if (!p) return;
@@ -771,17 +771,25 @@
             cvs.width = 1000;
             cvs.height = 630;
 
-            const bg = new Image();
-            bg.crossOrigin = "Anonymous";
-            bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; 
-
-            bg.onerror = () => {
-                ctx.fillStyle = "#000"; ctx.fillRect(0,0,cvs.width,cvs.height);
-                ctx.fillStyle = "red"; ctx.font="30px Arial"; ctx.fillText("ŞABLON YÜKLENEMEDİ. İNTERNETİ KONTROL EDİN.", 50, 300);
+            // YARDIMCI FONKSİYON: İçerikleri Çiz
+            const drawContent = (bgLoaded) => {
+                if (!bgLoaded) {
+                    ctx.fillStyle = "#151515"; 
+                    ctx.fillRect(0, 0, cvs.width, cvs.height);
+                    ctx.strokeStyle = "#333";
+                    ctx.lineWidth = 10;
+                    ctx.strokeRect(0, 0, cvs.width, cvs.height);
+                    const logo = new Image();
+                    logo.crossOrigin = "Anonymous";
+                    logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png";
+                    logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); };
+                    logo.onerror = () => { drawPersonalDetails(); }; 
+                } else {
+                    drawPersonalDetails();
+                }
             };
 
-            bg.onload = () => {
-                ctx.drawImage(bg, 0, 0, cvs.width, cvs.height);
+            const drawPersonalDetails = () => {
                 const photo = new Image();
                 photo.crossOrigin = "Anonymous";
                 const isReal = (mode === 'REAL');
@@ -791,6 +799,7 @@
                 photo.onload = () => {
                     const px = 58, py = 250, pw = 285, ph = 310;
                     ctx.drawImage(photo, px, py, pw, ph);
+                    
                     ctx.lineWidth = 4;
                     ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)";
                     ctx.strokeRect(px, py, pw, ph);
@@ -825,6 +834,22 @@
                     ctx.fillStyle = "rgba(255,255,255,0.4)";
                     ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600);
                 };
+            };
+
+            const bg = new Image();
+            bg.crossOrigin = "Anonymous"; 
+            
+            // DİSCORD LİNKİ ENTEGRE EDİLDİ
+            bg.src = "https://cdn.discordapp.com/attachments/1452796022475722975/1462732671464640688/taslak.png?ex=696f4375&is=696df1f5&hm=7aae0c5a29ce3791765946e403b19a4708e5164a081fdc8f7757c03b810a38c9&";
+
+            bg.onload = () => {
+                ctx.drawImage(bg, 0, 0, cvs.width, cvs.height);
+                drawContent(true);
+            };
+
+            bg.onerror = () => {
+                console.warn("Şablon resmi yüklenemedi, yedek arka plan kullanılıyor.");
+                drawContent(false); 
             };
         },
 
@@ -882,7 +907,7 @@
             this.state.db.chat.push({user:this.state.user.codename, msg:t, time:new Date().toLocaleTimeString()}); this.save(); document.getElementById('chat-input').value=''; SFX.click(); 
         },
         
-        // --- YENİ EKLENEN: GERÇEK SORGULAMA ---
+        // GERÇEK SORGULAMA
         queryDB: function(){ 
             const q = document.getElementById('db-q').value.trim(); 
             if(!q){ SFX.error(); return; }
@@ -892,7 +917,6 @@
 
             const list = this.state.db.citizens || [];
             
-            // TC eşleşmesi VEYA İsimde geçiyorsa (küçük harf duyarlılığı kapalı)
             const record = list.find(c => c.tc === q || c.name.toLowerCase().includes(q.toLowerCase()));
 
             const resDiv = document.getElementById('db-res');
