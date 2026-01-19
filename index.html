@@ -118,7 +118,7 @@
         .btn-small { width: auto; padding: 6px 12px; font-size: 0.75rem; margin-right: 5px; }
         .btn-blue { border-color: var(--staff-blue); color: var(--staff-blue); }
         .btn-gold { border-color: var(--admin-gold); color: var(--admin-gold); }
-        .btn-fake { border-color: #888; color: #888; } /* Sahte kimlik butonu stili */
+        .btn-fake { border-color: #888; color: #888; } 
 
         .table-container { overflow-x: auto; }
         .cyber-table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
@@ -378,7 +378,7 @@
                 <div id="panel-db" class="panel">
                     <div class="glass-box">
                         <h2>GDBS SORGU</h2>
-                        <input id="db-q" placeholder="TC Kimlik / Ad Soyad / Plaka">
+                        <input id="db-q" placeholder="TC Kimlik / Ad Soyad (Tam veya kısmi)">
                         <button class="cyber-btn" onclick="app.queryDB()">SİSTEMDE ARA</button>
                         <div id="db-res" style="margin-top:20px;"></div>
                     </div>
@@ -484,6 +484,7 @@
                 { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33, cover: {fakeName: 'Ahmet Yılmaz', fakeJob: 'Akademisyen', fakePhotoId: 10} },
                 { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'staff', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45, cover: {fakeName: 'Ayşe Demir', fakeJob: 'Eczacı', fakePhotoId: 22} }
             ],
+            citizens: [], // MANUEL VATANDAŞ VERİTABANI
             reports: [],
             apps: [],
             tips: [],
@@ -521,7 +522,9 @@
             if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
             if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
             if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps();
-            if(document.getElementById('panel-db').classList.contains('active')) this.renderLogs();
+            if(document.getElementById('panel-db').classList.contains('active')) {
+                // Sorgu ekranı yenilenince sonuçlar kaybolmasın diye burayı boş bırakıyoruz
+            }
             if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports();
             if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash();
         },
@@ -628,6 +631,30 @@
             document.getElementById('hr-table-head').innerHTML=isAdmin?`<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>ŞİFRE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th></tr>`;
             const body=document.getElementById('hr-table-body'); body.innerHTML='';
             
+            // YENİ EKLENEN KISIM: VATANDAŞ EKLEME FORMU
+            if(isAdmin && !document.getElementById('cit-form-container')) {
+                 const htmlForm = `
+                    <div id="cit-form-container" style="margin-top:20px; border-top:1px solid #333; padding-top:10px;">
+                        <h3 style="color:var(--admin-gold);">VATANDAŞ & GBT YÖNETİMİ</h3>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                            <input id="cit-tc" placeholder="TC Kimlik No (Zorunlu)">
+                            <input id="cit-name" placeholder="Ad Soyad">
+                            <select id="cit-gender"><option value="men">Erkek</option><option value="women">Kadın</option></select>
+                            <select id="cit-status" style="color:var(--admin-gold); font-weight:bold;">
+                                <option value="TEMİZ">TEMİZ</option>
+                                <option value="ŞÜPHELİ">ŞÜPHELİ</option>
+                                <option value="ARANIYOR">ARANIYOR (KIRMIZI)</option>
+                            </select>
+                        </div>
+                        <input id="cit-photo" placeholder="Fotoğraf Linki (Boş bırakılırsa rastgele atanır)">
+                        <textarea id="cit-notes" rows="3" placeholder="GBT Kayıtları, İşlenen Suçlar..."></textarea>
+                        <button class="cyber-btn btn-gold" onclick="app.saveCitizen()">KAYDET / GÜNCELLE</button>
+                    </div>
+                `;
+                // Sadece yoksa ekle (Tekrar render edilmesin)
+                document.getElementById('admin-tools').insertAdjacentHTML('beforeend', htmlForm);
+            }
+
             if(!this.state.db.personnel) this.state.db.personnel = [];
 
             this.state.db.personnel.forEach(p=>{
@@ -663,7 +690,52 @@
             document.getElementById('edit-modal').style.display='flex'; 
         },
 
-        // --- MANUEL GÜNCELLEME VE KAYDETME ---
+        // --- YENİ EKLENEN: VATANDAŞ KAYDETME ---
+        saveCitizen: function() {
+            const tc = document.getElementById('cit-tc').value.trim();
+            const name = document.getElementById('cit-name').value.trim();
+            const status = document.getElementById('cit-status').value;
+            const notes = document.getElementById('cit-notes').value;
+            const gender = document.getElementById('cit-gender').value;
+            let photo = document.getElementById('cit-photo').value.trim();
+
+            if(!tc || !name) { SFX.error(); return alert("TC ve İsim zorunludur!"); }
+            
+            if(!this.state.db.citizens) this.state.db.citizens = [];
+
+            if(!photo) {
+                const rndId = Math.floor(Math.random()*80);
+                photo = `https://randomuser.me/api/portraits/${gender}/${rndId}.jpg`;
+            }
+
+            const existingIdx = this.state.db.citizens.findIndex(c => c.tc === tc);
+            
+            const newRecord = {
+                tc: tc,
+                name: name,
+                gender: gender,
+                status: status,
+                notes: notes || "Kayıt yok.",
+                photo: photo,
+                lastUpdate: new Date().toLocaleString()
+            };
+
+            if(existingIdx > -1) {
+                this.state.db.citizens[existingIdx] = newRecord;
+                alert("Kayıt GÜNCELLENDİ.");
+            } else {
+                this.state.db.citizens.push(newRecord);
+                alert("Yeni kayıt OLUŞTURULDU.");
+            }
+
+            this.save();
+            SFX.success();
+            // Formu temizle
+            document.getElementById('cit-tc').value = '';
+            document.getElementById('cit-name').value = '';
+            document.getElementById('cit-notes').value = '';
+        },
+
         saveEdit: function() { 
             const id = document.getElementById('edit-id').value;
             const p = this.state.db.personnel.find(x => x.id === id); 
@@ -672,7 +744,7 @@
                 p.name = document.getElementById('edit-name').value; 
                 p.codename = document.getElementById('edit-code').value; 
                 p.role = document.getElementById('edit-role').value; 
-                p.rank = document.getElementById('edit-rank').value.toUpperCase(); // Rütbe güncelleme
+                p.rank = document.getElementById('edit-rank').value.toUpperCase(); 
                 const newPass = document.getElementById('edit-pass').value.trim();
                 if(newPass.length > 0) p.pass = newPass;
 
@@ -689,7 +761,6 @@
         fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); }},
         togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
 
-        // --- GELİŞMİŞ KİMLİK KARTI OLUŞTURMA (Hızlıresim Entegreli) ---
         drawID: function(id, mode) {
             const p = this.state.db.personnel.find(x => x.id === id);
             if (!p) return;
@@ -697,14 +768,12 @@
             const cvs = document.getElementById('idCardCanvas');
             const ctx = cvs.getContext('2d');
 
-            // 1. Canvas Boyutlandırma
             cvs.width = 1000;
             cvs.height = 630;
 
-            // 2. Taslak Resmini Yükle (Direkt JPG Linki)
             const bg = new Image();
             bg.crossOrigin = "Anonymous";
-            bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; // Kullanıcının şablonu
+            bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; 
 
             bg.onerror = () => {
                 ctx.fillStyle = "#000"; ctx.fillRect(0,0,cvs.width,cvs.height);
@@ -713,8 +782,6 @@
 
             bg.onload = () => {
                 ctx.drawImage(bg, 0, 0, cvs.width, cvs.height);
-
-                // 3. Personel Fotoğrafı
                 const photo = new Image();
                 photo.crossOrigin = "Anonymous";
                 const isReal = (mode === 'REAL');
@@ -722,36 +789,29 @@
                 photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`;
 
                 photo.onload = () => {
-                    // Koordinatlar (Şablona göre ayarlı)
                     const px = 58, py = 250, pw = 285, ph = 310;
                     ctx.drawImage(photo, px, py, pw, ph);
-                    
-                    // Fotoğraf Çerçevesi
                     ctx.lineWidth = 4;
                     ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)";
                     ctx.strokeRect(px, py, pw, ph);
 
-                    // 4. Metinleri Yazdır
                     ctx.font = "bold 34px 'Courier New', monospace";
                     ctx.fillStyle = "#ffffff";
                     ctx.shadowColor = "rgba(0,0,0,0.9)";
                     ctx.shadowBlur = 5;
                     ctx.textAlign = "left";
 
-                    const tx = 420; // Yazı sol hiza
-                    let ty = 295;   // İlk satır Y
-                    const gap = 100; // Satır arası
+                    const tx = 420; 
+                    let ty = 295;   
+                    const gap = 100;
 
-                    // İsim
                     const nameVal = isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR");
                     ctx.fillText(nameVal.toUpperCase(), tx, ty);
 
-                    // Rütbe
                     ty += gap;
                     const rankVal = isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL");
                     ctx.fillText(rankVal.toUpperCase(), tx, ty);
 
-                    // Kod Adı / Tarih
                     ty += gap;
                     if(isReal) {
                         ctx.fillStyle = "#ff3333";
@@ -761,7 +821,6 @@
                         ctx.fillText("DOĞUM: 15.04.1990", tx, ty);
                     }
                     
-                    // Alt Bilgi
                     ctx.font = "15px Arial";
                     ctx.fillStyle = "rgba(255,255,255,0.4)";
                     ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600);
@@ -823,31 +882,60 @@
             this.state.db.chat.push({user:this.state.user.codename, msg:t, time:new Date().toLocaleTimeString()}); this.save(); document.getElementById('chat-input').value=''; SFX.click(); 
         },
         
+        // --- YENİ EKLENEN: GERÇEK SORGULAMA ---
         queryDB: function(){ 
-            const q=document.getElementById('db-q').value; if(!q){SFX.error(); return;}
+            const q = document.getElementById('db-q').value.trim(); 
+            if(!q){ SFX.error(); return; }
+            
             this.logAudit('SORGU', `Aranan: ${q}`);
             SFX.success();
-            const blood = ["A Rh+", "0 Rh+", "B Rh-", "AB Rh+"][Math.floor(Math.random()*4)];
-            const gender = Math.random()>0.5 ? 'men' : 'women';
-            const photo = Math.floor(Math.random()*80);
-            const score = Math.floor(Math.random()*100);
-            const status = score > 80 ? "<span style='color:red'>KRİMİNAL</span>" : "<span style='color:lime'>TEMİZ</span>";
-            const hash = Array(16).fill(0).map(()=>Math.random().toString(36)[2]).join('').toUpperCase();
+
+            const list = this.state.db.citizens || [];
+            
+            // TC eşleşmesi VEYA İsimde geçiyorsa (küçük harf duyarlılığı kapalı)
+            const record = list.find(c => c.tc === q || c.name.toLowerCase().includes(q.toLowerCase()));
+
+            const resDiv = document.getElementById('db-res');
+
+            if (!record) {
+                SFX.error();
+                resDiv.innerHTML = `
+                    <div class="glass-box" style="border-color:red; text-align:center; animation: pulseAlert 2s infinite;">
+                        <i class="fas fa-times-circle fa-3x" style="color:red; margin-bottom:10px;"></i>
+                        <h3 style="color:red;">KAYIT BULUNAMADI</h3>
+                        <p>Aranan kriterlere uygun vatandaş verisi yok.</p>
+                        <p style="font-size:0.8rem; color:#666;">Sistem dışı veya hatalı giriş.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let statusColor = "lime";
+            if(record.status === "SABIKALI" || record.status === "ŞÜPHELİ") statusColor = "orange";
+            if(record.status === "ARANIYOR") statusColor = "red";
+
+            if(record.status === "ARANIYOR") {
+                setTimeout(() => SFX.error(), 200);
+                setTimeout(() => SFX.error(), 400);
+            }
 
             const html = `
-                <div class="bio-grid">
-                    <img src="https://randomuser.me/api/portraits/${gender}/${photo}.jpg" class="bio-img">
+                <div class="bio-grid" style="border-color:${statusColor}; box-shadow: 0 0 15px ${statusColor};">
+                    <img src="${record.photo}" class="bio-img" onerror="this.src='https://i.imgur.com/vM09c5C.png'">
                     <div class="bio-data">
-                        <div><span class="bio-label">KİMLİK</span> <span>${q.toUpperCase()}</span></div>
-                        <div><span class="bio-label">KAN GRUBU</span> <span>${blood}</span></div>
-                        <div><span class="bio-label">GSM SİNYAL</span> <span>AKTİF (Baz: İst-Avr-342)</span></div>
-                        <div><span class="bio-label">PARMAK İZİ</span> <span>${hash}</span></div>
-                        <div><span class="bio-label">GBT SKORU</span> <span>${score}/100</span></div>
-                        <div><span class="bio-label">DURUM</span> <strong>${status}</strong></div>
+                        <div><span class="bio-label">TC KİMLİK</span> <span style="letter-spacing:2px;">${record.tc}</span></div>
+                        <div><span class="bio-label">AD SOYAD</span> <span>${record.name.toUpperCase()}</span></div>
+                        <div><span class="bio-label">CİNSİYET</span> <span>${record.gender === 'men' ? 'ERKEK' : 'KADIN'}</span></div>
+                        <div><span class="bio-label">GBT DURUMU</span> <strong style="color:${statusColor}; font-size:1.1rem;">${record.status}</strong></div>
+                        <div style="flex-direction:column; align-items:flex-start; margin-top:10px;">
+                            <span class="bio-label" style="margin-bottom:5px;">SİCİL NOTLARI & DETAY:</span>
+                            <p style="font-size:0.85rem; color:#ddd; background:rgba(0,0,0,0.5); padding:5px; width:100%; min-height:60px;">${record.notes}</p>
+                        </div>
+                        <div style="border:none; margin-top:5px;"><small style="color:#555">Son Güncelleme: ${record.lastUpdate}</small></div>
                     </div>
                 </div>
             `;
-            document.getElementById('db-res').innerHTML = html;
+            resDiv.innerHTML = html;
         },
         
         renderLogs: function(){ const t=document.querySelector('#audit-table tbody'); t.innerHTML=''; if(this.state.db.audit) this.state.db.audit.slice().reverse().forEach(l=>t.innerHTML+=`<tr><td>${l.time}</td><td>${l.user}</td><td>${l.detail}</td></tr>`); },
