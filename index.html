@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v35.0 (ID FIX)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v35.0 (FIREBASE ONLINE)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -583,6 +583,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+    // NOT: Kendi Firebase projenizi kullanıyorsanız bu config bilgilerini güncelleyin.
     const firebaseConfig = {
         apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
         authDomain: "mit-sistemi.firebaseapp.com",
@@ -593,8 +594,14 @@
         appId: "1:195453377116:web:85067f5070ecf983bb6499"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    let database;
+    try {
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+    } catch(e) {
+        console.error("Firebase başlatılamadı:", e);
+        alert("SİSTEM HATASI: Veritabanı bağlantısı kurulamadı. Lütfen internet bağlantınızı kontrol edin.");
+    }
 
     const ROLE_DEFS = {
         'admin': { label: 'MÜSTEŞAR', color: '#ff0000', perms: ['all'] },
@@ -625,17 +632,19 @@
     const phoneSystem = {
         peer: null, activeCall: null, myStream: null, ringInterval: null,
         init: function(userId) {
-            // DİNAMİK ID (HATA ÖNLEME)
             const randomSuffix = Math.floor(Math.random() * 10000);
             const dynamicId = userId + "_" + randomSuffix; 
-            this.peer = new Peer(dynamicId); 
-            
-            this.peer.on('open', (id) => {
-                database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' });
-                database.ref('online_users/' + userId).onDisconnect().remove();
-            });
-            this.peer.on('error', (err) => { console.error("PeerJS Error:", err); });
-            this.peer.on('call', (call) => { this.incomingCall(call); });
+            try {
+                this.peer = new Peer(dynamicId); 
+                this.peer.on('open', (id) => {
+                    if(database) {
+                        database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' }).catch(e=>console.log(e));
+                        database.ref('online_users/' + userId).onDisconnect().remove();
+                    }
+                });
+                this.peer.on('error', (err) => { console.error("PeerJS Error:", err); });
+                this.peer.on('call', (call) => { this.incomingCall(call); });
+            } catch(e) { console.warn("PeerJS başlatılamadı."); }
         },
         callUser: function(targetPeerId, targetName) {
             if(!targetPeerId) return alert("Kullanıcı çevrimdışı veya hatta değil.");
@@ -689,7 +698,7 @@
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
             cryptoMessages: [], 
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v34.0 CHAT FIX", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v35.0 FIREBASE BAĞLANTISI AKTİF", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
@@ -715,24 +724,46 @@
         },
 
         init: function() {
-            this.bootSequence(); this.listenToCloud();
+            // ÖNEMLİ DÜZELTME: Veritabanı gecikirse sistemin çökmemesi için default datayı peşin yükle
+            this.state.db = JSON.parse(JSON.stringify(this.defaultData));
+            this.bootSequence(); 
+            if(database) this.listenToCloud();
             document.querySelectorAll('button, .nav-btn').forEach(b => { b.addEventListener('mouseenter', ()=>SFX.hover()); b.addEventListener('click', ()=>SFX.click()); });
         },
         listenToCloud: function() {
             database.ref('mit_database').on('value', (snapshot) => { 
                 const data = snapshot.val(); 
-                if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); } 
+                if (data) { 
+                    this.state.db = data; 
+                } else { 
+                    // Veritabanı boşsa default datayı yaz
+                    this.state.db = this.defaultData; 
+                    this.save(); 
+                } 
                 this.refreshCurrentView(); 
-                this.applyDefcon(this.state.db.defcon); 
+                if(this.state.db.defcon) this.applyDefcon(this.state.db.defcon); 
                 if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
+            }, (error) => {
+                console.error("Firebase Okuma Hatası:", error);
+                // Hata durumunda (Yetki yoksa) yine de çalışmaya devam etmesi için local veriyi koru
+                if(!this.state.db) this.state.db = this.defaultData;
             });
+
             database.ref('online_users').on('value', (snap) => { 
                 this.state.onlineUsers = snap.val() || {}; 
                 if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); 
             });
         },
-        save: function() { if(this.state.db) { database.ref('mit_database').set(this.state.db).catch(e => console.error(e)); } },
+        save: function() { 
+            if(this.state.db && database) { 
+                database.ref('mit_database').set(this.state.db).catch(e => {
+                    console.error("Kaydetme Hatası (Yetki Yok olabilir):", e);
+                    // alert("UYARI: Veri buluta kaydedilemedi. Konsol yetkilerini kontrol edin.");
+                }); 
+            } 
+        },
         refreshCurrentView: function() {
+            if(!this.state.db) return;
             if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
             if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
             if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
@@ -763,7 +794,13 @@
         },
         
         showLogin: function() { document.getElementById('login-modal').style.display='flex'; document.getElementById('login-form-init').style.display='block'; document.getElementById('login-form-sec').style.display='none'; document.getElementById('login-pass').value=''; document.getElementById('login-msg').innerText=''; this.state.fail = 0; },
-        loginStep1: function() { if(!this.state.db) return alert("Sistem yükleniyor..."); const p = document.getElementById('login-pass').value.trim(); const u = this.state.db.personnel.find(x => x.pass === p); if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } else { SFX.error(); this.failLogin(); } },
+        loginStep1: function() { 
+            if(!this.state.db || !this.state.db.personnel) {
+                // Fallback: Veritabanı henüz yüklenmediyse default'a bak
+                this.state.db = this.defaultData;
+            }
+            const p = document.getElementById('login-pass').value.trim(); const u = this.state.db.personnel.find(x => x.pass === p); if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } else { SFX.error(); this.failLogin(); } 
+        },
         fakeScan: function() { SFX.error(); alert("⚠️ ERİŞİM REDDEDİLDİ: BİYOMETRİK VERİ UYUŞMAZLIĞI!\n\nGüvenlik protokolü ihlali tespit edildi."); this.failLogin(); },
         secretUnlock: function() { if(!this.state.tUser) return; SFX.success(); this.finishLogin(); },
         finishLogin: function() {
@@ -876,24 +913,19 @@
         delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); },
         fireStaff: function(id){ if(confirm("Bu personeli kalıcı olarak silmek istiyor musunuz?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1){ this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); alert("Personel silindi."); } } },
         
-        // --- KİMLİK KARTI (GÜVENLİ) ---
         drawID: function(id, mode) {
             const p = this.state.db.personnel.find(x => x.id === id); if (!p) return;
             const cvs = document.getElementById('idCardCanvas');
             const ctx = cvs.getContext('2d');
             cvs.width = 1000; cvs.height = 630;
 
-            // İçerik Çizme Fonksiyonu
             const drawContent = (bgLoaded) => {
-                // Eğer resim yoksa Siyah Arka Plan çiz
                 if (!bgLoaded) {
                     ctx.fillStyle = "#151515"; 
                     ctx.fillRect(0, 0, cvs.width, cvs.height);
                     ctx.strokeStyle = "red";
                     ctx.lineWidth = 10;
                     ctx.strokeRect(0, 0, cvs.width, cvs.height);
-                    
-                    // Logo çiz (Varsa)
                     const logo = new Image();
                     logo.crossOrigin = "Anonymous";
                     logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png";
@@ -909,7 +941,6 @@
                 photo.crossOrigin = "Anonymous";
                 const isReal = (mode === 'REAL');
                 const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1);
-                // Random User API güvenilirdir
                 photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`;
 
                 photo.onload = () => {
@@ -951,7 +982,6 @@
                     ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600);
                 };
                 
-                // Fotoğraf yüklenemezse bile yazıları yaz
                 photo.onerror = () => {
                     ctx.font = "bold 30px Arial";
                     ctx.fillStyle = "red";
@@ -961,7 +991,6 @@
 
             const bg = new Image();
             bg.crossOrigin = "Anonymous"; 
-            // Hızlıresim bazen sorun çıkarıyor, burası hata verirse drawContent(false) çalışacak.
             bg.src = "https://i.hizliresim.com/lm0b5hh.jpg"; 
 
             bg.onload = () => {
