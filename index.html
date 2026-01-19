@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MİT | KIZIL ELMA SİBER SAVUNMA v30.0 (VOIP STABLE)</title>
+    <title>MİT | KIZIL ELMA SİBER SAVUNMA v31.0 (CRYPTO OPS)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;500;600;700&family=Courier+New:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,6 +22,7 @@
             --discord: #5865F2;
             --staff-blue: #00ccff;
             --admin-gold: #ffcc00;
+            --cyber-green: #00ff41;
             --text-main: #e0e0e0;
         }
 
@@ -127,12 +128,10 @@
         /* KİMLİK CANVAS */
         #idCardCanvas { max-width: 100%; height: auto; border: 1px solid #333; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* --- YENİ CHAT LAYOUT (GRID) --- */
+        /* CHAT LAYOUT */
         .chat-container { display: grid; grid-template-columns: 1fr 280px; gap: 15px; height: 500px; }
         .chat-main { display: flex; flex-direction: column; height: 100%; }
         .chat-window { flex: 1; overflow-y: auto; background: #050505; border: 1px solid #333; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
-        
-        /* SAĞ TARAF PERSONEL LİSTESİ */
         .chat-sidebar { background: rgba(0,0,0,0.3); border: 1px solid #333; padding: 10px; overflow-y: auto; }
         .chat-user-card { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; transition: 0.3s; }
         .chat-user-card:hover { background: rgba(255,255,255,0.05); }
@@ -146,17 +145,27 @@
         .chat-img { max-width: 100%; border-radius: 4px; border: 1px solid #444; margin-top: 5px; cursor: pointer; }
         .chat-audio { width: 100%; margin-top: 5px; height: 30px; }
 
-        .report-card { border-left: 3px solid var(--staff-blue); background: #0f0f0f; padding: 15px; margin-bottom: 10px; position: relative; }
-        .report-op { border-left-color: var(--accent); }
-
         .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 15px; border: 1px solid var(--accent); padding: 10px; background: rgba(0,0,0,0.5); margin-top: 10px; }
         .bio-img { width: 100%; height: 100px; object-fit: cover; border: 1px solid #444; }
         .bio-data div { display: flex; justify-content: space-between; border-bottom: 1px solid #333; padding: 3px 0; font-family: 'Share Tech Mono'; font-size: 0.9rem; }
         .bio-label { color: var(--accent); font-size: 0.8rem; }
 
+        /* KRİPTO / HACK STİLLERİ */
+        .crypto-card { border: 1px solid var(--cyber-green); background: rgba(0, 20, 0, 0.8); padding: 15px; margin-bottom: 15px; font-family: 'Share Tech Mono'; position: relative; overflow: hidden; }
+        .crypto-glitch { animation: glitchText 0.3s infinite; color: var(--cyber-green); font-weight: bold; font-size: 1.1rem; word-break: break-all; }
+        .crypto-locked { filter: blur(2px); pointer-events: none; opacity: 0.7; }
+        
+        #hack-terminal { background: #000; border: 2px solid var(--cyber-green); height: 300px; padding: 20px; font-family: 'Share Tech Mono'; color: var(--cyber-green); overflow: hidden; position: relative; }
+        .hack-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1.2rem; }
+        .hack-char { width: 20px; text-align: center; cursor: pointer; transition: 0.1s; }
+        .hack-char:hover { background: var(--cyber-green); color: black; }
+        .hack-char.solved { color: white; text-shadow: 0 0 10px white; }
+        
+        #hack-progress-bar { width: 0%; height: 5px; background: var(--cyber-green); transition: width 0.1s; box-shadow: 0 0 10px var(--cyber-green); }
+
         /* MODALLAR */
         #lockdown-screen { background: #000; display: none; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; flex-direction: column; color: var(--accent); text-align: center; }
-        #login-modal, #edit-modal, #call-modal, #app-view-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
+        #login-modal, #edit-modal, #call-modal, #app-view-modal, #hack-modal { position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(15px); background: rgba(0,0,0,0.85); display: none; }
 
         /* GÜVENLİK SİSTEMİ STİLLERİ */
         .sec-matrix { position: relative; width: 100%; height: 200px; background: #000; border: 1px solid #333; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-direction: column; }
@@ -165,15 +174,14 @@
         .sec-circle:nth-child(2) { width: 100px; height: 100px; animation-direction: reverse; }
         .sec-scan-line { position: absolute; width: 100%; height: 2px; background: var(--accent); top: 0; animation: scanDown 2s linear infinite; box-shadow: 0 0 10px var(--accent); }
         .sec-text { font-family: 'Share Tech Mono'; color: var(--accent); z-index: 10; font-size: 0.8rem; background: rgba(0,0,0,0.7); padding: 5px; }
-        
         .hidden-trigger { position: absolute; top: 10px; right: 10px; color: #333; font-size: 1rem; cursor: pointer; transition: color 0.3s; z-index: 100; }
         .hidden-trigger:hover { color: #444; }
-
         .decoy-btn { background: rgba(255, 0, 0, 0.1); border: 2px solid red; color: red; padding: 15px; width: 100%; margin-top: 15px; font-weight: bold; font-family: 'Orbitron'; cursor: pointer; position: relative; overflow: hidden; }
         .decoy-btn:hover { background: red; color: black; box-shadow: 0 0 20px red; }
 
         @keyframes spinSec { 100% { transform: rotate(360deg); } }
         @keyframes scanDown { 0% { top: 0; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes glitchText { 0% { opacity: 1; transform: translate(0); } 20% { opacity: 0.8; transform: translate(-2px, 2px); } 40% { opacity: 1; transform: translate(2px, -2px); } 100% { opacity: 1; transform: translate(0); } }
 
         /* ARAMA MODALI */
         #call-modal { flex-direction: column; }
@@ -248,6 +256,20 @@
         </div>
     </div>
 
+    <div id="hack-modal">
+        <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
+            <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
+            <div id="hack-terminal">
+                </div>
+            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
+                <div id="hack-progress-bar"></div>
+            </div>
+            <p id="hack-status" style="font-family:'Share Tech Mono'; color:white; text-align:center; margin-top:5px;">HEDEF: ŞİFREYİ KIR</p>
+            <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
+            <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
+        </div>
+    </div>
+
     <div id="lockdown-screen">
         <i class="fas fa-biohazard fa-6x" style="margin-bottom:30px; animation: pulseAlert 1s infinite;"></i>
         <h1 style="font-size:4rem; margin-bottom:10px; font-family: 'Orbitron';">SİSTEM KİLİTLENDİ</h1>
@@ -261,7 +283,7 @@
                 <img src="https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png" height="60" style="filter: drop-shadow(0 0 15px var(--accent));">
                 <div>
                     <h1 style="font-family:'Orbitron'; font-size:1.8rem; line-height:1; color:white;">MİT <span style="color:var(--accent)">KIZIL ELMA</span></h1>
-                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v30.0</small>
+                    <small style="color:#aaa; letter-spacing:2px; font-size:0.75rem;">SİBER SAVUNMA AĞI v31.0</small>
                 </div>
             </div>
             <div style="text-align:right; font-family:'Share Tech Mono'; width:100%; text-align:center; margin-top:5px;">
@@ -293,6 +315,7 @@
                     <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-contract"></i> Rapor</button>
                     <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> Operasyon</button>
                     <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> Chat</button>
+                    <button id="nav-cyber" class="nav-btn" onclick="app.nav('cyber')" style="display:none; color:var(--cyber-green);"><i class="fas fa-code"></i> SİBER</button>
                     <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users"></i> Ekip</button>
                     <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> Sorgu</button>
                     <button class="nav-btn" onclick="app.logout()" style="color:var(--accent);"><i class="fas fa-power-off"></i> Çıkış</button>
@@ -318,6 +341,7 @@
                 <div id="panel-basvuru" class="panel">
                     <div class="glass-box" style="max-width:700px; margin:0 auto;">
                         <h2 style="text-align:center;">AKADEMİ BAŞVURU & MÜLAKAT</h2>
+                        
                         <div id="app-step-1">
                             <h3 style="color:var(--staff-blue);">ADIM 1: KİMLİK DOĞRULAMA</h3>
                             <label>TC Kimlik</label><input id="app-tc" maxlength="11">
@@ -328,18 +352,24 @@
                             </div>
                             <button class="cyber-btn" onclick="app.goToStep2()">MÜLAKATA GEÇ <i class="fas fa-arrow-right"></i></button>
                         </div>
+
                         <div id="app-step-2" style="display:none;">
                             <h3 style="color:var(--accent);">ADIM 2: YAZILI MÜLAKAT</h3>
                             <p style="color:#888; font-size:0.9rem; margin-bottom:20px;">Aşağıdaki sorulara vereceğiniz cevaplar, teşkilat mantalitesine uygunluğunuzu belirleyecektir. Dürüst ve net olunuz.</p>
+                            
                             <label style="color:white; font-weight:bold;">SORU 1: Vatan ve devlet güvenliği sizin için ne ifade ediyor? Kişisel hırslarınızın önüne geçebilir mi?</label>
                             <textarea id="app-q1" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
+                            
                             <label style="color:white; font-weight:bold;">SORU 2: Bir operasyon sırasında sivil kaybı riski ile görevin başarısı arasında kalsanız, karar mekanizmanız nasıl işler?</label>
                             <textarea id="app-q2" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
+                            
                             <label style="color:white; font-weight:bold;">SORU 3: Görev gereği en yakınlarınızdan (aile, eş) gerçek kimliğinizi yıllarca saklamanız gerekse, bu psikolojik yükü kaldırabilir misiniz?</label>
                             <textarea id="app-q3" rows="3" style="border:1px solid var(--accent-dim);"></textarea>
+
                             <button class="cyber-btn" onclick="app.submitAppFull()">BAŞVURUYU TAMAMLA</button>
                             <button class="nav-btn" style="text-align:center; width:100%; margin-top:10px;" onclick="document.getElementById('app-step-2').style.display='none'; document.getElementById('app-step-1').style.display='block';">GERİ DÖN</button>
                         </div>
+
                     </div>
                 </div>
 
@@ -360,6 +390,14 @@
                     </div>
                     <div class="glass-box"><h3>CANLI AKIŞ</h3><div id="dash-logs" style="height:200px; overflow-y:auto; color:#888; font-size:0.8rem;"></div></div>
                     <div class="glass-box" style="padding:0; height:400px;"><div id="map" style="height:100%;"></div></div>
+                </div>
+
+                <div id="panel-cyber" class="panel">
+                    <div class="glass-box" style="border-color:var(--cyber-green);">
+                        <h2 style="color:var(--cyber-green);">SİBER SAVAŞ & KRİPTO MERKEZİ</h2>
+                        <div id="cyber-messages-list">
+                            </div>
+                    </div>
                 </div>
 
                 <div id="panel-reports" class="panel">
@@ -427,6 +465,13 @@
                 <div id="panel-hr" class="panel">
                     <div id="admin-tools" class="glass-box" style="display:none; border-color:var(--admin-gold);">
                         <h3 style="color:var(--admin-gold);"><i class="fas fa-cogs"></i> YÖNETİCİ KONSOLU</h3>
+                        
+                        <div style="margin-bottom:20px; border-bottom:1px solid #333; padding-bottom:20px;">
+                            <h4 style="color:var(--cyber-green);">KRİPTOLU GÖREV EMRİ OLUŞTUR</h4>
+                            <input id="crypto-input" placeholder="Gizli Mesaj İçeriği (Örn: Ajan X hedefe yönlendirilsin)">
+                            <button class="cyber-btn" style="border-color:var(--cyber-green); color:var(--cyber-green);" onclick="app.createCryptoMessage()">ŞİFRELE VE GÖNDER</button>
+                        </div>
+
                         <h3 style="color:var(--admin-gold); margin-top:15px;">DUYURU YAYINLA</h3>
                         <div style="display:flex; gap:15px; flex-wrap:wrap;">
                             <input id="ann-title" placeholder="Duyuru Başlığı" style="flex:1; min-width:200px;">
@@ -435,6 +480,7 @@
                         <textarea id="ann-msg" rows="2" placeholder="Mesaj..."></textarea>
                         <button class="cyber-btn btn-gold" onclick="app.adminPostAnnounce()">YAYINLA</button>
                     </div>
+
                     <div style="display:grid; grid-template-columns: 2fr 1fr; gap:25px;">
                         <div class="glass-box">
                             <h3 id="hr-table-title">EKİP LİSTESİ</h3>
@@ -449,6 +495,7 @@
                             <div id="id-actions"></div>
                         </div>
                     </div>
+                    
                     <div id="admin-apps-section" style="display:none;">
                         <div class="glass-box">
                             <h3>BEKLEYEN BAŞVURULAR (MÜLAKATLI)</h3>
@@ -516,6 +563,20 @@
         </div>
     </div>
 
+    <div id="hack-modal">
+        <div class="glass-box" style="width:500px; border-color:var(--cyber-green);">
+            <h3 style="color:var(--cyber-green); text-align:center;"><i class="fas fa-terminal"></i> KRİPTO DEŞİFRE MODÜLÜ</h3>
+            <div id="hack-terminal">
+                </div>
+            <div style="margin-top:10px; background:#111; height:10px; width:100%; border:1px solid #333;">
+                <div id="hack-progress-bar"></div>
+            </div>
+            <p id="hack-status" style="font-family:'Share Tech Mono'; color:white; text-align:center; margin-top:5px;">HEDEF: ŞİFREYİ KIR</p>
+            <button id="btn-hack-action" class="cyber-btn" style="margin-top:15px; border-color:var(--cyber-green); color:var(--cyber-green);" onmousedown="app.hack.processHack()">BRUTE FORCE BAŞLAT</button>
+            <button class="nav-btn" onclick="app.hack.closeHack()" style="margin-top:10px; text-align:center;">İPTAL</button>
+        </div>
+    </div>
+
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -537,7 +598,7 @@
     const ROLE_DEFS = {
         'admin': { label: 'MÜSTEŞAR', color: '#ff0000', perms: ['all'] },
         'commander': { label: 'DAİRE BŞK.', color: '#ffcc00', perms: ['hr_view', 'hr_manage', 'ops_manage', 'db_query', 'chat', 'reports_view'] },
-        'cyber': { label: 'SİBER UZMAN', color: '#00ff00', perms: ['logs_view', 'db_query', 'system_manage', 'chat'] },
+        'cyber': { label: 'SİBER UZMAN', color: '#00ff00', perms: ['logs_view', 'db_query', 'system_manage', 'chat', 'cyber_ops'] },
         'agent': { label: 'SAHA AJANI', color: '#00ccff', perms: ['ops_view', 'chat', 'reports_write'] },
         'analyst': { label: 'ANALİST', color: '#aa00ff', perms: ['db_query', 'reports_view', 'chat', 'intel_view'] }
     };
@@ -563,24 +624,20 @@
             o.frequency.setValueAtTime(800, now); o.frequency.setValueAtTime(600, now + 0.4);
             g.gain.setValueAtTime(0.1, now); g.gain.exponentialRampToValueAtTime(0.00001, now + 0.8);
             o.start(now); o.stop(now + 0.8);
-        }
+        },
+        hack: function() { this.playTone(3000, 'square', 0.05); } // Hack sesi
     };
 
     const phoneSystem = {
         peer: null, activeCall: null, myStream: null, ringInterval: null,
         init: function(userId) {
-            // ÖNEMLİ: ID'yi isimden değil, veritabanı ID'sinden alıyoruz. Eşleşme garantili.
             const cleanId = userId; 
             this.peer = new Peer(cleanId + "-mit-system"); 
             this.peer.on('open', (id) => {
                 database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' });
                 database.ref('online_users/' + userId).onDisconnect().remove();
             });
-            this.peer.on('error', (err) => {
-                console.error("PeerJS Error:", err);
-                if(err.type === 'peer-unavailable') alert("Kullanıcı çevrimdışı veya hatta değil.");
-                else if(err.type === 'unavailable-id') console.log("ID zaten alınmış (sayfa yenileme)");
-            });
+            this.peer.on('error', (err) => { console.error("PeerJS Error:", err); });
             this.peer.on('call', (call) => { this.incomingCall(call); });
         },
         callUser: function(targetPeerId, targetName) {
@@ -614,10 +671,8 @@
             document.getElementById('call-actions').style.display = 'none'; document.getElementById('in-call-ui').style.display = 'block';
             let sec = 0; const timer = document.getElementById('call-timer');
             const interval = setInterval(() => { if(!this.activeCall || !this.activeCall.open) { clearInterval(interval); return; } sec++; const m = Math.floor(sec/60).toString().padStart(2,'0'); const s = (sec%60).toString().padStart(2,'0'); timer.innerText = `${m}:${s}`; }, 1000);
-            
             call.on('stream', (remoteStream) => { 
-                const audio = document.getElementById('remote-audio'); 
-                audio.srcObject = remoteStream; 
+                const audio = document.getElementById('remote-audio'); audio.srcObject = remoteStream; 
                 audio.play().catch(e => console.log("Otomatik oynatma engellendi."));
             });
             call.on('close', () => { clearInterval(interval); this.endCall(); });
@@ -634,13 +689,77 @@
             ],
             citizens: [], reports: [], apps: [], tips: [], ops: [],
             chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
+            cryptoMessages: [], // YENİ: Kriptolu mesajlar havuzu
             audit: [],
-            announcements: [{title: "SİSTEM GÜNCEL", msg: "v30.0 VOIP STABLE", type: "critical", date: new Date().toLocaleDateString()}],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v31.0 CRYPTO OPS", type: "critical", date: new Date().toLocaleDateString()}],
             wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
         },
 
         state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null, db: null, mediaRec: null, audioChunks: [], onlineUsers: {}, viewingAppIdx: null },
         phone: phoneSystem,
+
+        // YENİ SİBER HACK MODÜLÜ
+        hack: {
+            activeMsgId: null,
+            progress: 0,
+            interval: null,
+            
+            startHack: function(id) {
+                this.activeMsgId = id;
+                this.progress = 0;
+                document.getElementById('hack-modal').style.display = 'flex';
+                this.renderTerminal();
+            },
+            
+            renderTerminal: function() {
+                const term = document.getElementById('hack-terminal');
+                term.innerHTML = '';
+                // Rastgele Hex Kodları Üret
+                for(let i=0; i<15; i++) {
+                    const row = document.createElement('div');
+                    row.className = 'hack-row';
+                    row.innerHTML = Array(20).fill(0).map(() => `<span class="hack-char">${Math.floor(Math.random()*2)}</span>`).join('');
+                    term.appendChild(row);
+                }
+            },
+            
+            processHack: function() {
+                // Tıklayınca ilerle
+                this.progress += 5; // Her tık %5
+                SFX.hack();
+                document.getElementById('hack-progress-bar').style.width = this.progress + '%';
+                
+                // Görsel efekt: Kodları karıştır
+                const chars = document.querySelectorAll('.hack-char');
+                chars.forEach(c => {
+                    if(Math.random() > 0.7) {
+                        c.innerText = Math.floor(Math.random()*9);
+                        c.style.color = '#fff';
+                        setTimeout(() => c.style.color = '', 100);
+                    }
+                });
+
+                if(this.progress >= 100) {
+                    this.finishHack();
+                }
+            },
+            
+            finishHack: function() {
+                SFX.success();
+                alert("ŞİFRE ÇÖZÜLDÜ! Mesaj kilidi açılıyor...");
+                // Veritabanında mesajı 'OPEN' yap
+                const msg = app.state.db.cryptoMessages.find(m => m.id === this.activeMsgId);
+                if(msg) msg.status = 'OPEN';
+                app.save();
+                this.closeHack();
+                app.renderCyber(); // Listeyi yenile
+            },
+            
+            closeHack: function() {
+                document.getElementById('hack-modal').style.display = 'none';
+                this.progress = 0;
+            }
+        },
 
         can: function(perm) {
             if(!this.state.user) return false;
@@ -667,6 +786,7 @@
             if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps();
             if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports();
             if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash();
+            if(document.getElementById('panel-cyber').classList.contains('active')) this.renderCyber();
         },
         bootSequence: function() {
             const s = document.getElementById('boot-screen'); if(!s) { this.initAppLogic(); return; } const t = document.getElementById('boot-text'); const lines = ["BIOS DATE 01/19/26 15:00:00", "establishing uplink...... SUCCESS", "INITIATING KIZIL_ELMA PROTOCOL..."]; let i = 0; try { SFX.boot(); } catch(e){}
@@ -680,9 +800,12 @@
             function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); }); requestAnimationFrame(anim); } anim();
         },
         nav: function(id) { 
+            // Yetki Kontrolleri
             if(id === 'hr' && !this.can('hr_view') && !this.can('all')) return alert("Erişim Reddedildi: Yetersiz Personel Yetkisi");
             if(id === 'ops' && !this.can('ops_view') && !this.can('ops_manage') && !this.can('all')) return alert("Erişim Reddedildi: Operasyon Yetkisi Yok");
             if(id === 'db' && !this.can('db_query') && !this.can('all')) return alert("Erişim Reddedildi: Veritabanı Yetkisi Yok");
+            if(id === 'cyber' && !this.can('cyber_ops') && !this.can('all')) return alert("Erişim Reddedildi: Sadece Siber Uzmanlar"); // SİBER KONTROL
+            
             if(id === 'ops') { const btn = document.getElementById('btn-new-op'); if(this.can('all') || this.can('ops_manage')) { btn.style.display = 'block'; } else { btn.style.display = 'none'; } }
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); document.getElementById('panel-' + id).classList.add('active'); if(id === 'map') setTimeout(() => this.initMap(), 200); this.refreshCurrentView(); 
         },
@@ -695,33 +818,15 @@
             document.getElementById('login-msg').innerText=''; 
             this.state.fail = 0; 
         },
-        
         loginStep1: function() {
             if(!this.state.db) return alert("Sistem yükleniyor..."); 
             const p = document.getElementById('login-pass').value.trim(); 
             const u = this.state.db.personnel.find(x => x.pass === p);
-            
-            if(u){ 
-                this.state.tUser=u; 
-                SFX.success();
-                document.getElementById('login-form-init').style.display='none';
-                document.getElementById('login-form-sec').style.display='block';
-            } 
+            if(u){ this.state.tUser=u; SFX.success(); document.getElementById('login-form-init').style.display='none'; document.getElementById('login-form-sec').style.display='block'; } 
             else { SFX.error(); this.failLogin(); }
         },
-
-        fakeScan: function() {
-            SFX.error();
-            alert("⚠️ ERİŞİM REDDEDİLDİ: BİYOMETRİK VERİ UYUŞMAZLIĞI!\n\nGüvenlik protokolü ihlali tespit edildi.");
-            this.failLogin();
-        },
-
-        secretUnlock: function() {
-            if(!this.state.tUser) return;
-            SFX.success();
-            this.finishLogin();
-        },
-
+        fakeScan: function() { SFX.error(); alert("⚠️ ERİŞİM REDDEDİLDİ: BİYOMETRİK VERİ UYUŞMAZLIĞI!\n\nGüvenlik protokolü ihlali tespit edildi."); this.failLogin(); },
+        secretUnlock: function() { if(!this.state.tUser) return; SFX.success(); this.finishLogin(); },
         finishLogin: function() {
             this.state.user=this.state.tUser; this.state.fail=0; this.phone.init(this.state.user.id);
             document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block';
@@ -729,18 +834,83 @@
             const rDef = ROLE_DEFS[this.state.user.role] || {label:'PERSONEL', color:'#ccc'};
             document.getElementById('u-role').innerText=rDef.label; document.getElementById('u-role').style.color=rDef.color;
             document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
+            
+            // SİBER MENÜ GÖSTER
+            if(this.can('cyber_ops') || this.can('all')) { document.getElementById('nav-cyber').style.display = 'flex'; }
+            
             this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
         },
-
         failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail>=3){ SFX.error(); document.getElementById('lockdown-screen').style.display='flex'; } },
         logout: function() { location.reload(); },
+
+        // --- YENİ: KRİPTO OLUŞTURMA (ADMİN) ---
+        createCryptoMessage: function() {
+            if(!this.can('hr_manage') && !this.can('all')) return alert("Yetkisiz!");
+            const txt = document.getElementById('crypto-input').value;
+            if(!txt) return;
+            
+            // Basit şifreleme simülasyonu (Base64 + random hex görünümü)
+            const encrypted = btoa(unescape(encodeURIComponent(txt))).split('').map(c => c.charCodeAt(0).toString(16)).join(' ').toUpperCase();
+            
+            if(!this.state.db.cryptoMessages) this.state.db.cryptoMessages = [];
+            this.state.db.cryptoMessages.unshift({
+                id: Date.now(),
+                sender: this.state.user.codename,
+                content: txt,
+                encrypted: encrypted.substring(0, 50) + "...", // Görünen kısım
+                status: 'LOCKED',
+                date: new Date().toLocaleString()
+            });
+            this.save();
+            alert("Görev emri kriptolandı ve havuza iletildi.");
+            document.getElementById('crypto-input').value = '';
+        },
+
+        // --- YENİ: SİBER PANEL RENDER ---
+        renderCyber: function() {
+            const list = document.getElementById('cyber-messages-list');
+            list.innerHTML = '';
+            if(!this.state.db.cryptoMessages || this.state.db.cryptoMessages.length === 0) {
+                list.innerHTML = '<p style="color:#666">Aktif kripto istihbaratı yok.</p>';
+                return;
+            }
+            
+            this.state.db.cryptoMessages.forEach(msg => {
+                let bodyHTML = '';
+                if(msg.status === 'LOCKED') {
+                    bodyHTML = `
+                        <div class="crypto-glitch">${msg.encrypted}</div>
+                        <div style="margin-top:10px;">
+                            <button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ (HACK)</button>
+                        </div>
+                    `;
+                } else {
+                    bodyHTML = `
+                        <div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">
+                            ${msg.content}
+                        </div>
+                        <div style="margin-top:5px; color:#666; font-size:0.8rem;">DEŞİFRE EDİLDİ</div>
+                    `;
+                }
+
+                list.innerHTML += `
+                    <div class="crypto-card">
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;">
+                            <span style="color:#aaa;">GÖNDEREN: ${msg.sender}</span>
+                            <span style="color:#aaa;">${msg.date}</span>
+                        </div>
+                        ${bodyHTML}
+                    </div>
+                `;
+            });
+        },
 
         renderHR: function() {
             if(!this.state.user) return;
             const canManage = this.can('hr_manage') || this.can('all');
             document.getElementById('admin-tools').style.display = canManage ? 'block' : 'none';
             document.getElementById('admin-apps-section').style.display = canManage ? 'block' : 'none';
-            document.getElementById('hr-table-head').innerHTML= canManage ? `<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th></tr>`;
+            document.getElementById('hr-table-head').innerHTML= canManage ? `<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>SAHTE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th><th>İLETİŞİM</th></tr>`;
             const body=document.getElementById('hr-table-body'); body.innerHTML='';
             
             const citForm = document.getElementById('cit-form-container');
@@ -802,55 +972,7 @@
         fireStaff: function(id){ if(confirm("Bu personeli kalıcı olarak silmek istiyor musunuz?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1){ this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); alert("Personel silindi."); } } },
         drawID: function(id, mode) { const p = this.state.db.personnel.find(x => x.id === id); if (!p) return; const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630; const drawContent = (bgLoaded) => { if (!bgLoaded) { ctx.fillStyle = "#151515"; ctx.fillRect(0, 0, cvs.width, cvs.height); ctx.strokeStyle = "#333"; ctx.lineWidth = 10; ctx.strokeRect(0, 0, cvs.width, cvs.height); const logo = new Image(); logo.crossOrigin = "Anonymous"; logo.src = "https://upload.wikimedia.org/wikipedia/tr/6/61/Mitlogo.png"; logo.onload = () => { ctx.globalAlpha=0.1; ctx.drawImage(logo, 200, 15, 600, 600); ctx.globalAlpha=1.0; drawPersonalDetails(); }; logo.onerror = () => { drawPersonalDetails(); }; } else { drawPersonalDetails(); } }; const drawPersonalDetails = () => { const photo = new Image(); photo.crossOrigin = "Anonymous"; const isReal = (mode === 'REAL'); const photoId = isReal ? p.photoId : (p.cover ? p.cover.fakePhotoId : 1); photo.src = `https://randomuser.me/api/portraits/${p.gender}/${photoId}.jpg`; photo.onload = () => { const px = 58, py = 250, pw = 285, ph = 310; ctx.drawImage(photo, px, py, pw, ph); ctx.lineWidth = 4; ctx.strokeStyle = isReal ? "rgba(200,0,0,0.5)" : "rgba(0,100,200,0.5)"; ctx.strokeRect(px, py, pw, ph); ctx.font = "bold 34px 'Courier New', monospace"; ctx.fillStyle = "#ffffff"; ctx.shadowColor = "rgba(0,0,0,0.9)"; ctx.shadowBlur = 5; ctx.textAlign = "left"; const tx = 420; let ty = 295; const gap = 100; ctx.fillText((isReal ? p.name : (p.cover ? p.cover.fakeName : "BİLİNMİYOR")).toUpperCase(), tx, ty); ty += gap; ctx.fillText((isReal ? (p.rank || "MEMUR") : (p.cover ? p.cover.fakeJob : "SİVİL")).toUpperCase(), tx, ty); ty += gap; if(isReal) { ctx.fillStyle = "#ff3333"; ctx.fillText(p.codename.toUpperCase(), tx, ty); } else { ctx.fillStyle = "#ccc"; ctx.fillText("DOĞUM: 15.04.1990", tx, ty); } ctx.font = "15px Arial"; ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillText("ID: " + p.id + " // " + new Date().toLocaleDateString(), 750, 600); }; }; const bg = new Image(); bg.crossOrigin = "Anonymous"; bg.src = "https://cdn.discordapp.com/attachments/1452796022475722975/1462732671464640688/taslak.png?ex=696f4375&is=696df1f5&hm=7aae0c5a29ce3791765946e403b19a4708e5164a081fdc8f7757c03b810a38c9&"; bg.onload = () => { ctx.drawImage(bg, 0, 0, cvs.width, cvs.height); drawContent(true); }; bg.onerror = () => { drawContent(false); }; },
         downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
-        
-        // --- GÜNCELLENEN CHAT RENDER (SAĞ PANEL DAHİL) ---
-        renderChat: function(){ 
-            const w=document.getElementById('chat-window'); w.innerHTML=''; 
-            
-            // Mesajları Render Et
-            if(this.state.db.chat) {
-                this.state.db.chat.forEach(c => { 
-                    const me = this.state.user && c.user === this.state.user.codename; 
-                    let contentHTML = `<span>${c.msg}</span>`;
-                    if (c.type === 'image') contentHTML = `<img src="${c.msg}" class="chat-img" onclick="window.open(this.src)">`;
-                    else if (c.type === 'audio') contentHTML = `<audio controls src="${c.msg}" class="chat-audio"></audio>`;
-                    w.innerHTML += `<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${contentHTML}</div>`; 
-                }); 
-                w.scrollTop = w.scrollHeight;
-            }
-
-            // Personel Listesini Render Et
-            const userList = document.getElementById('active-user-list');
-            userList.innerHTML = '';
-            
-            if(this.state.db.personnel) {
-                this.state.db.personnel.forEach(p => {
-                    // Kişi Online mı?
-                    const isOnline = this.state.onlineUsers[p.id] ? true : false;
-                    const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null;
-                    const isMe = p.id === this.state.user.id;
-                    
-                    let callBtn = '';
-                    if(isOnline && !isMe) {
-                        callBtn = `<button class="cyber-btn btn-small btn-green" style="padding:2px 8px;" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`;
-                    }
-
-                    userList.innerHTML += `
-                        <div class="chat-user-card" style="opacity:${isOnline ? 1 : 0.5}">
-                            <div style="display:flex; align-items:center;">
-                                <span class="user-status-dot ${isOnline ? 'status-online' : ''}"></span>
-                                <div>
-                                    <strong style="color:white; font-size:0.9rem;">${p.codename}</strong>
-                                    <div style="font-size:0.7rem; color:#666;">${p.role.toUpperCase()}</div>
-                                </div>
-                            </div>
-                            <div>${callBtn}</div>
-                        </div>
-                    `;
-                });
-            }
-        },
-        
+        renderChat: function(){ const w=document.getElementById('chat-window'); w.innerHTML=''; if(this.state.db.chat) { this.state.db.chat.forEach(c => { const me = this.state.user && c.user === this.state.user.codename; let contentHTML = `<span>${c.msg}</span>`; if (c.type === 'image') contentHTML = `<img src="${c.msg}" class="chat-img" onclick="window.open(this.src)">`; else if (c.type === 'audio') contentHTML = `<audio controls src="${c.msg}" class="chat-audio"></audio>`; w.innerHTML += `<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${contentHTML}</div>`; }); w.scrollTop = w.scrollHeight; } const userList = document.getElementById('active-user-list'); userList.innerHTML = ''; if(this.state.db.personnel) { this.state.db.personnel.forEach(p => { const isOnline = this.state.onlineUsers[p.id] ? true : false; const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null; const isMe = p.id === this.state.user.id; let callBtn = ''; if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" style="padding:2px 8px;" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`; } userList.innerHTML += `<div class="chat-user-card" style="opacity:${isOnline ? 1 : 0.5}"><div style="display:flex; align-items:center;"><span class="user-status-dot ${isOnline ? 'status-online' : ''}"></span><div><strong style="color:white; font-size:0.9rem;">${p.codename}</strong><div style="font-size:0.7rem; color:#666;">${p.role.toUpperCase()}</div></div></div><div>${callBtn}</div></div>`; }); } },
         sendChat: function(content = null, type = 'text'){ const input = document.getElementById('chat-input'); const msg = content || input.value; if(!msg) return; if(!this.state.db.chat) this.state.db.chat = []; this.state.db.chat.push({ user: this.state.user.codename, msg: msg, type: type, time: new Date().toLocaleTimeString() }); if(this.state.db.chat.length > 50) this.state.db.chat.shift(); this.save(); input.value = ''; SFX.click(); },
         sendFileChat: function(input) { const file = input.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { this.sendChat(e.target.result, 'image'); }; reader.readAsDataURL(file); },
         startVoice: function() { navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => { this.state.mediaRec = new MediaRecorder(stream); this.state.audioChunks = []; document.getElementById('btn-mic').classList.add('recording-pulse'); this.state.mediaRec.ondataavailable = event => { this.state.audioChunks.push(event.data); }; this.state.mediaRec.onstop = () => { document.getElementById('btn-mic').classList.remove('recording-pulse'); const audioBlob = new Blob(this.state.audioChunks, { type: 'audio/webm' }); const reader = new FileReader(); reader.readAsDataURL(audioBlob); reader.onloadend = () => { this.sendChat(reader.result, 'audio'); } }; this.state.mediaRec.start(); }).catch(err => alert("Mikrofon izni gerekli!")); },
