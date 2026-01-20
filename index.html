@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POLNET 5.0 | EGM STRATEJİK OPERASYON MERKEZİ</title>
+    <title>EGM - POLNET 5.0 | DİJİTAL KARARGAH</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,265 +11,175 @@
 
     <style>
         :root {
-            --bg-color: #010409;
-            --panel-bg: #0d1117;
-            --text-color: #c9d1d9;
-            --accent: #1f6feb; /* EGM Mavi */
-            --danger: #da3633;
-            --success: #238636;
-            --gold: #d29922;
-            --border: 1px solid #30363d;
+            --bg: #010204; --panel: #0a0c14; --accent: #1e69ff; --red: #ff3e3e; --green: #00ff66; --gold: #ffcc00;
         }
-
-        * { box-sizing: border-box; outline: none; transition: 0.2s; }
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Share Tech Mono', monospace;
-            overflow: hidden; height: 100vh;
-        }
-
-        #main-wrapper { display: flex; height: 100vh; }
+        * { box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
+        body { margin: 0; background: var(--bg); color: #c0c5ce; height: 100vh; overflow: hidden; display: flex; }
 
         /* SIDEBAR */
-        #sidebar {
-            width: 300px; background: #010409; border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 15px;
+        #sidebar { width: 300px; border-right: 1px solid #1a202c; display: flex; flex-direction: column; padding: 20px; background: #05070a; }
+        .nav-btn { 
+            background: transparent; border: 1px solid #1a202c; color: #666; padding: 12px; 
+            margin-bottom: 8px; cursor: pointer; text-align: left; font-family: 'Orbitron'; font-size: 0.7rem;
         }
+        .nav-btn:hover, .nav-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
 
-        .nav-btn {
-            background: transparent; border: 1px solid transparent; color: #8b949e;
-            padding: 12px; margin-bottom: 5px; cursor: pointer; text-align: left;
-            font-family: 'Orbitron'; font-size: 0.75rem; border-radius: 6px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .nav-btn:hover, .nav-btn.active { background: #161b22; color: #58a6ff; border-color: #30363d; }
-
-        /* CONTENT */
-        #content { flex: 1; padding: 20px; overflow-y: auto; background: radial-gradient(circle at top right, #161b22, #010409); }
-        .panel { display: none; animation: slideIn 0.3s ease-out; }
+        /* MAIN CONTENT */
+        #main { flex: 1; padding: 25px; overflow-y: auto; position: relative; }
+        .panel { display: none; animation: fadeIn 0.4s; }
         .panel.active { display: block; }
 
-        @keyframes slideIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        /* CAMERA SIMULATION */
+        .cam-feed { width: 100%; height: 300px; background: #000; position: relative; border: 2px solid #333; overflow: hidden; }
+        .cam-overlay { position: absolute; top: 10px; left: 10px; color: var(--red); font-weight: bold; font-size: 0.8rem; }
+        .scanning-line { position: absolute; width: 100%; height: 2px; background: rgba(0, 255, 0, 0.5); top: 0; animation: scan 3s linear infinite; }
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
 
-        /* CARDS */
-        .card { background: var(--panel-bg); border: var(--border); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* TERMINAL STYLE */
+        .terminal { background: #000; border: 1px solid var(--green); padding: 15px; color: var(--green); font-size: 0.8rem; height: 200px; overflow-y: auto; }
 
-        /* MAP & MONITOR */
-        #map { height: 450px; width: 100%; border-radius: 8px; border: var(--border); }
-        #siber-monitor { background: #000; height: 200px; overflow: hidden; padding: 10px; font-size: 0.7rem; color: var(--success); }
-
-        /* INPUTS */
-        input, select, textarea {
-            background: #0d1117; border: 1px solid #30363d; color: #fff; padding: 10px;
-            width: 100%; margin-bottom: 10px; border-radius: 4px;
-        }
-
-        .btn-egm {
-            background: var(--accent); border: none; color: white; padding: 12px;
-            cursor: pointer; font-family: 'Orbitron'; border-radius: 4px; width: 100%;
-        }
-        .btn-egm:hover { background: #388bfd; box-shadow: 0 0 15px rgba(31, 111, 235, 0.4); }
-
-        /* TELSİZ */
-        #radio-footer {
-            position: fixed; bottom: 0; left: 300px; right: 0; height: 40px;
-            background: #161b22; border-top: 2px solid var(--accent);
-            display: flex; align-items: center; padding: 0 20px; color: #58a6ff; font-weight: bold;
-        }
-
-        /* ROBOT RESIM SEÇENEKLERİ */
-        .sketch-box { width: 150px; height: 200px; border: 1px dashed #444; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: #eee; }
+        /* UTILS */
+        .card { background: var(--panel); border: 1px solid #1a202c; padding: 20px; border-radius: 4px; margin-bottom: 15px; }
+        .btn-action { background: var(--accent); color: white; border: none; padding: 10px 20px; cursor: pointer; font-family: 'Orbitron'; }
+        
+        #status-bar { position: fixed; bottom: 0; right: 0; left: 300px; height: 30px; background: #000; border-top: 1px solid var(--accent); padding: 5px 20px; font-size: 0.7rem; display: flex; align-items: center; justify-content: space-between; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="main-wrapper">
-        <div id="sidebar">
-            <div style="text-align: center; padding: 20px 0;">
-                <i class="fas fa-shield-halved fa-4x" style="color: var(--accent);"></i>
-                <h1 style="font-family: 'Orbitron'; font-size: 1.2rem; color: #f0f6fc;">EGM POLNET 5.0</h1>
-            </div>
+<div id="sidebar">
+    <div style="text-align: center; margin-bottom: 30px;">
+        <i class="fas fa-building-shield fa-4x" style="color: var(--accent);"></i>
+        <h2 style="font-family: 'Orbitron'; font-size: 1.1rem; margin-top: 15px;">POLNET v5.8</h2>
+        <small style="color: var(--accent);">DİJİTAL KARARGAH</small>
+    </div>
+    
+    <button class="nav-btn active" onclick="app.nav('karargah', this)"><i class="fas fa-desktop"></i> ANA KARARGAH</button>
+    <button class="nav-btn" onclick="app.nav('mobese', this)"><i class="fas fa-video"></i> MOBESE İZLEME</button>
+    <button class="nav-btn" onclick="app.nav('siber', this)"><i class="fas fa-user-secret"></i> SİBER SAVUNMA</button>
+    <button class="nav-btn" onclick="app.nav('kayit', this)"><i class="fas fa-folder-open"></i> ARŞİV / KAYIT</button>
+    
+    <div style="margin-top: auto; border: 1px solid var(--gold); padding: 10px; font-size: 0.7rem;">
+        <span style="color: var(--gold)">DURUM: GÜVENLİ HATTA</span><br>
+        <span>YETKİ: KOMİSER (Lvl 3)</span>
+    </div>
+</div>
 
-            <button class="nav-btn active" onclick="app.nav('ops', this)"><i class="fas fa-tower-observation"></i> OPERASYON MERKEZİ</button>
-            <button class="nav-btn" onclick="app.nav('sketch', this)"><i class="fas fa-user-secret"></i> ROBOT RESİM (AI)</button>
-            <button class="nav-btn" onclick="app.nav('siber', this)"><i class="fas fa-user-ninja"></i> SİBER SUÇ İZLEME</button>
-            <button class="nav-btn" onclick="app.nav('kriminal', this)"><i class="fas fa-microscope"></i> KRİMİNAL LABORATUVAR</button>
-            <button class="nav-btn" onclick="app.nav('mesai', this)"><i class="fas fa-clock"></i> PERSONEL / MESAİ</button>
-            <button class="nav-btn" onclick="app.nav('tutanak', this)"><i class="fas fa-file-signature"></i> DİJİTAL TUTANAK</button>
-
-            <div class="card" style="margin-top: auto; border: 1px solid var(--gold); padding: 10px;">
-                <small style="color:var(--gold)">KULLANICI: KOMİSER YARDIMCISI</small><br>
-                <small>BİRİM: ASAYİŞ ŞUBE</small>
-            </div>
+<div id="main">
+    <div id="panel-karargah" class="panel active">
+        <h2 style="font-family: 'Orbitron';"><i class="fas fa-tower-observation"></i> STRATEJİK DURUM</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+            <div class="card"><h3>AKTİF İHBAR</h3><div style="font-size: 2rem; color: var(--red);">12</div></div>
+            <div class="card"><h3>EKİP SAYISI</h3><div style="font-size: 2rem; color: var(--accent);">45</div></div>
+            <div class="card"><h3>BAŞARI ORANI</h3><div style="font-size: 2rem; color: var(--green);">%94</div></div>
         </div>
-
-        <div id="content">
-            
-            <div id="panel-ops" class="panel active">
-                <div class="grid-2">
-                    <div class="card">
-                        <h3><i class="fas fa-map-location-dot"></i> CANLI DEVRİYE VE OLAY TAKİBİ</h3>
-                        <div id="map"></div>
-                    </div>
-                    <div class="card">
-                        <h3><i class="fas fa-headset"></i> CANLI TELSİZ CHAT (BİRİMLER)</h3>
-                        <div id="chat-flow" style="height: 300px; overflow-y: auto; background: #000; padding: 10px; border: 1px solid #333; font-size: 0.8rem;"></div>
-                        <input id="chat-msg" placeholder="Merkeze anons geç..." style="margin-top: 10px;">
-                        <button class="btn-egm" onclick="app.sendAnons()">ANONS ET</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="panel-sketch" class="panel">
-                <h2><i class="fas fa-mask"></i> AI ROBOT RESİM OLUŞTURUCU</h2>
-                <div class="grid-2">
-                    <div class="card">
-                        <label>Yüz Hattı</label>
-                        <select id="sk-face"><option>Oval</option><option>Köşeli</option><option>Zayıf</option></select>
-                        <label>Göz Yapısı</label>
-                        <select id="sk-eyes"><option>Çekik</option><option>Büyük</option><option>Çukur</option></select>
-                        <label>Ayırt Edici Özellik</label>
-                        <input id="sk-extra" placeholder="Dövme, Yara izi vb.">
-                        <button class="btn-egm" onclick="app.generateSketch()">RESMİ OLUŞTUR</button>
-                    </div>
-                    <div class="card" style="text-align: center;">
-                        <div id="sketch-res" class="sketch-box"><i class="fas fa-user fa-5x" style="color:#ccc"></i></div>
-                        <p id="sketch-info" style="margin-top: 10px; color: var(--gold);"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div id="panel-siber" class="panel">
-                <h2><i class="fas fa-terminal"></i> DARK WEB & SİBER İZLEME PANELİ</h2>
-                <div class="card">
-                    <div id="siber-monitor"></div>
-                </div>
-                <div class="grid-2">
-                    <div class="card"><h4>ŞÜPHELİ IP ADRESLERİ</h4><div id="ip-list"></div></div>
-                    <div class="card"><h4>TESPİT EDİLEN SIZINTILAR</h4><div id="leak-list"></div></div>
-                </div>
-            </div>
-
-            <div id="panel-kriminal" class="panel">
-                <h2><i class="fas fa-dna"></i> BALİSTİK VE KRİMİNAL EŞLEŞTİRME</h2>
-                <div class="card">
-                    <div class="grid-2">
-                        <div>
-                            <input id="bal-kovan" placeholder="Kovan Seri No / Çapı">
-                            <button class="btn-egm" style="background: var(--gold); color:#000;" onclick="app.runBalistik()">SİLAH VERİ TABANIYLA KIYASLA</button>
-                        </div>
-                        <div id="bal-result" style="background: rgba(0,0,0,0.5); padding: 15px; border: 1px dashed #555;">
-                            Analiz bekleniyor...
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="radio-footer">
-            <i class="fas fa-tower-broadcast" style="margin-right: 10px;"></i>
-            <marquee id="marquee">POLNET 5.0 SİSTEMİ AKTİF | GÜVENLİ KANAL | MERKEZ: TÜM BİRİMLER GÖREV BAŞINA.</marquee>
+        <div class="card">
+            <h3>ANLIK SİSTEM AKIŞI</h3>
+            <div id="flow-logs" class="terminal" style="border-color: #333; color: #888;"></div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <div id="panel-mobese" class="panel">
+        <h2 style="font-family: 'Orbitron';"><i class="fas fa-video"></i> CANLI ŞEHİR KAMERALARI</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="card">
+                <div class="cam-feed">
+                    <div class="cam-overlay">CAM-01 | KIZILAY MEYDANI</div>
+                    <div class="scanning-line"></div>
+                    <div style="position: absolute; border: 1px solid var(--green); width: 40px; height: 60px; top: 40%; left: 30%;">
+                        <small style="background: var(--green); color: black; position: absolute; top:-15px;">ARAÇ</small>
+                    </div>
+                </div>
+                <button class="btn-action" style="margin-top: 10px; width: 100%;" onclick="app.anons('Kamera birde şüpheli araç tespiti yapıldı.')">YAPAY ZEKAYI TETİKLE</button>
+            </div>
+            <div class="card">
+                <div class="cam-feed" style="background: #111 url('https://upload.wikimedia.org/wikipedia/commons/b/bc/Static-noise.gif'); opacity: 0.3;">
+                    <div class="cam-overlay">CAM-02 | ÇANKAYA GÜVENLİK</div>
+                    <center style="margin-top: 100px;">SİNYAL KAYBI</center>
+                </div>
+                <button class="btn-action" style="margin-top: 10px; width: 100%; background: var(--red);">BAĞLANTIYI YENİLE</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
-            databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+    <div id="panel-siber" class="panel">
+        <h2 style="font-family: 'Orbitron';"><i class="fas fa-shield-virus"></i> SİBER OLAY MÜDAHALE (SOC)</h2>
+        <div class="card">
+            <div id="siber-term" class="terminal">Sistem izleniyor... Beklemede...</div>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <input id="term-cmd" placeholder="Komut girin (Örn: /firewall-on)" style="background:#000; border:1px solid var(--green); color:var(--green); flex:1; padding:10px;">
+                <button class="btn-action" style="background: var(--green); color: black;" onclick="app.runCmd()">ÇALIŞTIR</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-        const app = {
-            nav: function(id, btn) {
-                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                document.getElementById('panel-'+id).classList.add('active');
-                btn.classList.add('active');
-                if(id === 'ops') this.initMap();
-            },
+<div id="status-bar">
+    <div><i class="fas fa-link"></i> ENKRİPTED BAĞLANTI: AKTİF</div>
+    <div id="clock">00:00:00</div>
+</div>
 
-            // 1. CANLI HARİTA VE DEVRİYE
-            initMap: function() {
-                if(this.map) return;
-                this.map = L.map('map').setView([41.008, 28.978], 11);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-                
-                // Devriye Araçları Simülasyonu
-                const policeIcon = L.divIcon({html: '<i class="fas fa-car-side" style="color:blue; font-size:20px;"></i>', className: 'p-icon'});
-                this.devriye = L.marker([41.008, 28.978], {icon: policeIcon}).addTo(this.map).bindPopup("34-A-102 Ekipler Amiri");
-            },
+<script>
+    const app = {
+        nav: function(id, btn) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('panel-'+id).classList.add('active');
+            btn.classList.add('active');
+            this.anons(id + " paneli erişime açıldı.");
+        },
 
-            // 2. ROBOT RESİM
-            generateSketch: function() {
-                const face = document.getElementById('sk-face').value;
-                const eyes = document.getElementById('sk-eyes').value;
-                document.getElementById('sketch-res').innerHTML = `<img src="https://api.dicebear.com/7.x/avataaars/svg?seed=${face}${eyes}" style="width:100%">`;
-                document.getElementById('sketch-info').innerText = "AI: ŞÜPHELİ PROFİLİ OLUŞTURULDU. GBT İLE KIYASLANIYOR...";
-            },
+        // SESLİ ANONS SİSTEMİ
+        anons: function(text) {
+            const ut = new SpeechSynthesisUtterance(text);
+            ut.lang = 'tr-TR';
+            ut.rate = 0.9;
+            window.speechSynthesis.speak(ut);
+            this.log(text.toUpperCase());
+        },
 
-            // 3. SİBER MONİTÖR
-            runSiber: function() {
-                const logs = [
-                    "Sızma Girişimi Engellendi: IP 192.168.1.45",
-                    "Dark Web Tarama: 'EGM' anahtar kelimesi tespit edildi.",
-                    "Kritik Uyarı: DDoS atağı püskürtüldü.",
-                    "Sistem Analizi: Port 80 izlemeye alındı."
-                ];
-                setInterval(() => {
-                    const log = logs[Math.floor(Math.random()*logs.length)];
-                    const div = document.createElement('div');
-                    div.innerText = `[${new Date().toLocaleTimeString()}] ${log}`;
-                    const mon = document.getElementById('siber-monitor');
-                    mon.prepend(div);
-                    if(mon.childNodes.length > 15) mon.lastChild.remove();
-                }, 2000);
-            },
+        log: function(msg) {
+            const logDiv = document.getElementById('flow-logs');
+            const entry = document.createElement('div');
+            entry.innerHTML = `[${new Date().toLocaleTimeString()}] > ${msg}`;
+            logDiv.prepend(entry);
+        },
 
-            // 4. BALİSTİK ANALİZ
-            runBalistik: function() {
-                const res = document.getElementById('bal-result');
-                res.innerHTML = "VERİ TABANI TARANIYOR... <i class='fas fa-spinner fa-spin'></i>";
-                setTimeout(() => {
-                    res.innerHTML = "<b style='color:lime'>EŞLEŞME BULUNDU!</b><br>Silah: Glock 17<br>Sahibi: Aranan Şahıs (A.Y.)<br>Vaka İlişkisi: 2024-V34";
-                }, 3000);
-            },
+        runCmd: function() {
+            const cmd = document.getElementById('term-cmd').value;
+            const term = document.getElementById('siber-term');
+            if(!cmd) return;
+            
+            term.innerHTML += `<br>> ${cmd} yürütülüyor...`;
+            setTimeout(() => {
+                if(cmd.includes('firewall')) {
+                    term.innerHTML += `<br><span style="color:var(--gold)">[SUCCESS]</span> Güvenlik duvarı tüm portlarda aktif edildi.`;
+                } else {
+                    term.innerHTML += `<br><span style="color:var(--red)">[ERROR]</span> Bilinmeyen protokol.`;
+                }
+                term.scrollTop = term.scrollHeight;
+            }, 1000);
+            document.getElementById('term-cmd').value = "";
+        },
 
-            // 5. TELSİZ CHAT
-            sendAnons: function() {
-                const msg = document.getElementById('chat-msg').value;
-                if(!msg) return;
-                db.ref('egm/anonslar').push({
-                    user: "KOMİSER_34",
-                    text: msg,
-                    time: new Date().toLocaleTimeString()
-                });
-                document.getElementById('chat-msg').value = "";
-            },
+        init: function() {
+            setInterval(() => {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            }, 1000);
+            
+            this.anons("Polnet beş nokta sekiz stratejik sistem başlatıldı. Güvenli hat aktif.");
+            
+            // Rastgele trafik akışı simülasyonu
+            setInterval(() => {
+                const logs = ["GBT Sorgusu yapıldı: A.Ş.", "MOBESE CAM-04 hareket algıladı.", "Birimler arası veri senkronizasyonu tamam.", "Yeni devriye kaydı oluşturuldu."];
+                this.log(logs[Math.floor(Math.random()*logs.length)]);
+            }, 5000);
+        }
+    };
 
-            listen: function() {
-                db.ref('egm/anonslar').limitToLast(10).on('value', ss => {
-                    let h = "";
-                    ss.forEach(c => {
-                        const v = c.val();
-                        h += `<div style="margin-bottom:5px; color:#fff"><b>[${v.time}] ${v.user}:</b> ${v.text}</div>`;
-                    });
-                    document.getElementById('chat-flow').innerHTML = h;
-                    document.getElementById('chat-flow').scrollTop = 99999;
-                });
-                this.runSiber();
-            }
-        };
+    window.onload = () => app.init();
+</script>
 
-        window.onload = () => app.listen();
-    </script>
 </body>
 </html>
