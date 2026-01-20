@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GÖKTÜRK-7 | GENEL KOLLUK YÖNETİM SİSTEMİ</title>
+    <title>GÖKTÜRK-7 | BÜTÜNLEŞİK KOLLUK SİSTEMİ</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -11,188 +11,173 @@
 
     <style>
         :root {
-            --bg: #0b0e14;
-            --sidebar: #11151c;
-            --card-bg: #1a1f26;
-            --accent: #2c5ff6; /* Kurumsal Polis Mavisi */
-            --success: #00e676;
-            --danger: #ff5252;
-            --gold: #ffd740;
-            --text: #e0e6ed;
-            --border: 1px solid #2d3540;
+            --bg: #05070a;
+            --sidebar: #0d1117;
+            --card-bg: #161b22;
+            --accent: #1e69ff;
+            --danger: #ff3e3e;
+            --success: #00ff66;
+            --gold: #ffcc00;
+            --border: 1px solid #30363d;
         }
 
-        * { box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
-        body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; }
+        * { box-sizing: border-box; font-family: 'Share Tech Mono', monospace; scrollbar-width: thin; }
+        body { margin: 0; background: var(--bg); color: #c9d1d9; height: 100vh; overflow: hidden; display: flex; }
 
-        /* SIDEBAR */
+        /* YÖNETİM PANELİ (SIDEBAR) */
         #sidebar { 
-            width: 300px; background: var(--sidebar); border-right: 2px solid var(--accent);
-            display: flex; flex-direction: column; padding: 20px; box-shadow: 4px 0 10px rgba(0,0,0,0.3);
+            width: 320px; background: var(--sidebar); border-right: 2px solid var(--accent);
+            display: flex; flex-direction: column; padding: 20px; z-index: 100;
         }
-        .nav-group { margin-bottom: 25px; }
-        .nav-label { font-size: 0.65rem; color: #5c6b80; font-family: 'Orbitron'; margin-bottom: 10px; display: block; letter-spacing: 1px; }
+        .nav-label { font-size: 0.7rem; color: #8b949e; font-family: 'Orbitron'; margin: 15px 0 5px 5px; letter-spacing: 1px; }
         .nav-btn {
-            background: transparent; border: 1px solid transparent; color: #a3b1c2; padding: 12px;
-            width: 100%; text-align: left; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 12px;
-            font-size: 0.85rem; border-radius: 4px; margin-bottom: 4px;
+            background: transparent; border: 1px solid transparent; color: #8b949e; padding: 12px;
+            width: 100%; text-align: left; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px;
+            font-size: 0.8rem; border-radius: 6px;
         }
-        .nav-btn:hover { background: rgba(44, 95, 246, 0.1); color: var(--accent); }
-        .nav-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(44, 95, 246, 0.3); }
+        .nav-btn:hover { background: rgba(30, 105, 255, 0.1); color: var(--accent); }
+        .nav-btn.active { background: var(--accent); color: white; box-shadow: 0 0 15px rgba(30, 105, 255, 0.4); }
 
         /* ANA EKRAN */
-        #main { flex: 1; padding: 25px; overflow-y: auto; position: relative; }
-        .panel { display: none; animation: fadeIn 0.4s ease-out; }
+        #main { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: radial-gradient(circle at top right, #0d1117, #05070a); }
+        .panel { display: none; animation: fadeIn 0.3s ease; }
         .panel.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* MODÜLLER */
-        .card { background: var(--card-bg); border: var(--border); padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        /* MODÜLLER VE KARTLAR */
+        .card { background: var(--card-bg); border: var(--border); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* TERMİNAL VE LİSTELER */
-        .log-box { background: #000; border: 1px solid #222; padding: 10px; font-size: 0.75rem; height: 250px; overflow-y: auto; color: #8bc34a; }
-        .input-group { margin-bottom: 15px; }
-        input, select, textarea { 
-            background: #0d1117; border: 1px solid #2d3540; color: white; padding: 10px; width: 100%; border-radius: 4px;
-        }
-        .btn-action { 
-            background: var(--accent); color: white; border: none; padding: 12px; border-radius: 4px; 
-            cursor: pointer; width: 100%; font-family: 'Orbitron'; font-size: 0.75rem;
-        }
+        /* CANLI İZLEME VE TERMİNAL */
+        .viewport { width: 100%; height: 300px; background: #000; position: relative; border: 1px solid #30363d; overflow: hidden; }
+        .terminal { background: #010409; border: 1px solid var(--accent); color: var(--success); padding: 15px; font-size: 0.8rem; height: 250px; overflow-y: auto; border-radius: 5px; }
+        
+        /* FORM ELEMANLARI */
+        input, select, textarea { background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; width: 100%; border-radius: 5px; margin-bottom: 10px; }
+        .btn-action { background: var(--accent); color: white; border: none; padding: 12px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; border-radius: 5px; transition: 0.3s; }
+        .btn-action:hover { filter: brightness(1.2); }
 
-        /* ÖZEL BİLEŞENLER */
+        /* HARİTA */
         #map { height: 400px; border-radius: 8px; border: var(--border); }
-        .status-bar { 
-            position: fixed; bottom: 0; left: 300px; right: 0; height: 35px; 
-            background: var(--sidebar); border-top: var(--border); padding: 5px 20px;
-            font-size: 0.7rem; display: flex; justify-content: space-between; align-items: center;
-        }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; }
-        .badge-red { background: var(--danger); color: white; }
+
+        /* ALT DURUM ÇUBUĞU */
+        .status-bar { position: fixed; bottom: 0; left: 320px; right: 0; height: 35px; background: #0d1117; border-top: 1px solid var(--accent); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <div style="text-align: center; margin-bottom: 30px;">
-        <i class="fas fa-building-shield fa-3x" style="color: var(--accent);"></i>
-        <h2 style="font-family: 'Orbitron'; font-size: 1.1rem; margin-top: 10px;">GÖKTÜRK-7</h2>
-        <div class="badge badge-red">SİSTEM ÇEVRİMİÇİ</div>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <i class="fas fa-tower-broadcast fa-3x" style="color: var(--accent);"></i>
+        <h2 style="font-family: 'Orbitron'; font-size: 1.2rem; margin-top: 10px; color: white;">GÖKTÜRK-7</h2>
+        <span style="color: var(--success); font-size: 0.6rem;">● SİSTEM SENKRONİZASYONU TAMAM</span>
     </div>
 
-    <div class="nav-group">
-        <span class="nav-label">SAHA YÖNETİMİ</span>
-        <button class="nav-btn active" onclick="app.nav('asayis', this)"><i class="fas fa-map-marked-alt"></i> KOMUTA MERKEZİ</button>
-        <button class="nav-btn" onclick="app.nav('mobese', this)"><i class="fas fa-video"></i> MOBESE & AI TAKİP</button>
-    </div>
+    <div class="nav-label">YÖNETİM VE KOMUTA</div>
+    <button class="nav-btn active" onclick="app.nav('dashboard', this)"><i class="fas fa-chart-line"></i> GENEL DURUM PANELİ</button>
+    <button class="nav-btn" onclick="app.nav('asayis', this)"><i class="fas fa-map-location-dot"></i> SAHA KOMUTA / HARİTA</button>
+    
+    <div class="nav-label">OPERASYONEL BİRİMLER</div>
+    <button class="nav-btn" onclick="app.nav('gbt', this)"><i class="fas fa-fingerprint"></i> MERKEZİ GBT SORGUSU</button>
+    <button class="nav-btn" onclick="app.nav('mobese', this)"><i class="fas fa-video"></i> MOBESE / AI ANALİZ</button>
+    <button class="nav-btn" onclick="app.nav('havacilik', this)"><i class="fas fa-helicopter"></i> HAVACILIK (İHA/DRONE)</button>
+    <button class="nav-btn" onclick="app.nav('siber', this)"><i class="fas fa-user-shield"></i> SİBER SUÇLAR (SOC)</button>
 
-    <div class="nav-group">
-        <span class="nav-label">BİLGİ SİSTEMLERİ</span>
-        <button class="nav-btn" onclick="app.nav('gbt', this)"><i class="fas fa-id-card"></i> GBT / SORGULAMA</button>
-        <button class="nav-btn" onclick="app.nav('siber', this)"><i class="fas fa-shield-virus"></i> SİBER SUÇLAR</button>
-    </div>
-
-    <div class="nav-group">
-        <span class="nav-label">İDARİ VE LOJİSTİK</span>
-        <button class="nav-btn" onclick="app.nav('personel', this)"><i class="fas fa-user-clock"></i> PERSONEL / MESAİ</button>
-        <button class="nav-btn" onclick="app.nav('envanter', this)"><i class="fas fa-box-open"></i> ENVANTER & LOJİSTİK</button>
-    </div>
+    <div class="nav-label">İDARİ / LOJİSTİK</div>
+    <button class="nav-btn" onclick="app.nav('personel', this)"><i class="fas fa-user-group"></i> PERSONEL & MESAİ</button>
+    <button class="nav-btn" onclick="app.nav('envanter', this)"><i class="fas fa-warehouse"></i> ENVANTER / STOK</button>
 </div>
 
 <div id="main">
-
-    <div id="panel-asayis" class="panel active">
-        <h2 style="font-family: 'Orbitron';"><i class="fas fa-tower-observation"></i> GENEL ASAYİŞ VE KOMUTA</h2>
+    <div id="panel-dashboard" class="panel active">
+        <h2 style="font-family: 'Orbitron';">YÖNETİM PANELİ ÖZETİ</h2>
         <div class="grid-3">
-            <div class="card"><h3>AKTİF İHBAR</h3><div style="font-size: 2rem; color: var(--danger);">12</div></div>
-            <div class="card"><h3>SAHA EKİBİ</h3><div style="font-size: 2rem; color: var(--accent);">45</div></div>
-            <div class="card"><h3>GÖREV DURUMU</h3><div style="font-size: 2rem; color: var(--success);">%94</div></div>
+            <div class="card" style="border-left: 5px solid var(--danger);">ACİL ÇAĞRI (112)<div style="font-size: 2rem;">07</div></div>
+            <div class="card" style="border-left: 5px solid var(--accent);">SAHA PERSONELİ<div style="font-size: 2rem;">42</div></div>
+            <div class="card" style="border-left: 5px solid var(--success);">SİSTEM SAĞLIĞI<div style="font-size: 2rem;">%100</div></div>
         </div>
-        <div class="grid-2">
-            <div class="card">
-                <h3>SAHA HARİTASI</h3>
-                <div id="map"></div>
-            </div>
-            <div class="card">
-                <h3>TELSİZ KOMUTA (SAYISAL)</h3>
-                <div id="radio-logs" class="log-box" style="height: 330px; color: #eee;"></div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <input id="radio-msg" placeholder="Anons geçin...">
-                    <button class="btn-action" style="width: 100px;" onclick="app.sendAnons()">GÖNDER</button>
-                </div>
-            </div>
+        <div class="card">
+            <h3>SİSTEM LOGLARI (REAL-TIME)</h3>
+            <div id="sys-logs" class="terminal" style="height: 300px;"></div>
         </div>
     </div>
 
-    <div id="panel-mobese" class="panel">
-        <h2 style="font-family: 'Orbitron';">MOBESE & YAPAY ZEKA ANALİZİ</h2>
+    <div id="panel-asayis" class="panel">
+        <h2 style="font-family: 'Orbitron';">CANLI SAHA TAKİBİ</h2>
         <div class="grid-2">
+            <div class="card"><div id="map"></div></div>
             <div class="card">
-                <div style="width:100%; height:300px; background:#000; position:relative; overflow:hidden;">
-                    <div style="position:absolute; top:10px; left:10px; color:red; z-index:2;">● LIVE | CAM-04</div>
-                    <img src="https://images.unsplash.com/photo-1545147986-a9d6f210df77?auto=format&fit=crop&w=800" style="width:100%; opacity:0.6;">
-                    <div style="position:absolute; border:2px solid var(--success); width:50px; height:80px; top:30%; left:40%;">
-                        <small style="background:var(--success); color:black; position:absolute; top:-15px;">ŞAHIS</small>
-                    </div>
+                <h3>MERKEZ TELSİZ</h3>
+                <div id="telsiz-box" class="terminal" style="color: white; height: 320px;"></div>
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <input id="telsiz-input" placeholder="Anons geçin...">
+                    <button class="btn-action" style="width:100px;" onclick="app.sendRadio()">GÖNDER</button>
                 </div>
-                <button class="btn-action" style="margin-top:10px;" onclick="app.anons('Bölgedeki tüm kameralar için yüz tanıma aktif edildi.')">YÜZ TANIMA BAŞLAT</button>
-            </div>
-            <div class="card">
-                <h3>PLAKA TANIMA SİSTEMİ (PTS)</h3>
-                <input id="pts-q" placeholder="Plaka Girin (Örn: 06 POL 06)">
-                <button class="btn-action" onclick="app.ptsSearch()">PTS SORGULA</button>
-                <div id="pts-res" style="margin-top:15px;"></div>
             </div>
         </div>
     </div>
 
     <div id="panel-gbt" class="panel">
-        <h2 style="font-family: 'Orbitron';">MERKEZİ GBT SORGULAMA</h2>
+        <h2 style="font-family: 'Orbitron';">BİYOMETRİK VERİ TABANI SORGUSU</h2>
         <div class="card">
-            <div class="grid-2" style="grid-template-columns: 2fr 1fr;">
-                <input id="gbt-q" placeholder="TC Kimlik No veya İsim Soyisim..." style="font-size: 1.2rem;">
-                <button class="btn-action" onclick="app.runGBT()">VERİTABANINDA SORGULA</button>
+            <div style="display:flex; gap:15px;">
+                <input id="gbt-q" placeholder="TC No, İsim veya Plaka..." style="font-size: 1.2rem;">
+                <button class="btn-action" style="width: 200px;" onclick="app.runGBT()">SORGULA</button>
             </div>
-            <div id="gbt-res" style="margin-top:20px;"></div>
+            <div id="gbt-res" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div id="panel-mobese" class="panel">
+        <h2 style="font-family: 'Orbitron';">AI DESTEKLİ MOBESE ANALİZİ</h2>
+        <div class="grid-2">
+            <div class="card">
+                <div class="viewport">
+                    <img src="https://images.unsplash.com/photo-1545147986-a9d6f210df77?auto=format&fit=crop&w=800" style="width:100%; opacity:0.5;">
+                    <div style="position:absolute; top:10px; left:10px; color:red;">● LIVE | CAM-01</div>
+                    <div style="position:absolute; border:2px solid var(--success); width:60px; height:100px; top:30%; left:45%;">
+                        <small style="background:var(--success); color:black; position:absolute; top:-15px;">ŞÜPHELİ %88</small>
+                    </div>
+                </div>
+                <button class="btn-action" style="margin-top:10px;" onclick="app.anons('Yüz tanıma algoritması çalıştırıldı.')">ANALİZ ET</button>
+            </div>
+            <div class="card">
+                <h3>PLAKA TANIMA (PTS)</h3>
+                <div id="pts-logs" class="terminal" style="height: 250px;"></div>
+            </div>
         </div>
     </div>
 
     <div id="panel-siber" class="panel">
-        <h2 style="font-family: 'Orbitron';">SİBER GÜVENLİK VE SOC</h2>
+        <h2 style="font-family: 'Orbitron';">SİBER GÜVENLİK OPERASYON MERKEZİ</h2>
         <div class="card">
-            <div id="cyber-logs" class="log-box" style="height: 350px; font-family: 'Courier New';">
-                [SYSTEM] Güvenlik duvarı v4.2 aktif.<br>
-                [INFO] IP trafikleri analiz ediliyor...
-            </div>
-            <div style="display:flex; gap:10px; margin-top:10px;">
-                <input id="cyber-cmd" placeholder="Terminal komutu..." style="border-color: var(--success); color: var(--success);">
-                <button class="btn-action" style="background:var(--success); color:black; width:150px;" onclick="app.cyberRun()">ÇALIŞTIR</button>
-            </div>
+            <div id="cyber-term" class="terminal" style="font-family: 'Courier New';">SOC Katmanı başlatılıyor...</div>
+            <input id="cyber-cmd" placeholder="SOC Komutu (örn: trace-ip, bypass-fw)..." style="margin-top:15px; border-color: var(--success); color: var(--success);">
+            <button class="btn-action" style="background: var(--success); color: black;" onclick="app.runCyber()">KOMUTU YÜRÜT</button>
         </div>
     </div>
 
     <div id="panel-envanter" class="panel">
-        <h2 style="font-family: 'Orbitron';">ENVANTER VE LOJİSTİK YÖNETİMİ</h2>
+        <h2 style="font-family: 'Orbitron';">EKİPMAN VE MÜHİMMAT STOKU</h2>
         <div class="card">
-            <table style="width:100%; text-align:left; border-collapse:collapse;">
-                <tr style="border-bottom:1px solid #333; color:var(--accent);">
-                    <th style="padding:10px;">MALZEME ADI</th><th>STOK</th><th>DURUM</th><th>İŞLEM</th>
+            <table style="width:100%; border-collapse: collapse;">
+                <tr style="border-bottom: 2px solid var(--accent); color: var(--accent);">
+                    <th style="padding:10px; text-align:left;">MALZEME</th><th>MİKTAR</th><th>DURUM</th>
                 </tr>
-                <tr><td style="padding:10px;">9MM FİŞEK</td><td>12.400</td><td><span style="color:var(--success)">TAM</span></td><td><button>İKMAL</button></td></tr>
-                <tr><td style="padding:10px;">ÇELİK YELEK</td><td>5</td><td><span style="color:var(--danger)">KRİTİK</span></td><td><button>SATIN ALIM</button></td></tr>
+                <tr><td style="padding:10px;">9MM FİŞEK</td><td>125.000</td><td style="color:var(--success)">STOK TAM</td></tr>
+                <tr><td style="padding:10px;">ÇELİK YELEK</td><td>12</td><td style="color:var(--danger)">KRİTİK</td></tr>
+                <tr><td style="padding:10px;">GÖZ YAŞARTICI GAZ</td><td>450</td><td style="color:var(--gold)">AZALIYOR</td></tr>
             </table>
         </div>
     </div>
-
 </div>
 
 <div class="status-bar">
-    <div><i class="fas fa-network-wired"></i> GÜVENLİ POLNET BAĞLANTISI: <strong>AKTİF</strong></div>
+    <div><i class="fas fa-shield-halved"></i> GÜVENLİ BAĞLANTI: <span style="color:var(--success);">AKTİF</span></div>
     <div id="clock">00:00:00</div>
-    <div style="color:var(--accent)">KOMİSER YETKİSİ (LEVEL 4)</div>
+    <div style="color:var(--accent);">OPERATÖR: KOMİSER_Y_34</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -200,7 +185,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // FIREBASE BAĞLANTISI (Yedek Veritabanı)
+    // Firebase Senkronizasyonu (Senin Veritabanın)
     const firebaseConfig = {
         apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
         databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app"
@@ -214,51 +199,59 @@
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('panel-'+id).classList.add('active');
             btn.classList.add('active');
-            this.anons(id + " birimi verileri yüklendi.");
+            this.anons(id + " birimi verileri senkronize edildi.");
             if(id === 'asayis') setTimeout(() => this.initMap(), 200);
         },
 
         anons: function(text) {
-            const msg = new SpeechSynthesisUtterance(text);
-            msg.lang = 'tr-TR';
-            window.speechSynthesis.speak(msg);
+            const ut = new SpeechSynthesisUtterance(text);
+            ut.lang = 'tr-TR';
+            window.speechSynthesis.speak(ut);
+            this.log(text.toUpperCase());
+        },
+
+        log: function(msg) {
+            const l = document.getElementById('sys-logs');
+            const d = document.createElement('div');
+            d.innerHTML = `<span style="color:var(--accent)">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
+            l.prepend(d);
         },
 
         initMap: function() {
             if(this.map) return;
-            this.map = L.map('map').setView([39.92, 32.85], 12);
+            this.map = L.map('map').setView([39.92, 32.85], 11);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
         },
 
         runGBT: function() {
             const q = document.getElementById('gbt-q').value;
-            this.anons(q + " sorgulanıyor.");
+            this.anons(q + " sorgusu başlatılıyor.");
             document.getElementById('gbt-res').innerHTML = `
-                <div class="card" style="border-left: 5px solid var(--success);">
+                <div class="card" style="border-left: 5px solid var(--gold); background: rgba(255,204,0,0.05);">
                     <h3>SORGULAMA SONUCU: ${q.toUpperCase()}</h3>
-                    <p>ADLİ DURUM: <span style="color:var(--success)">TEMİZ</span></p>
-                    <p>ARAMA KAYDI: YOK</p>
-                    <p>RUHSATLI SİLAH: 1 ADET (9MM)</p>
+                    <p>ADLİ KAYIT: <span style="color:var(--success)">TEMİZ</span></p>
+                    <p>ARAMA DURUMU: YOK</p>
+                    <p>İKAMET: ANKARA / ÇANKAYA</p>
                 </div>`;
         },
 
-        cyberRun: function() {
+        runCyber: function() {
             const cmd = document.getElementById('cyber-cmd').value;
-            const log = document.getElementById('cyber-logs');
-            log.innerHTML += `<br>> ${cmd} yürütülüyor...`;
-            setTimeout(() => { log.innerHTML += `<br>[BAŞARILI] İşlem tamamlandı.`; log.scrollTop = log.scrollHeight; }, 1000);
+            const term = document.getElementById('cyber-term');
+            term.innerHTML += `<br>> ${cmd} yürütülüyor...`;
+            setTimeout(() => { term.innerHTML += `<br>[OK] İşlem başarıyla sonuçlandı.`; term.scrollTop = term.scrollHeight; }, 800);
             document.getElementById('cyber-cmd').value = "";
         },
 
-        sendAnons: function() {
-            const msg = document.getElementById('radio-msg').value;
+        sendRadio: function() {
+            const msg = document.getElementById('telsiz-input').value;
             if(!msg) return;
             db.ref('egm/telsiz').push({
                 user: "MERKEZ",
                 text: msg,
                 time: new Date().toLocaleTimeString()
             });
-            document.getElementById('radio-msg').value = "";
+            document.getElementById('telsiz-input').value = "";
         },
 
         listen: function() {
@@ -268,18 +261,20 @@
                     const v = c.val();
                     h += `<div>[${v.time}] <b>${v.user}:</b> ${v.text}</div>`;
                 });
-                document.getElementById('radio-logs').innerHTML = h;
-                document.getElementById('radio-logs').scrollTop = 99999;
+                document.getElementById('telsiz-box').innerHTML = h;
+                document.getElementById('telsiz-box').scrollTop = 9999;
             });
-            setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }, 1000);
+
+            setInterval(() => {
+                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+            }, 1000);
         }
     };
 
     window.onload = () => {
         app.listen();
-        app.anons("Göktürk 7 Sistemi Başlatıldı. Tüm birimler senkronize edildi.");
+        app.anons("Göktürk Yedi Yönetim Paneli aktif. Tüm sistemler senkronize.");
     };
 </script>
-
 </body>
 </html>
