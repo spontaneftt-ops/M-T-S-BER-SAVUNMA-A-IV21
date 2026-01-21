@@ -3,278 +3,1315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GÖKTÜRK-7 | BÜTÜNLEŞİK KOLLUK SİSTEMİ</title>
+    <title>MİT - İSTİHBARAT AĞI</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
         :root {
-            --bg: #05070a;
-            --sidebar: #0d1117;
-            --card-bg: #161b22;
-            --accent: #1e69ff;
-            --danger: #ff3e3e;
-            --success: #00ff66;
-            --gold: #ffcc00;
-            --border: 1px solid #30363d;
+            --bg-color: #050505;
+            --panel-bg: #0a0a0a;
+            --text-color: #e0e0e0;
+            --accent: #ff0000; /* Kırmızı alarm */
+            --accent-dim: #500000;
+            --admin-gold: #ffcc00;
+            --cyber-green: #00ff41;
+            --staff-blue: #00ccff;
+            --border: 1px solid #333;
         }
 
-        * { box-sizing: border-box; font-family: 'Share Tech Mono', monospace; scrollbar-width: thin; }
-        body { margin: 0; background: var(--bg); color: #c9d1d9; height: 100vh; overflow: hidden; display: flex; }
-
-        /* YÖNETİM PANELİ (SIDEBAR) */
-        #sidebar { 
-            width: 320px; background: var(--sidebar); border-right: 2px solid var(--accent);
-            display: flex; flex-direction: column; padding: 20px; z-index: 100;
+        * { box-sizing: border-box; user-select: none; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
         }
-        .nav-label { font-size: 0.7rem; color: #8b949e; font-family: 'Orbitron'; margin: 15px 0 5px 5px; letter-spacing: 1px; }
+
+        h1, h2, h3, h4, button, .nav-btn, .logo-text {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* DEFCON RENKLERİ */
+        body.defcon-1 { border: 4px solid #ff0000; }
+        body.defcon-2 { border: 4px solid #ff6600; }
+        body.defcon-3 { border: 4px solid #ffff00; }
+        body.defcon-4 { border: 4px solid #00ff00; }
+        body.defcon-5 { border: 4px solid #0000ff; }
+
+        /* BOOT SCREEN */
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            color: var(--cyber-green);
+            transition: opacity 1s;
+        }
+
+        /* ANA ARAYÜZ */
+        #main-app {
+            display: flex; height: 100%; opacity: 0; transition: opacity 1s;
+            position: relative; z-index: 10;
+        }
+
+        /* KENAR ÇUBUĞU */
+        #sidebar {
+            width: 250px; background: #080808; border-right: 1px solid #333;
+            display: flex; flex-direction: column; padding: 10px;
+        }
+
         .nav-btn {
-            background: transparent; border: 1px solid transparent; color: #8b949e; padding: 12px;
-            width: 100%; text-align: left; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px;
-            font-size: 0.8rem; border-radius: 6px;
+            background: transparent; border: 1px solid #333; color: #888;
+            padding: 15px; margin-bottom: 5px; cursor: pointer; text-align: left;
+            transition: 0.3s;
         }
-        .nav-btn:hover { background: rgba(30, 105, 255, 0.1); color: var(--accent); }
-        .nav-btn.active { background: var(--accent); color: white; box-shadow: 0 0 15px rgba(30, 105, 255, 0.4); }
+        .nav-btn:hover { background: #111; color: #fff; border-color: #555; }
+        .nav-btn.active { background: var(--accent-dim); color: #fff; border-color: var(--accent); }
 
-        /* ANA EKRAN */
-        #main { flex: 1; padding: 20px; overflow-y: auto; position: relative; background: radial-gradient(circle at top right, #0d1117, #05070a); }
-        .panel { display: none; animation: fadeIn 0.3s ease; }
+        /* İÇERİK ALANI */
+        #content-area {
+            flex: 1; position: relative; overflow: hidden; background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .panel {
+            display: none; padding: 20px; height: 100%; overflow-y: auto;
+            animation: fadeIn 0.5s;
+        }
         .panel.active { display: block; }
 
-        /* MODÜLLER VE KARTLAR */
-        .card { background: var(--card-bg); border: var(--border); padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CANLI İZLEME VE TERMİNAL */
-        .viewport { width: 100%; height: 300px; background: #000; position: relative; border: 1px solid #30363d; overflow: hidden; }
-        .terminal { background: #010409; border: 1px solid var(--accent); color: var(--success); padding: 15px; font-size: 0.8rem; height: 250px; overflow-y: auto; border-radius: 5px; }
+        /* ORTAK BİLEŞENLER */
+        .cyber-btn {
+            background: rgba(0,0,0,0.5); border: 1px solid var(--accent); color: var(--accent);
+            padding: 10px 20px; cursor: pointer; font-family: 'Orbitron'; letter-spacing: 1px;
+            transition: 0.2s;
+        }
+        .cyber-btn:hover { background: var(--accent); color: black; box-shadow: 0 0 10px var(--accent); }
         
-        /* FORM ELEMANLARI */
-        input, select, textarea { background: #0d1117; border: 1px solid #30363d; color: white; padding: 10px; width: 100%; border-radius: 5px; margin-bottom: 10px; }
-        .btn-action { background: var(--accent); color: white; border: none; padding: 12px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; border-radius: 5px; transition: 0.3s; }
-        .btn-action:hover { filter: brightness(1.2); }
+        .btn-small { padding: 5px 10px; font-size: 0.8rem; }
+        .btn-green { border-color: var(--cyber-green); color: var(--cyber-green); }
+        .btn-green:hover { background: var(--cyber-green); color: black; box-shadow: 0 0 10px var(--cyber-green); }
+        .btn-gold { border-color: var(--admin-gold); color: var(--admin-gold); }
+        .btn-gold:hover { background: var(--admin-gold); color: black; }
+        .btn-red { border-color: red; color: red; }
+        .btn-red:hover { background: red; color: white; }
 
-        /* HARİTA */
-        #map { height: 400px; border-radius: 8px; border: var(--border); }
+        input, textarea, select {
+            background: #000; border: 1px solid #444; color: white; padding: 10px; width: 100%;
+            font-family: 'Share Tech Mono'; margin-bottom: 10px;
+        }
+        input:focus { border-color: var(--accent); outline: none; }
 
-        /* ALT DURUM ÇUBUĞU */
-        .status-bar { position: fixed; bottom: 0; left: 320px; right: 0; height: 35px; background: #0d1117; border-top: 1px solid var(--accent); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #222; padding: 10px; text-align: left; font-size: 0.9rem; }
+        th { background: #111; color: #aaa; }
+
+        /* MODALS */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #0f0f0f; border: 1px solid #333; padding: 30px; width: 500px; max-width: 90%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8); position: relative;
+        }
+        .close-modal { position: absolute; top: 10px; right: 10px; cursor: pointer; color: red; }
+
+        /* LOGIN EKRANI */
+        #login-anim-seq { display: none; text-align: center; }
+        #login-load-bar-container { width: 100%; height: 5px; background: #333; margin-top: 10px; }
+        #login-load-bar { width: 0%; height: 100%; background: var(--cyber-green); transition: width 0.5s; }
+
+        /* CHAT */
+        #chat-window { height: 70%; overflow-y: auto; border: 1px solid #222; padding: 10px; background: rgba(0,0,0,0.3); margin-bottom: 10px; }
+        .msg { margin-bottom: 8px; padding: 5px 10px; border-radius: 4px; max-width: 80%; }
+        .msg-me { background: #1a1a1a; border-left: 2px solid var(--accent); margin-left: auto; }
+        .msg-other { background: #0d0d0d; border-left: 2px solid #555; }
+        .msg-sender { font-size: 0.7rem; color: #777; display: block; margin-bottom: 2px; }
+        .chat-img { max-width: 100%; border: 1px solid #333; cursor: pointer; }
         
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .user-status-dot { height: 8px; width: 8px; background: #555; border-radius: 50%; display: inline-block; margin-right: 5px; }
+        .status-online { background: var(--cyber-green); box-shadow: 0 0 5px var(--cyber-green); }
+
+        /* ARKA PLAN EFEKTLERİ */
+        #particles-js { position: fixed; top:0; left:0; width:100%; height:100%; z-index: 1; pointer-events: none; }
+        .grid-bg { 
+            position: absolute; top:0; left:0; width:100%; height:100%; z-index: 0; opacity: 0.1;
+            background-image: linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* HACK TERMİNALİ */
+        #hack-terminal { font-family: 'Courier New', monospace; color: var(--cyber-green); font-size: 12px; line-height: 12px; }
+        .hack-row { display: flex; justify-content: center; }
+        .hack-char { width: 15px; text-align: center; opacity: 0.7; }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        .blur-text { filter: blur(4px); cursor: pointer; transition: 0.3s; }
+        .blur-text:hover, .blur-text.visible { filter: blur(0); }
+        
+        .recording-pulse { animation: pulseRed 1s infinite; background: red !important; color: white !important; }
+        @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* PROFİL KARTLARI */
+        .bio-grid { display: grid; grid-template-columns: 100px 1fr; gap: 20px; border: 1px solid var(--admin-gold); padding: 20px; background: rgba(255, 204, 0, 0.05); }
+        .bio-img { width: 100px; height: 100px; border: 2px solid var(--admin-gold); object-fit: cover; }
+        .bio-data div { border-bottom: 1px dashed #444; padding: 5px 0; display: flex; justify-content: space-between; }
+        .bio-label { color: var(--admin-gold); font-weight: bold; }
+
     </style>
 </head>
 <body>
 
-<div id="sidebar">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <i class="fas fa-tower-broadcast fa-3x" style="color: var(--accent);"></i>
-        <h2 style="font-family: 'Orbitron'; font-size: 1.2rem; margin-top: 10px; color: white;">GÖKTÜRK-7</h2>
-        <span style="color: var(--success); font-size: 0.6rem;">● SİSTEM SENKRONİZASYONU TAMAM</span>
+    <canvas id="particles-js"></canvas>
+    <div class="grid-bg"></div>
+
+    <div id="boot-screen">
+        <div style="font-size: 4rem; margin-bottom: 20px;"><i class="fas fa-fingerprint"></i></div>
+        <div id="boot-text" style="font-family: 'Courier New'; text-align: center;"></div>
     </div>
 
-    <div class="nav-label">YÖNETİM VE KOMUTA</div>
-    <button class="nav-btn active" onclick="app.nav('dashboard', this)"><i class="fas fa-chart-line"></i> GENEL DURUM PANELİ</button>
-    <button class="nav-btn" onclick="app.nav('asayis', this)"><i class="fas fa-map-location-dot"></i> SAHA KOMUTA / HARİTA</button>
+    <div id="login-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <h2 style="color: var(--accent);">PERSONEL GİRİŞİ</h2>
+            <div id="login-form-init">
+                <input type="password" id="login-pass" placeholder="ERİŞİM ANAHTARI" style="text-align: center; font-size: 1.2rem; letter-spacing: 5px;">
+                <button class="cyber-btn" onclick="app.loginSequence()" style="width: 100%;">GİRİŞ YAP</button>
+                <p id="login-msg" style="color: red; margin-top: 10px;"></p>
+            </div>
+            <div id="login-anim-seq">
+                <i class="fas fa-eye fa-3x" style="color: var(--cyber-green); margin-bottom: 15px;"></i>
+                <p id="login-status-text" style="color: #aaa;">DOĞRULANIYOR...</p>
+                <div id="login-load-bar-container"><div id="login-load-bar"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="call-modal" class="modal" style="z-index: 1100;">
+        <div class="modal-content" style="text-align: center; width: 350px;">
+            <div style="font-size: 3rem; margin-bottom: 10px; color: var(--staff-blue);"><i class="fas fa-phone-volume"></i></div>
+            <h2 id="call-caller">BİLİNMEYEN</h2>
+            <p id="call-status" class="blink">ARANIYOR...</p>
+            <div id="call-timer" style="font-size: 1.5rem; margin: 10px 0;">00:00</div>
+            
+            <div id="call-actions" style="display: flex; gap: 10px; justify-content: center;">
+                <button class="cyber-btn btn-green" onclick="app.phone.answerCall()"><i class="fas fa-phone"></i> AÇ</button>
+                <button class="cyber-btn btn-red" onclick="app.phone.rejectCall()"><i class="fas fa-phone-slash"></i> REDDET</button>
+            </div>
+            <div id="in-call-ui" style="display: none;">
+                <button class="cyber-btn btn-red" onclick="app.phone.endCall()" style="width: 100%;">KAPAT</button>
+            </div>
+            <audio id="remote-audio" style="display:none"></audio>
+        </div>
+    </div>
+
+    <div id="hack-modal" class="modal">
+        <div class="modal-content" style="border-color: var(--cyber-green);">
+            <h3 style="color: var(--cyber-green);">DEŞİFRE PROTOKOLÜ</h3>
+            <div id="hack-terminal" style="background: black; padding: 10px; height: 200px; overflow: hidden; margin-bottom: 10px;"></div>
+            <div style="background: #222; height: 10px; width: 100%;"><div id="hack-progress-bar" style="height: 100%; background: var(--cyber-green); width: 0%;"></div></div>
+            <button class="cyber-btn btn-green" onclick="app.hack.processHack()" style="width: 100%; margin-top: 10px;">BRUTE FORCE UYGULA</button>
+            <button class="cyber-btn" onclick="app.hack.closeHack()" style="margin-top: 10px; border:none; color:#666;">İPTAL</button>
+        </div>
+    </div>
+
+    <div id="lockdown-screen" class="modal" style="background: red; z-index: 10000; flex-direction: column;">
+        <h1 style="font-size: 5rem; color: black;">KİLİTLENDİ</h1>
+        <p style="color: black; font-size: 1.5rem;">ÇOK FAZLA HATALI GİRİŞ</p>
+        <button onclick="location.reload()" style="background: black; color: white; border: none; padding: 20px; margin-top: 20px; cursor: pointer;">SİSTEMİ YENİDEN BAŞLAT</button>
+    </div>
+
+    <div id="idgen-preview" class="modal">
+        <div class="modal-content" style="width: auto; background: transparent; border: none; box-shadow: none;">
+            <canvas id="idGenCanvas" style="max-width: 100%; box-shadow: 0 0 50px black;"></canvas>
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="cyber-btn" onclick="app.idGen.download()">İNDİR</button>
+                <button class="cyber-btn btn-red" onclick="document.getElementById('idgen-preview').style.display='none'">KAPAT</button>
+            </div>
+        </div>
+    </div>
     
-    <div class="nav-label">OPERASYONEL BİRİMLER</div>
-    <button class="nav-btn" onclick="app.nav('gbt', this)"><i class="fas fa-fingerprint"></i> MERKEZİ GBT SORGUSU</button>
-    <button class="nav-btn" onclick="app.nav('mobese', this)"><i class="fas fa-video"></i> MOBESE / AI ANALİZ</button>
-    <button class="nav-btn" onclick="app.nav('havacilik', this)"><i class="fas fa-helicopter"></i> HAVACILIK (İHA/DRONE)</button>
-    <button class="nav-btn" onclick="app.nav('siber', this)"><i class="fas fa-user-shield"></i> SİBER SUÇLAR (SOC)</button>
-
-    <div class="nav-label">İDARİ / LOJİSTİK</div>
-    <button class="nav-btn" onclick="app.nav('personel', this)"><i class="fas fa-user-group"></i> PERSONEL & MESAİ</button>
-    <button class="nav-btn" onclick="app.nav('envanter', this)"><i class="fas fa-warehouse"></i> ENVANTER / STOK</button>
-</div>
-
-<div id="main">
-    <div id="panel-dashboard" class="panel active">
-        <h2 style="font-family: 'Orbitron';">YÖNETİM PANELİ ÖZETİ</h2>
-        <div class="grid-3">
-            <div class="card" style="border-left: 5px solid var(--danger);">ACİL ÇAĞRI (112)<div style="font-size: 2rem;">07</div></div>
-            <div class="card" style="border-left: 5px solid var(--accent);">SAHA PERSONELİ<div style="font-size: 2rem;">42</div></div>
-            <div class="card" style="border-left: 5px solid var(--success);">SİSTEM SAĞLIĞI<div style="font-size: 2rem;">%100</div></div>
-        </div>
-        <div class="card">
-            <h3>SİSTEM LOGLARI (REAL-TIME)</h3>
-            <div id="sys-logs" class="terminal" style="height: 300px;"></div>
-        </div>
-    </div>
-
-    <div id="panel-asayis" class="panel">
-        <h2 style="font-family: 'Orbitron';">CANLI SAHA TAKİBİ</h2>
-        <div class="grid-2">
-            <div class="card"><div id="map"></div></div>
-            <div class="card">
-                <h3>MERKEZ TELSİZ</h3>
-                <div id="telsiz-box" class="terminal" style="color: white; height: 320px;"></div>
-                <div style="display:flex; gap:10px; margin-top:10px;">
-                    <input id="telsiz-input" placeholder="Anons geçin...">
-                    <button class="btn-action" style="width:100px;" onclick="app.sendRadio()">GÖNDER</button>
-                </div>
+    <canvas id="idCardCanvas" style="display: none;"></canvas>
+    
+    <div id="app-view-modal" class="modal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="close-modal" onclick="document.getElementById('app-view-modal').style.display='none'">X</div>
+            <h3>PERSONEL ADAY DOSYASI</h3>
+            <div id="app-view-content"></div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="cyber-btn btn-green" onclick="app.approveAppCurrent()" style="flex:1">ONAYLA & PERSONEL YAP</button>
+                <button class="cyber-btn btn-red" onclick="app.rejectAppCurrent()" style="flex:1">REDDET & SİL</button>
             </div>
         </div>
     </div>
 
-    <div id="panel-gbt" class="panel">
-        <h2 style="font-family: 'Orbitron';">BİYOMETRİK VERİ TABANI SORGUSU</h2>
-        <div class="card">
-            <div style="display:flex; gap:15px;">
-                <input id="gbt-q" placeholder="TC No, İsim veya Plaka..." style="font-size: 1.2rem;">
-                <button class="btn-action" style="width: 200px;" onclick="app.runGBT()">SORGULA</button>
-            </div>
-            <div id="gbt-res" style="margin-top: 20px;"></div>
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <h3>PERSONEL DÜZENLE</h3>
+            <input type="hidden" id="edit-id">
+            <label>Ad Soyad</label><input id="edit-name">
+            <label>Kod Adı</label><input id="edit-code">
+            <label>Rol</label>
+            <select id="edit-role">
+                <option value="staff">PERSONEL</option>
+                <option value="agent">SAHA AJANI</option>
+                <option value="moderator">MODERATÖR</option>
+                <option value="admin">YÖNETİCİ</option>
+                <option value="cyber">SİBER UZMAN</option>
+                <option value="analyst">ANALİST</option>
+            </select>
+            <label>Rütbe</label><input id="edit-rank">
+            <label>Şifre (Değişmeyecekse boş bırak)</label><input id="edit-pass">
+            <button class="cyber-btn btn-gold" onclick="app.saveEdit()">KAYDET</button>
+            <button class="cyber-btn" onclick="document.getElementById('edit-modal').style.display='none'" style="margin-top: 5px;">İPTAL</button>
         </div>
     </div>
 
-    <div id="panel-mobese" class="panel">
-        <h2 style="font-family: 'Orbitron';">AI DESTEKLİ MOBESE ANALİZİ</h2>
-        <div class="grid-2">
-            <div class="card">
-                <div class="viewport">
-                    <img src="https://images.unsplash.com/photo-1545147986-a9d6f210df77?auto=format&fit=crop&w=800" style="width:100%; opacity:0.5;">
-                    <div style="position:absolute; top:10px; left:10px; color:red;">● LIVE | CAM-01</div>
-                    <div style="position:absolute; border:2px solid var(--success); width:60px; height:100px; top:30%; left:45%;">
-                        <small style="background:var(--success); color:black; position:absolute; top:-15px;">ŞÜPHELİ %88</small>
+    <div id="new-op-modal" class="modal">
+        <div class="modal-content">
+            <h3>YENİ OPERASYON BAŞLAT</h3>
+            <label>Operasyon Adı</label><input id="op-name" placeholder="Örn: ŞAFAK SÖKÜYOR">
+            <label>Lider Ajan</label><select id="op-lead"></select>
+            <button class="cyber-btn btn-gold" onclick="app.addOp()" style="margin-top:10px;">BAŞLAT</button>
+            <button class="cyber-btn" onclick="document.getElementById('new-op-modal').style.display='none'" style="margin-top: 5px;">İPTAL</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <div id="sidebar">
+            <div style="text-align: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #333;">
+                <i class="fas fa-star-and-crescent fa-3x" style="color: red;"></i>
+                <h2 style="color: white; margin: 10px 0;">M.İ.T</h2>
+                <div id="sys-clock" style="font-size: 0.8rem; color: #666;">--:--:--</div>
+            </div>
+
+            <div id="menu-guest">
+                <button class="nav-btn active" onclick="app.nav('public')"><i class="fas fa-globe"></i> KAMUOYU</button>
+                <button class="nav-btn" onclick="app.nav('basvuru')"><i class="fas fa-file-signature"></i> İŞ BAŞVURUSU</button>
+                <button class="nav-btn" onclick="app.showLogin()" style="border-color: var(--accent); color: var(--accent); margin-top: 20px;"><i class="fas fa-lock"></i> PERSONEL GİRİŞİ</button>
+            </div>
+
+            <div id="menu-staff" style="display: none;">
+                <div style="background: #111; padding: 10px; margin-bottom: 20px; border: 1px solid #333; display: flex; align-items: center; gap: 10px;">
+                    <img id="u-photo" src="" style="width: 40px; height: 40px; object-fit: cover; border: 1px solid #555; display: none;">
+                    <div id="u-icon" style="width: 40px; height: 40px; background: #333; display: flex; align-items: center; justify-content: center;"><i class="fas fa-user"></i></div>
+                    <div style="overflow: hidden;">
+                        <div id="u-name" style="font-size: 0.8rem; white-space: nowrap;">-</div>
+                        <div id="u-code" style="font-size: 0.7rem; color: var(--admin-gold); display: none;">-</div>
+                        <div id="u-role" style="font-size: 0.6rem; margin-top: 2px;">-</div>
                     </div>
                 </div>
-                <button class="btn-action" style="margin-top:10px;" onclick="app.anons('Yüz tanıma algoritması çalıştırıldı.')">ANALİZ ET</button>
+
+                <button class="nav-btn" onclick="app.nav('dashboard')"><i class="fas fa-chart-line"></i> KONTROL PANELİ</button>
+                <button class="nav-btn" onclick="app.nav('chat')"><i class="fas fa-comments"></i> KRİPTOLU HAT</button>
+                <button class="nav-btn" onclick="app.nav('ops')"><i class="fas fa-crosshairs"></i> OPERASYONLAR</button>
+                <button class="nav-btn" onclick="app.nav('db')"><i class="fas fa-database"></i> VERİ MERKEZİ</button>
+                <button class="nav-btn" onclick="app.nav('reports')"><i class="fas fa-file-alt"></i> RAPORLAR</button>
+                <button class="nav-btn" onclick="app.nav('hr')"><i class="fas fa-users-cog"></i> İNSAN KAYNAKLARI</button>
+                <button class="nav-btn" onclick="app.nav('cyber')"><i class="fas fa-terminal"></i> SİBER GÜVENLİK</button>
+                <button class="nav-btn" onclick="app.nav('map')"><i class="fas fa-map-marked-alt"></i> UYDU GÖRÜNTÜSÜ</button>
+                <button class="nav-btn" onclick="app.logout()" style="margin-top: 20px; border-color: #555;"><i class="fas fa-sign-out-alt"></i> ÇIKIŞ</button>
             </div>
-            <div class="card">
-                <h3>PLAKA TANIMA (PTS)</h3>
-                <div id="pts-logs" class="terminal" style="height: 250px;"></div>
+        </div>
+
+        <div id="content-area">
+            
+            <div id="panel-public" class="panel active">
+                <h2><i class="fas fa-bullhorn"></i> KAMUOYU DUYURULARI</h2>
+                <div id="feed-public"></div>
+                
+                <h3 style="margin-top: 30px; color: red;"><i class="fas fa-skull"></i> ARANANLAR LİSTESİ</h3>
+                <table id="wanted-table">
+                    <thead><tr><th>İSİM</th><th>SUÇ</th><th>DURUM</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+
+                <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+                    <h3><i class="fas fa-user-secret"></i> ANONİM İHBAR HATTI</h3>
+                    <input id="tip-subj" placeholder="Konu (Örn: Şüpheli Paket)">
+                    <textarea id="tip-text" rows="4" placeholder="Gördüklerinizi detaylıca anlatın... Kimliğiniz gizli kalacaktır."></textarea>
+                    <button class="cyber-btn" onclick="app.sendTip()">İHBARI ŞİFRELE VE GÖNDER</button>
+                </div>
             </div>
+
+            <div id="panel-basvuru" class="panel">
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <img src="https://upload.wikimedia.org/wikipedia/tr/b/b3/Milli_%C4%B0stihbarat_Te%C5%9Fkilat%C4%B1_logosu.png" style="width: 100px; opacity: 0.8;">
+                        <h2>PERSONEL ALIM BAŞVURUSU</h2>
+                        <p style="color: #888;">"Vatan için her yerde, herkesle, her zaman..."</p>
+                    </div>
+
+                    <div id="app-step-1">
+                        <label>Discord ID No</label><input id="app-tc" type="number" placeholder="11 Haneli">
+                        <label>Ad Soyad</label><input id="app-name">
+                        <label>Cinsiyet</label>
+                        <select id="app-gender">
+                            <option value="men">Erkek</option>
+                            <option value="women">Kadın</option>
+                        </select>
+                        <label>Başvurulan Alan</label>
+                        <select id="app-skill">
+                            <option value="saha">SAHA OPERASYONLARI</option>
+                            <option value="siber">SİBER GÜVENLİK</option>
+                            <option value="analiz">İSTİHBARAT ANALİZİ</option>
+                        </select>
+                        <button class="cyber-btn" onclick="app.goToExam()" style="width: 100%; margin-top: 20px;">BAŞVURU VE SINAVA GEÇ >></button>
+                    </div>
+
+                    <div id="app-step-2" style="display: none;">
+                        <h3 style="color: var(--admin-gold);">YAZILI MÜLAKAT SORULARI</h3>
+                        <p style="font-size: 0.8rem; color: #aaa; margin-bottom: 20px;">Lütfen aşağıdaki soruları dikkatlice ve dürüstçe cevaplayınız. Cevaplarınız psikolojik analiz algoritmalarıyla taranacaktır.</p>
+                        <div id="exam-questions-list"></div>
+                        <button class="cyber-btn btn-green" onclick="app.submitExam()" style="width: 100%; margin-top: 20px; padding: 15px;">BAŞVURUYU TAMAMLA</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-dashboard" class="panel">
+                <h2>ANLIK DURUM MERKEZİ</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #111; padding: 20px; border: 1px solid #333; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--staff-blue);" id="stat-staff">0</div>
+                        <div style="color: #666; font-size: 0.8rem;">TOPLAM PERSONEL</div>
+                    </div>
+                    <div style="background: #111; padding: 20px; border: 1px solid #333; text-align: center;">
+                        <div style="font-size: 2rem; color: var(--accent);" id="stat-ops">0</div>
+                        <div style="color: #666; font-size: 0.8rem;">AKTİF OPERASYON</div>
+                    </div>
+                    <div style="background: #111; padding: 20px; border: 1px solid #333; text-align: center;">
+                        <div style="font-size: 2rem; color: white;" id="defcon-disp">5</div>
+                        <div style="color: #666; font-size: 0.8rem;">DEFCON SEVİYESİ</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div>
+                        <h3><i class="fas fa-history"></i> SİSTEM GÜNLÜKLERİ (AUDIT LOGS)</h3>
+                        <div id="dash-logs" style="height: 300px; overflow-y: auto; background: black; padding: 10px; font-family: monospace; font-size: 0.8rem; color: #aaa;"></div>
+                    </div>
+                    <div id="defcon-controls" style="display: none; flex-direction: column; gap: 10px;">
+                        <h3>TEHDİT SEVİYESİ</h3>
+                        <button class="cyber-btn" style="border-color: #0000ff; color: #0000ff;" onclick="app.setDefcon(5)">DEFCON 5 (NORMAL)</button>
+                        <button class="cyber-btn" style="border-color: #00ff00; color: #00ff00;" onclick="app.setDefcon(4)">DEFCON 4 (ARTIRILMIŞ)</button>
+                        <button class="cyber-btn" style="border-color: #ffff00; color: #ffff00;" onclick="app.setDefcon(3)">DEFCON 3 (SARI ALARM)</button>
+                        <button class="cyber-btn" style="border-color: #ff6600; color: #ff6600;" onclick="app.setDefcon(2)">DEFCON 2 (TURUNCU ALARM)</button>
+                        <button class="cyber-btn" style="border-color: #ff0000; color: #ff0000;" onclick="app.setDefcon(1)">DEFCON 1 (SAVAŞ DURUMU)</button>
+                        
+                        <h3 style="margin-top: 20px;">DUYURU YAYINLA</h3>
+                        <input id="ann-title" placeholder="Başlık">
+                        <textarea id="ann-msg" placeholder="Mesaj"></textarea>
+                        <select id="ann-type">
+                            <option value="normal">Normal</option>
+                            <option value="critical">KRİTİK</option>
+                        </select>
+                        <button class="cyber-btn" onclick="app.adminPostAnnounce()">YAYINLA</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-chat" class="panel">
+                <div style="display: flex; height: 100%; gap: 10px;">
+                    <div style="flex: 3; display: flex; flex-direction: column;">
+                        <h2><i class="fas fa-lock"></i> KRİPTOLU İLETİŞİM AĞI</h2>
+                        <div id="chat-window"></div>
+                        <div style="display: flex; gap: 5px;">
+                            <button class="cyber-btn" onclick="document.getElementById('file-input').click()" style="width: 50px;"><i class="fas fa-paperclip"></i></button>
+                            <input type="file" id="file-input" hidden onchange="app.sendFileChat(this)">
+                            <button class="cyber-btn" id="btn-mic" onmousedown="app.startVoice()" onmouseup="app.stopVoice()" style="width: 50px;"><i class="fas fa-microphone"></i></button>
+                            <input id="chat-input" placeholder="Mesajınızı şifreleyin..." onkeypress="if(event.key==='Enter') app.sendChat()">
+                            <button class="cyber-btn" onclick="app.sendChat()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    <div style="flex: 1; background: #080808; border-left: 1px solid #333; padding: 10px; display: flex; flex-direction: column;">
+                        <h4 style="border-bottom: 1px solid #333; padding-bottom: 5px;">AKTİF PERSONEL</h4>
+                        <div id="active-user-list" style="overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-ops" class="panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>OPERASYON TAKİP</h2>
+                    <button class="cyber-btn btn-gold" onclick="document.getElementById('new-op-modal').style.display='flex'">+ YENİ OPERASYON</button>
+                </div>
+                <table id="ops-table">
+                    <thead><tr><th>KOD ADI</th><th>LİDER</th><th>DURUM</th><th>İŞLEM</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+
+                <h3 style="margin-top: 40px;">KİMLİK ÜRETİCİ (SAHTE BELGE)</h3>
+                <div style="border: 1px dashed #444; padding: 20px;">
+                    <button class="cyber-btn" onclick="app.idGen.generate('men')">ERKEK KİMLİĞİ OLUŞTUR</button>
+                    <button class="cyber-btn" onclick="app.idGen.generate('women')">KADIN KİMLİĞİ OLUŞTUR</button>
+                </div>
+            </div>
+
+            <div id="panel-db" class="panel">
+                <h2>ULUSAL VERİ TABANI SORGUSU</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <input id="db-q" placeholder="TC NO / PLAKA / İSİM SOYAD giriniz...">
+                    <button class="cyber-btn" onclick="app.queryDB()" style="width: 100px;">SORGULA</button>
+                </div>
+                <div id="db-res"></div>
+
+                <div style="margin-top: 50px; border-top: 2px solid #333; padding-top: 20px;">
+                    <h3 style="color: red;">ARANANLAR LİSTESİ DÜZENLE</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <input id="wanted-add-name" placeholder="İsim Soyad">
+                        <input id="wanted-add-crime" placeholder="Suç">
+                        <select id="wanted-add-status">
+                            <option value="ARANIYOR">ARANIYOR</option>
+                            <option value="YAKALANDI">YAKALANDI</option>
+                            <option value="ÖLÜ">ETKİSİZ HALE GETİRİLDİ</option>
+                        </select>
+                        <button class="cyber-btn btn-gold" onclick="app.addWantedPerson()">EKLE</button>
+                    </div>
+                    <table style="margin-top: 10px;">
+                        <tbody id="wanted-edit-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="panel-reports" class="panel">
+                <h2>RAPORLAMA VE ARŞİV</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3>YENİ RAPOR</h3>
+                        <select id="report-type">
+                            <option value="info">BİLGİLENDİRME</option>
+                            <option value="op">OPERASYON SONUCU</option>
+                            <option value="incident">OLAY YERİ</option>
+                        </select>
+                        <input id="report-subj" placeholder="Konu">
+                        <textarea id="report-content" rows="10" placeholder="Detaylar..."></textarea>
+                        <button class="cyber-btn" onclick="app.submitReport()">KAYITLARA GEÇİR</button>
+                    </div>
+                    <div>
+                        <h3>SON RAPORLAR</h3>
+                        <div id="reports-feed" style="height: 400px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-hr" class="panel">
+                <h2>PERSONEL YÖNETİMİ</h2>
+                
+                <div id="admin-tools" style="background: #111; padding: 15px; border: 1px solid var(--admin-gold); margin-bottom: 20px; display: none;">
+                    <h3 style="color: var(--admin-gold); margin-top:0;">YÖNETİCİ ARAÇLARI</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div id="id-actions"></div>
+                        <div style="flex:1; border-left:1px solid #333; padding-left:10px;">
+                            <small>ŞİFRELİ MESAJ SİLME</small>
+                            <div id="admin-crypto-list" style="max-height: 100px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 3fr 1fr; gap: 20px;">
+                    <div>
+                        <h3>PERSONEL LİSTESİ</h3>
+                        <table>
+                            <thead id="hr-table-head"></thead>
+                            <tbody id="hr-table-body"></tbody>
+                        </table>
+                    </div>
+                    <div id="admin-apps-section" style="display: none;">
+                        <h3>BAŞVURULAR</h3>
+                        <div id="hr-apps-list"></div>
+                        <h3 style="margin-top: 20px;">İHBARLAR</h3>
+                        <div id="hr-tips-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-cyber" class="panel">
+                <h2>SİBER İSTİHBARAT VE KRİPTOLOJİ</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3>KRİPTO MESAJ OLUŞTUR</h3>
+                        <textarea id="crypto-input" rows="4" placeholder="Mesajı buraya yazın..."></textarea>
+                        <button class="cyber-btn" onclick="app.createCryptoMessage()">ŞİFRELE VE YAYINLA</button>
+                        
+                        <h3 style="margin-top: 30px;">GEMINI AI GÖRÜNTÜ ANALİZİ</h3>
+                        <input id="ai-prompt" placeholder="Örn: Taksim meydanı uydu görüntüsü, şüpheli araç">
+                        <select id="ai-style">
+                            <option value="satellite">UYDU GÖRÜNTÜSÜ</option>
+                            <option value="cctv">MOBESE / CCTV KAMERA</option>
+                            <option value="sketch">ROBOT RESİM (EŞKAL)</option>
+                        </select>
+                        <button class="cyber-btn" onclick="app.generateAIImage()">GÖRÜNTÜ İŞLE</button>
+                        
+                        <div id="ai-result-area" style="margin-top: 10px; border: 1px solid #333; min-height: 200px; background: black; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img id="ai-generated-img" src="" style="max-width: 100%; display: none;">
+                            <div id="ai-loader" style="display: none; color: var(--cyber-green);">İŞLENİYOR...</div>
+                            <div id="ai-placeholder" style="color: #444;">GÖRÜNTÜ BEKLENİYOR</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>YAKALANAN KRİPTO SİNYALLER</h3>
+                        <div id="cyber-messages-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="panel-map" class="panel">
+                <div id="map" style="width: 100%; height: 100%;"></div>
+            </div>
+
         </div>
     </div>
-
-    <div id="panel-siber" class="panel">
-        <h2 style="font-family: 'Orbitron';">SİBER GÜVENLİK OPERASYON MERKEZİ</h2>
-        <div class="card">
-            <div id="cyber-term" class="terminal" style="font-family: 'Courier New';">SOC Katmanı başlatılıyor...</div>
-            <input id="cyber-cmd" placeholder="SOC Komutu (örn: trace-ip, bypass-fw)..." style="margin-top:15px; border-color: var(--success); color: var(--success);">
-            <button class="btn-action" style="background: var(--success); color: black;" onclick="app.runCyber()">KOMUTU YÜRÜT</button>
-        </div>
-    </div>
-
-    <div id="panel-envanter" class="panel">
-        <h2 style="font-family: 'Orbitron';">EKİPMAN VE MÜHİMMAT STOKU</h2>
-        <div class="card">
-            <table style="width:100%; border-collapse: collapse;">
-                <tr style="border-bottom: 2px solid var(--accent); color: var(--accent);">
-                    <th style="padding:10px; text-align:left;">MALZEME</th><th>MİKTAR</th><th>DURUM</th>
-                </tr>
-                <tr><td style="padding:10px;">9MM FİŞEK</td><td>125.000</td><td style="color:var(--success)">STOK TAM</td></tr>
-                <tr><td style="padding:10px;">ÇELİK YELEK</td><td>12</td><td style="color:var(--danger)">KRİTİK</td></tr>
-                <tr><td style="padding:10px;">GÖZ YAŞARTICI GAZ</td><td>450</td><td style="color:var(--gold)">AZALIYOR</td></tr>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="status-bar">
-    <div><i class="fas fa-shield-halved"></i> GÜVENLİ BAĞLANTI: <span style="color:var(--success);">AKTİF</span></div>
-    <div id="clock">00:00:00</div>
-    <div style="color:var(--accent);">OPERATÖR: KOMİSER_Y_34</div>
-</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 
 <script>
-    // Firebase Senkronizasyonu (Senin Veritabanın)
+    // --- FIREBASE AYARLARI ---
     const firebaseConfig = {
         apiKey: "AIzaSyD4mXN8BZ3OMzl35vtEbNGA9BUuHPgoqQU",
-        databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app"
+        authDomain: "mit-sistemi.firebaseapp.com",
+        databaseURL: "https://mit-sistemi-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mit-sistemi",
+        storageBucket: "mit-sistemi.firebasestorage.app",
+        messagingSenderId: "195453377116",
+        appId: "1:195453377116:web:85067f5070ecf983bb6499"
     };
+
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
-    const app = {
-        nav: function(id, btn) {
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('panel-'+id).classList.add('active');
-            btn.classList.add('active');
-            this.anons(id + " birimi verileri senkronize edildi.");
-            if(id === 'asayis') setTimeout(() => this.initMap(), 200);
+    // --- VERİ HAVUZU ---
+    const POOL = {
+        namesMen: ["Adnan", "Alparslan", "Baturay", "Cihangir", "Doğan", "Ertuğrul", "Fatih", "Gökhan", "Hakan", "İbrahim", "Kadir", "Metehan", "Oğuzhan", "Ömer", "Polat", "Süleyman", "Tamer", "Ufuk", "Yavuz", "Ziya", "Bora", "Caner", "Demir", "Ege", "Furkan", "Görkem", "Haluk", "Kaan", "Levent", "Murat", "Numan", "Orhan", "Özgür", "Ramazan", "Selim", "Tarık", "Umut", "Volkan", "Yasin", "Zafer", "Mete", "Sertaç", "Yavuz", "Selçuk", "Alper", "Bülent", "Ahmet", "Mehmet", "Hasan", "Hüseyin", "Ali", "Veli", "Kemal", "Kenan", "Mahmut", "İsmail", "Recep", "Tayyip", "Ekrem", "Mansur", "Devlet", "Ümit", "Sinan", "Koray", "Berkin"],
+        namesWomen: ["Asena", "Bahar", "Ceren", "Derya", "Elif", "Funda", "Gamze", "Hande", "Irmak", "Jale", "Kübra", "Leyla", "Merve", "Neslihan", "Özlem", "Pınar", "Rüya", "Selin", "Tuğba", "Umay", "Vildan", "Yağmur", "Zehra", "Ayşe", "Burcu", "Defne", "Ebru", "Gökçe", "Hilal", "İrem", "Melek", "Nilgün", "Oya", "Pelin", "Seda", "Tülay", "Ülkü", "Yeşim", "Zeynep", "Sude", "Melisa", "Buse", "Gizem", "Süreyya", "Fatma", "Hatice", "Emine", "Sultan", "Hafsa", "Şeyma", "Betül", "Rabia", "Hacer", "Meryem", "Esra", "Büşra", "Kübra", "Sıla", "Aleyna", "Ece", "Nazlı"],
+        surnames: ["Korkmaz", "Yılmaz", "Kaya", "Demir", "Çelik", "Şahin", "Yıldız", "Yıldırım", "Öztürk", "Aydın", "Arslan", "Doğan", "Kılıç", "Aslan", "Çetin", "Kara", "Koç", "Kurt", "Özkan", "Şimşek", "Polat", "Akar", "Sönmez", "Güneş", "Bozkurt", "Bulut", "Keskin", "Turan", "Avcı", "Işık", "Kaplan", "Taş", "Ateş", "Sarı", "Tekin", "Aksoy", "Uçar", "Erdem", "Fidan", "Güler", "Yalçın", "Can", "Acar", "Özkan", "Soylu", "Erdoğan", "Kılıçdaroğlu", "Bahçeli", "Akşener", "İmamoğlu", "Yavaş", "Özdağ", "Oğan", "İnce", "Perinçek", "Destici", "Erbakan", "Türkeş", "Ecevit", "Demirel", "Özal", "Atatürk", "İnönü", "Karabekir", "Çakmak"],
+        cities: ["Ankara", "İstanbul", "İzmir", "Bursa", "Erzurum", "Sivas", "Diyarbakır", "Trabzon", "Antalya", "Konya", "Adana", "Gaziantep", "Şanlıurfa", "Kocaeli", "Mersin", "Hatay", "Manisa", "Samsun", "Balıkesir", "Kahramanmaraş", "Aydın", "Denizli", "Sakarya", "Muğla", "Eskişehir", "Malatya", "Van", "Mardin", "Tekirdağ", "Edirne", "Çanakkale", "Kütahya", "Afyon", "Uşak", "Isparta", "Burdur", "Antalya", "Rize", "Artvin", "Giresun", "Ordu", "Sinop", "Kastamonu", "Zonguldak", "Bartın", "Karabük", "Bolu", "Düzce", "Yalova", "Bilecik", "Kırklareli"]
+    };
+
+    const MİT_QUESTIONS = [
+        "Milli İstihbarat Teşkilatı'nın devlet yapısındaki hayati önemi nedir?",
+        "Teşkilat-ı Mahsusa ile bugünkü MİT arasındaki tarihsel bağ hakkında ne biliyorsunuz?",
+        "İstihbarat çarkının (Toplama, İşleme, Analiz vb.) aşamalarını açıklayınız?",
+        "Siber güvenlik, modern istihbaratın neden vazgeçilmez bir parçasıdır?",
+        "Vatan sevgisi sizin için profesyonel hayatın neresinde duruyor?",
+        "Deşifre olma riskinde bir saha ajanı nasıl hareket etmelidir?",
+        "Kriptoloji yöntemlerinin operasyonel gizlilikteki rolü nedir?",
+        "Açık Kaynak İstihbaratı (OSINT) nedir ve nerelerde kullanılır?",
+        "Yabancı istihbarat servislerinin Türkiye üzerindeki olası hedefleri nelerdir?",
+        "Psikolojik harp ve algı yönetimiyle nasıl mücadele edilir?",
+        "Stratejik analiz yeteneği bir istihbarat uzmanına ne kazandırır?",
+        "Hibrit savaş modelleri Türkiye için ne tür tehditler içerir?",
+        "Sahada kriz anında soğukkanlılığınızı nasıl korursunuz?",
+        "İstihbaratta 'Ölü Mektup Kutusu' (Dead Drop) yöntemi ne amaçla kullanılır?",
+        "Sinyal İstihbaratı (SIGINT) ile İnsan İstihbaratı (HUMINT) farkı nedir?",
+        "Karşı İstihbarat (Counter-Intelligence) faaliyetlerinin temel hedefi nedir?",
+        "Devletin gizli bilgilerini korumak adına ne tür fedakarlıklar yapabilirsiniz?",
+        "Kritik altyapı güvenliği (Enerji, Su, İletişim) neden MİT'in takibindedir?",
+        "MİT'in 'Kızıl Elma' doktrini ve sınır ötesi operasyon kabiliyeti hakkında düşünceniz?",
+        "Teşkilat disiplini ve hiyerarşisine tam uyum kabiliyetiniz nedir?"
+    ];
+
+    // --- ROL TANIMLARI GÜNCELLENDİ: MODERATÖR EKLENDİ ---
+    const ROLE_DEFS = {
+        'admin': { label: 'YÖNETİCİ', color: '#ffcc00' },
+        'moderator': { label: 'MODERATÖR', color: '#ff8800' }, 
+        'staff': { label: 'PERSONEL', color: '#fff' },
+        'cyber': { label: 'SİBER UZMAN', color: '#00ff41' },
+        'agent': { label: 'SAHA AJANI', color: '#00ccff' },
+        'analyst': { label: 'ANALİST', color: '#bd00ff' }
+    };
+
+    const SFX = {
+        ctx: null,
+        init: function() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+        playTone: function(freq, type, dur) {
+            this.init(); if(this.ctx.state==='suspended')this.ctx.resume();
+            const o=this.ctx.createOscillator(), g=this.ctx.createGain();
+            o.type=type; o.frequency.value=freq; o.connect(g); g.connect(this.ctx.destination);
+            o.start(); g.gain.exponentialRampToValueAtTime(0.00001, this.ctx.currentTime+dur);
+            o.stop(this.ctx.currentTime+dur);
         },
+        click: function() { this.playTone(1200, 'sine', 0.1); },
+        hover: function() { this.playTone(400, 'triangle', 0.05); },
+        error: function() { this.playTone(150, 'sawtooth', 0.3); setTimeout(()=>this.playTone(100,'sawtooth',0.3),150); },
+        success: function() { this.playTone(800, 'sine', 0.1); setTimeout(()=>this.playTone(1200,'sine',0.2),100); },
+        boot: function() { try { let t=0; for(let i=0;i<5;i++){ setTimeout(()=>this.playTone(200+(i*100), 'square', 0.1), t); t+=100; } } catch(e){} },
+        ring: function() { const now=this.ctx.currentTime; const o=this.ctx.createOscillator(); const g=this.ctx.createGain(); o.connect(g); g.connect(this.ctx.destination); o.frequency.setValueAtTime(800,now); o.frequency.setValueAtTime(600,now+0.4); g.gain.setValueAtTime(0.1,now); g.gain.exponentialRampToValueAtTime(0.00001,now+0.8); o.start(now); o.stop(now+0.8); },
+        hack: function() { this.playTone(3000, 'square', 0.05); }
+    };
 
-        anons: function(text) {
-            const ut = new SpeechSynthesisUtterance(text);
-            ut.lang = 'tr-TR';
-            window.speechSynthesis.speak(ut);
-            this.log(text.toUpperCase());
-        },
-
-        log: function(msg) {
-            const l = document.getElementById('sys-logs');
-            const d = document.createElement('div');
-            d.innerHTML = `<span style="color:var(--accent)">[${new Date().toLocaleTimeString()}]</span> ${msg}`;
-            l.prepend(d);
-        },
-
-        initMap: function() {
-            if(this.map) return;
-            this.map = L.map('map').setView([39.92, 32.85], 11);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-        },
-
-        runGBT: function() {
-            const q = document.getElementById('gbt-q').value;
-            this.anons(q + " sorgusu başlatılıyor.");
-            document.getElementById('gbt-res').innerHTML = `
-                <div class="card" style="border-left: 5px solid var(--gold); background: rgba(255,204,0,0.05);">
-                    <h3>SORGULAMA SONUCU: ${q.toUpperCase()}</h3>
-                    <p>ADLİ KAYIT: <span style="color:var(--success)">TEMİZ</span></p>
-                    <p>ARAMA DURUMU: YOK</p>
-                    <p>İKAMET: ANKARA / ÇANKAYA</p>
-                </div>`;
-        },
-
-        runCyber: function() {
-            const cmd = document.getElementById('cyber-cmd').value;
-            const term = document.getElementById('cyber-term');
-            term.innerHTML += `<br>> ${cmd} yürütülüyor...`;
-            setTimeout(() => { term.innerHTML += `<br>[OK] İşlem başarıyla sonuçlandı.`; term.scrollTop = term.scrollHeight; }, 800);
-            document.getElementById('cyber-cmd').value = "";
-        },
-
-        sendRadio: function() {
-            const msg = document.getElementById('telsiz-input').value;
-            if(!msg) return;
-            db.ref('egm/telsiz').push({
-                user: "MERKEZ",
-                text: msg,
-                time: new Date().toLocaleTimeString()
+    const phoneSystem = {
+        peer: null, activeCall: null, myStream: null, ringInterval: null,
+        init: function(userId) {
+            const randomSuffix = Math.floor(Math.random() * 10000);
+            const dynamicId = userId + "_" + randomSuffix; 
+            // Peerjs şimdi kütüphane eklendiği için çalışacak
+            this.peer = new Peer(dynamicId); 
+            this.peer.on('open', (id) => {
+                database.ref('online_users/' + userId).set({ peerId: id, name: app.state.user.codename, status: 'online' });
+                database.ref('online_users/' + userId).onDisconnect().remove();
             });
-            document.getElementById('telsiz-input').value = "";
+            this.peer.on('error', (err) => { console.error("PeerJS Error:", err); });
+            this.peer.on('call', (call) => { this.incomingCall(call); });
         },
-
-        listen: function() {
-            db.ref('egm/telsiz').limitToLast(10).on('value', ss => {
-                let h = "";
-                ss.forEach(c => {
-                    const v = c.val();
-                    h += `<div>[${v.time}] <b>${v.user}:</b> ${v.text}</div>`;
-                });
-                document.getElementById('telsiz-box').innerHTML = h;
-                document.getElementById('telsiz-box').scrollTop = 9999;
+        callUser: function(targetPeerId, targetName) {
+            if(!targetPeerId) return alert("Kullanıcı çevrimdışı veya hatta değil.");
+            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                this.myStream = stream; const call = this.peer.call(targetPeerId, stream); this.setupCallUI(call, targetName, "ARANIYOR...");
+            }).catch(err => { alert("Mikrofon izni gerekli!"); });
+        },
+        incomingCall: function(call) {
+            this.activeCall = call; document.getElementById('call-modal').style.display = 'flex';
+            document.getElementById('call-status').innerText = "GELEN ARAMA"; document.getElementById('call-caller').innerText = "BİLİNMEYEN NUMARA"; 
+            document.getElementById('call-actions').style.display = 'flex'; document.getElementById('in-call-ui').style.display = 'none';
+            this.ringInterval = setInterval(() => SFX.ring(), 1500);
+        },
+        answerCall: function() {
+            clearInterval(this.ringInterval);
+            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                this.myStream = stream; this.activeCall.answer(stream); this.setupCallUI(this.activeCall, "BAĞLANDI", "GÖRÜŞME SÜRÜYOR");
             });
-
-            setInterval(() => {
-                document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-            }, 1000);
+        },
+        rejectCall: function() { clearInterval(this.ringInterval); if(this.activeCall) this.activeCall.close(); document.getElementById('call-modal').style.display = 'none'; },
+        endCall: function() {
+            if(this.activeCall) this.activeCall.close(); if(this.myStream) this.myStream.getTracks().forEach(track => track.stop());
+            document.getElementById('call-modal').style.display = 'none'; app.logAudit("TELEFON", "Görüşme sonlandırıldı.");
+        },
+        setupCallUI: function(call, name, statusText) {
+            this.activeCall = call; document.getElementById('call-modal').style.display = 'flex';
+            document.getElementById('call-status').innerText = statusText; document.getElementById('call-caller').innerText = name || "GİZLİ HAT";
+            document.getElementById('call-actions').style.display = 'none'; document.getElementById('in-call-ui').style.display = 'block';
+            let sec = 0; const timer = document.getElementById('call-timer');
+            const interval = setInterval(() => { if(!this.activeCall || !this.activeCall.open) { clearInterval(interval); return; } sec++; const m = Math.floor(sec/60).toString().padStart(2,'0'); const s = (sec%60).toString().padStart(2,'0'); timer.innerText = `${m}:${s}`; }, 1000);
+            call.on('stream', (remoteStream) => { const audio = document.getElementById('remote-audio'); audio.srcObject = remoteStream; audio.play().catch(e => console.log("Otomatik oynatma engellendi.")); });
+            call.on('close', () => { clearInterval(interval); this.endCall(); });
         }
     };
 
-    window.onload = () => {
-        app.listen();
-        app.anons("Göktürk Yedi Yönetim Paneli aktif. Tüm sistemler senkronize.");
+    const app = {
+        defaultData: {
+            defcon: 1,
+            personnel: [
+                { id: 'ADM-001', name: 'HAKAN F.', codename: 'KARTAL', role: 'admin', rank: 'MÜSTEŞAR', pass: 'TURAN', gender:'men', photoId:33 },
+                { id: 'MOD-001', name: 'BURAK S.', codename: 'GÖZCÜ', role: 'moderator', rank: 'DENETÇİ', pass: 'MOD123', gender:'men', photoId:12 },
+                { id: 'OPS-007', name: 'ZÜMRÜT K.', codename: 'ANKA', role: 'agent', rank: 'SAHA UZMANI', pass: '1234', gender:'women', photoId:45 }
+            ],
+            reports: [], apps: [], tips: [], ops: [],
+            chat: [{user:'SİSTEM', msg:'Ağ aktif.', time:'00:00', type:'text'}],
+            cryptoMessages: [],
+            audit: [],
+            announcements: [{title: "SİSTEM GÜNCEL", msg: "v43.0 STABLE SÜRÜM AKTİF", type: "critical", date: new Date().toLocaleDateString()}],
+            wanted: [{name:'GÖLGE', crime:'Casusluk', status:'ARANIYOR'}]
+        },
+
+        state: { user: null, fail: 0, visiblePass: new Set(), tUser: null, genCode: null, db: null, mediaRec: null, audioChunks: [], onlineUsers: {}, viewingAppIdx: null },
+        phone: phoneSystem,
+
+        idGen: {
+            generate: function(gender) {
+                // Sadece yetkili roller kullanabilir
+                if(!app.checkPermission(['admin', 'moderator', 'agent'])) return;
+
+                SFX.click();
+                const cvs = document.getElementById('idGenCanvas');
+                const ctx = cvs.getContext('2d');
+                cvs.width = 1000; cvs.height = 630;
+                
+                const name = POOL[gender === 'men' ? 'namesMen' : 'namesWomen'][Math.floor(Math.random() * POOL.namesMen.length)];
+                const surname = POOL['surnames'][Math.floor(Math.random() * POOL.surnames.length)];
+                const city = POOL['cities'][Math.floor(Math.random() * POOL.cities.length)];
+                const photoId = Math.floor(Math.random() * 99);
+                const birthYear = 1980 + Math.floor(Math.random() * 25);
+                const tc = Math.floor(10000000000 + Math.random() * 90000000000);
+                
+                ctx.fillStyle = "#111"; ctx.fillRect(0, 0, cvs.width, cvs.height);
+                ctx.strokeStyle = "#800000"; ctx.lineWidth = 10; ctx.strokeRect(10, 10, 980, 610);
+                ctx.save(); ctx.globalAlpha = 0.05; ctx.fillStyle = "red"; ctx.font = "bold 300px Orbitron"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("MİT", 500, 315); ctx.restore();
+
+                const photo = new Image(); photo.crossOrigin = "Anonymous";
+                photo.src = `https://randomuser.me/api/portraits/${gender}/${photoId}.jpg`;
+                
+                photo.onload = () => {
+                    const px = 58, py = 200, pw = 285, ph = 310;
+                    ctx.drawImage(photo, px, py, pw, ph); ctx.lineWidth = 4; ctx.strokeStyle = "rgba(255,0,0,0.5)"; ctx.strokeRect(px, py, pw, ph);
+                    this.drawText(ctx, name, surname, city, birthYear, tc);
+                };
+                photo.onerror = () => {
+                    const px = 58, py = 200, pw = 285, ph = 310; ctx.fillStyle = "#222"; ctx.fillRect(px, py, pw, ph); ctx.fillStyle = "#555"; ctx.font = "100px Arial"; ctx.fillText("?", px+100, py+200);
+                    this.drawText(ctx, name, surname, city, birthYear, tc);
+                };
+                document.getElementById('idgen-preview').style.display = 'block';
+            },
+
+            drawText: function(ctx, name, surname, city, birthYear, tc) {
+                ctx.fillStyle = "#fff"; ctx.font = "bold 40px 'Orbitron'"; ctx.textAlign = "center"; ctx.fillText("TÜRKİYE CUMHURİYETİ", 500, 80);
+                ctx.fillStyle = "red"; ctx.font = "bold 30px 'Orbitron'"; ctx.fillText("MİLLİ İSTİHBARAT TEŞKİLATI", 500, 130);
+                ctx.textAlign = "left"; ctx.fillStyle = "#fff"; ctx.font = "bold 45px 'Courier New'";
+                let tx = 400; let ty = 230; const gap = 60;
+                ctx.fillText(`${name.toUpperCase()}`, tx, ty); ty += gap; ctx.fillText(`${surname.toUpperCase()}`, tx, ty); ty += gap;
+                ctx.font = "30px 'Share Tech Mono'"; ctx.fillStyle = "#ccc"; ctx.fillText(`D.YERİ: ${city.toUpperCase()} / ${birthYear}`, tx, ty); ty += gap; ctx.fillText(`GÖREV: SAHA OPERASYON UZMANI`, tx, ty); ty += gap;
+                ctx.fillStyle = "red"; ctx.font = "bold 25px 'Monospace'"; ctx.fillText(`TC: ${tc}`, tx, 500);
+            },
+            download: function() { const link = document.createElement('a'); link.download = `MIT_KIMLIK_${Date.now()}.png`; link.href = document.getElementById('idGenCanvas').toDataURL(); link.click(); }
+        },
+
+        hack: {
+            activeMsgId: null, progress: 0,
+            startHack: function(id) { 
+                if(!app.checkPermission(['admin', 'cyber'])) return; // Sadece Admin ve Cyber
+                this.activeMsgId = id; this.progress = 0; document.getElementById('hack-modal').style.display = 'flex'; this.renderTerminal(); 
+            },
+            renderTerminal: function() { const term = document.getElementById('hack-terminal'); term.innerHTML = ''; for(let i=0; i<15; i++) { const row = document.createElement('div'); row.className = 'hack-row'; row.innerHTML = Array(20).fill(0).map(() => `<span class="hack-char">${Math.floor(Math.random()*2)}</span>`).join(''); term.appendChild(row); } },
+            processHack: function() { this.progress += 5; SFX.hack(); document.getElementById('hack-progress-bar').style.width = this.progress + '%'; if(this.progress >= 100) this.finishHack(); },
+            finishHack: function() { SFX.success(); alert("ŞİFRE ÇÖZÜLDÜ!"); const msg = app.state.db.cryptoMessages.find(m => m.id === this.activeMsgId); if(msg) msg.status = 'OPEN'; app.save(); this.closeHack(); app.renderCyber(); },
+            closeHack: function() { document.getElementById('hack-modal').style.display = 'none'; this.progress = 0; }
+        },
+
+        init: function() {
+            this.bootSequence();
+            this.listenToCloud();
+            document.querySelectorAll('button, .nav-btn').forEach(b => {
+                b.addEventListener('mouseenter', ()=>SFX.hover());
+                b.addEventListener('click', ()=>SFX.click());
+            });
+        },
+
+        listenToCloud: function() {
+            database.ref('mit_database').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) { this.state.db = data; } else { this.state.db = this.defaultData; this.save(); }
+                this.refreshCurrentView();
+                this.applyDefcon(this.state.db.defcon);
+            });
+            database.ref('online_users').on('value', (snap) => { 
+                this.state.onlineUsers = snap.val() || {}; 
+                if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat(); 
+                if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
+            });
+        },
+
+        save: function() { if(this.state.db) { database.ref('mit_database').set(this.state.db).catch(e => console.error(e)); } },
+
+        refreshCurrentView: function() {
+            if(document.getElementById('panel-hr').classList.contains('active')) this.renderHR();
+            if(document.getElementById('panel-public').classList.contains('active')) this.renderPublic();
+            if(document.getElementById('panel-chat').classList.contains('active')) this.renderChat();
+            if(document.getElementById('panel-ops').classList.contains('active')) this.renderOps();
+            if(document.getElementById('panel-db').classList.contains('active')) this.renderLogs();
+            if(document.getElementById('panel-reports').classList.contains('active')) this.renderReports();
+            if(document.getElementById('panel-dashboard').classList.contains('active')) this.updateDash();
+            if(document.getElementById('panel-cyber').classList.contains('active')) this.renderCyber();
+        },
+
+        bootSequence: function() {
+            const s = document.getElementById('boot-screen'); if(!s) { this.initAppLogic(); return; }
+            const t = document.getElementById('boot-text'); const lines = ["BIOS DATE 01/20/26 15:00:00", "CHECKING SYSTEM INTEGRITY...", "ESTABLISHING SECURE UPLINK...", "ACCESS GRANTED."]; let i = 0;
+            try { SFX.boot(); } catch(e){}
+            const int = setInterval(() => { if(i < lines.length) { t.innerHTML += lines[i] + "<br>"; i++; } else { clearInterval(int); s.style.opacity = '0'; document.getElementById('main-app').style.opacity = '1'; setTimeout(() => { s.style.display='none'; this.initAppLogic(); }, 1000); } }, 200);
+        },
+
+        initAppLogic: function() { this.updateClock(); setInterval(() => this.updateClock(), 1000); this.initParticles(); this.nav('public'); },
+        setDefcon: function(lvl) { 
+            if(this.state.user.role !== 'admin') { SFX.error(); return alert("Sadece YÖNETİCİ yetkisi!"); }
+            if(!this.state.db) return; this.state.db.defcon = lvl; this.save(); 
+        },
+        applyDefcon: function(lvl) { document.body.className = `defcon-${lvl}`; const el = document.getElementById('defcon-disp'); if(el) el.innerText = lvl; },
+
+        initParticles: function() {
+            const cvs=document.getElementById('particles-js'), ctx=cvs.getContext('2d'); cvs.width=window.innerWidth; cvs.height=window.innerHeight; let pts=[]; for(let i=0;i<50;i++) pts.push({x:Math.random()*cvs.width, y:Math.random()*cvs.height, vx:(Math.random()-.5), vy:(Math.random()-.5)});
+            function anim(){ ctx.clearRect(0,0,cvs.width,cvs.height); ctx.fillStyle='rgba(255,255,255,0.1)'; pts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>cvs.width)p.vx*=-1; if(p.y<0||p.y>cvs.height)p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,1.5,0,6.28); ctx.fill(); }); requestAnimationFrame(anim); } anim();
+        },
+
+        // --- YETKİ KONTROL FONKSİYONU ---
+        checkPermission: function(allowedRoles) {
+            if(!this.state.user) return false;
+            if(allowedRoles.includes(this.state.user.role)) return true;
+            SFX.error(); alert("ERİŞİM REDDEDİLDİ: Yetkiniz Yetersiz."); return false;
+        },
+
+        nav: function(id) {
+            // PANEL BAZLI ERİŞİM KONTROLLERİ (HERKES KENDİ İŞİNİ YAPAR)
+            if(this.state.user) {
+                const role = this.state.user.role;
+                if(id === 'cyber' || id === 'ai') {
+                    // Sadece Admin ve Siber Uzman girebilir
+                    if(!['admin', 'cyber'].includes(role)) return this.checkPermission(['admin', 'cyber']);
+                }
+                if(id === 'ops' || id === 'idgen') {
+                    // Sadece Admin, Moderatör ve Saha Ajanı girebilir
+                    if(!['admin', 'moderator', 'agent'].includes(role)) return this.checkPermission(['admin', 'moderator', 'agent']);
+                }
+                if(id === 'db') {
+                    // Sadece Admin, Moderatör ve Analist girebilir
+                    if(!['admin', 'moderator', 'analyst'].includes(role)) return this.checkPermission(['admin', 'moderator', 'analyst']);
+                }
+                if(id === 'hr') {
+                    // Sadece Admin ve Moderatör girebilir. Diğerleri giremez.
+                    if(!['admin', 'moderator'].includes(role)) return this.checkPermission(['admin', 'moderator']);
+                }
+            } else {
+                // Misafir sadece Public ve Başvuru görebilir
+                if(id !== 'public' && id !== 'basvuru') return; 
+            }
+
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + id).classList.add('active');
+            if(id === 'map') setTimeout(() => this.initMap(), 200);
+            this.refreshCurrentView();
+        },
+
+        showLogin: function() { 
+            document.getElementById('login-modal').style.display='flex'; 
+            document.getElementById('login-form-init').style.display='block'; 
+            document.getElementById('login-anim-seq').style.display='none';
+            document.getElementById('login-pass').value=''; 
+            document.getElementById('login-msg').innerText=''; 
+            this.state.fail = 0; 
+        },
+
+        loginSequence: function() {
+            if(!this.state.db) return alert("Sistem yükleniyor...");
+            const p = document.getElementById('login-pass').value.trim();
+            const u = this.state.db.personnel.find(x => x.pass === p);
+            
+            if(u) {
+                this.state.tUser = u;
+                SFX.click();
+                document.getElementById('login-form-init').style.display = 'none';
+                document.getElementById('login-anim-seq').style.display = 'block';
+                const txt = document.getElementById('login-status-text');
+                const bar = document.getElementById('login-load-bar');
+                setTimeout(() => { txt.innerText = "RETİNA DOĞRULANIYOR..."; SFX.hover(); }, 500);
+                setTimeout(() => { txt.innerText = "VERİTABANI EŞLEŞTİRİLİYOR..."; bar.style.width = "50%"; SFX.hover(); }, 2000);
+                setTimeout(() => { txt.innerText = "YETKİ ONAYLANDI: " + u.codename; txt.style.color = "#0f0"; bar.style.width = "100%"; SFX.success(); }, 3500);
+                setTimeout(() => { this.finishLogin(); }, 4500);
+            } else { SFX.error(); this.failLogin(); }
+        },
+
+        secretUnlock: function() { if(!this.state.tUser) return; SFX.success(); this.finishLogin(); },
+        finishLogin: function() {
+            this.state.user = this.state.tUser; this.state.fail = 0; this.phone.init(this.state.user.id);
+            document.getElementById('login-modal').style.display='none'; document.getElementById('menu-guest').style.display='none'; document.getElementById('menu-staff').style.display='block';
+            document.getElementById('u-name').innerText=this.state.user.name; document.getElementById('u-code').innerText="KOD: "+this.state.user.codename; document.getElementById('u-code').style.display='block';
+            const rDef = ROLE_DEFS[this.state.user.role] || {label:'PERSONEL', color:'#ccc'};
+            document.getElementById('u-role').innerText=rDef.label; document.getElementById('u-role').style.color=rDef.color;
+            document.getElementById('u-photo').src=`https://randomuser.me/api/portraits/${this.state.user.gender}/${this.state.user.photoId}.jpg`; document.getElementById('u-photo').style.display='block'; document.getElementById('u-icon').style.display='none';
+            this.logAudit('GİRİŞ', `${this.state.user.codename} sisteme girdi.`); this.nav('dashboard');
+        },
+        failLogin: function(){ this.state.fail++; document.getElementById('login-msg').innerText=`HATA (${this.state.fail}/3)`; if(this.state.fail >= 3){ SFX.error(); document.getElementById('lockdown-screen').style.display='flex'; } },
+        logout: function() { location.reload(); },
+
+        // --- ARANANLAR YÖNETİMİ (Moderatör + Admin) ---
+        addWantedPerson: function() {
+            if(!this.checkPermission(['admin', 'moderator'])) return;
+            const n = document.getElementById('wanted-add-name').value;
+            const c = document.getElementById('wanted-add-crime').value;
+            const s = document.getElementById('wanted-add-status').value;
+            if(!n || !c) return alert("Bilgileri doldurun!");
+            if(!this.state.db.wanted) this.state.db.wanted = [];
+            this.state.db.wanted.push({name: n.toUpperCase(), crime: c, status: s});
+            this.save(); alert("Kayıt Eklendi."); document.getElementById('wanted-add-name').value = ''; document.getElementById('wanted-add-crime').value = ''; this.renderLogs();
+        },
+        deleteWanted: function(index) { 
+            if(!this.checkPermission(['admin', 'moderator'])) return;
+            if(confirm("Kaydı silmek istiyor musunuz?")) { this.state.db.wanted.splice(index, 1); this.save(); this.renderLogs(); } 
+        },
+
+        // --- KRİPTO (Sadece Cyber + Admin) ---
+        createCryptoMessage: function() {
+            if(!this.checkPermission(['admin', 'cyber'])) return;
+            const txt = document.getElementById('crypto-input').value; if(!txt) return;
+            const encrypted = btoa(unescape(encodeURIComponent(txt))).split('').map(c => c.charCodeAt(0).toString(16)).join(' ').toUpperCase();
+            if(!this.state.db.cryptoMessages) this.state.db.cryptoMessages = [];
+            this.state.db.cryptoMessages.unshift({ id: Date.now(), sender: this.state.user.codename, content: txt, encrypted: encrypted.substring(0, 50) + "...", status: 'LOCKED', date: new Date().toLocaleString() });
+            this.save(); alert("Kriptolandı."); document.getElementById('crypto-input').value = '';
+        },
+        deleteCrypto: function(id) { 
+            if(!this.checkPermission(['admin'])) return; // Kripto mesaj silme sadece ADMIN
+            if(confirm("Sil?")) { const idx = this.state.db.cryptoMessages.findIndex(m => m.id === id); if(idx > -1) { this.state.db.cryptoMessages.splice(idx, 1); this.save(); this.renderHR(); } } 
+        },
+
+        generateAIImage: function() {
+            if(!this.checkPermission(['admin', 'cyber'])) return;
+            const prompt = document.getElementById('ai-prompt').value.trim(); const style = document.getElementById('ai-style').value;
+            if(!prompt) { SFX.error(); return alert("Görüntü parametresi (prompt) girilmedi!"); }
+            document.getElementById('ai-loader').style.display = 'block'; document.getElementById('ai-placeholder').style.display = 'block'; document.getElementById('ai-placeholder').innerText = "GEMINI VISION İŞLENİYOR... %0"; document.getElementById('ai-generated-img').style.display = 'none'; SFX.click();
+            let progress = 0; const int = setInterval(() => { progress += 10; if(progress <= 90) document.getElementById('ai-placeholder').innerText = `GEMINI VISION İŞLENİYOR... %${progress}`; else clearInterval(int); }, 200);
+            let fullPrompt = prompt; if(style === 'satellite') fullPrompt = "satellite view map photography, high resolution, tactical " + prompt; else if(style === 'cctv') fullPrompt = "cctv security camera footage, low quality, surveillance " + prompt; else if(style === 'sketch') fullPrompt = "police sketch, hand drawn pencil, suspect portrait " + prompt; else if(style === 'photorealistic') fullPrompt = "photorealistic 8k, cinematic lighting " + prompt;
+            const encodedPrompt = encodeURIComponent(fullPrompt); const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?nologo=true`;
+            setTimeout(() => { const img = document.getElementById('ai-generated-img'); img.src = url; img.onload = () => { clearInterval(int); document.getElementById('ai-loader').style.display = 'none'; document.getElementById('ai-placeholder').style.display = 'none'; img.style.display = 'block'; SFX.success(); }; img.onerror = () => { alert("Görüntü oluşturulamadı."); document.getElementById('ai-loader').style.display = 'none'; }; }, 2000);
+        },
+
+        renderCyber: function() {
+            const list = document.getElementById('cyber-messages-list'); list.innerHTML = '';
+            if(!this.state.db.cryptoMessages || this.state.db.cryptoMessages.length === 0) { list.innerHTML = '<p style="color:#666">Veri yok.</p>'; return; }
+            this.state.db.cryptoMessages.forEach(msg => {
+                let bodyHTML = msg.status === 'LOCKED' ? `<div class="crypto-glitch">${msg.encrypted}</div><div style="margin-top:10px;"><button class="cyber-btn btn-small" onclick="app.hack.startHack(${msg.id})">ŞİFREYİ ÇÖZ</button></div>` : `<div style="color:white; font-weight:bold; border-left:3px solid var(--cyber-green); padding-left:10px;">${msg.content}</div><div style="margin-top:5px; color:#666; font-size:0.8rem;">DEŞİFRE EDİLDİ</div>`;
+                list.innerHTML += `<div class="crypto-card"><div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; margin-bottom:10px;"><span style="color:#aaa;">GÖNDEREN: ${msg.sender}</span><span style="color:#aaa;">${msg.date}</span></div>${bodyHTML}</div>`;
+            });
+        },
+
+        renderReports: function() { 
+            const f = document.getElementById('reports-feed'); f.innerHTML=''; 
+            if(!this.state.db || !this.state.db.reports) return;
+            this.state.db.reports.forEach(r => { f.innerHTML+=`<div class="report-card ${r.type==='op'?'report-op':''}"><div class="discord-tag">SENT > WEBHOOK</div><div style="display:flex; justify-content:space-between;"><span style="color:white; font-weight:bold;">${r.subject}</span><span style="color:#666; font-size:0.7rem;">${r.author} | ${r.date}</span></div><p style="color:#aaa; margin-top:5px; font-size:0.9rem;">${r.content}</p></div>`; }); 
+        },
+        
+        submitReport: function() {
+            const t=document.getElementById('report-type').value, s=document.getElementById('report-subj').value, c=document.getElementById('report-content').value;
+            if(!s||!c){ SFX.error(); return alert("Eksik!"); }
+            if(!this.state.db.reports) this.state.db.reports = [];
+            this.state.db.reports.unshift({author:this.state.user.codename, type:t, subject:s, content:c, date:new Date().toLocaleString()}); 
+            this.save(); document.getElementById('report-subj').value=''; document.getElementById('report-content').value=''; SFX.success();
+        },
+
+        renderOps: function() { 
+            const t=document.querySelector('#ops-table tbody'); t.innerHTML=''; 
+            const sel=document.getElementById('op-lead'); sel.innerHTML=''; 
+            if(!this.state.db || !this.state.db.ops) return;
+            if(this.state.db.personnel) this.state.db.personnel.forEach(p=>sel.innerHTML+=`<option value="${p.codename}">${p.codename}</option>`); 
+            this.state.db.ops.forEach((o,i)=>{ t.innerHTML+=`<tr><td style="color:white">${o.name}</td><td>${o.lead}</td><td style="color:${o.status==='AKTİF'?'var(--accent)':'#666'}">${o.status}</td><td>${o.status==='AKTİF'?`<button class="cyber-btn btn-small" onclick="app.endOp(${i})">BİTİR</button>`:'-'}</td></tr>`; }); 
+        },
+        addOp: function() { 
+            if(!this.checkPermission(['admin', 'moderator', 'agent'])) return;
+            const n=document.getElementById('op-name').value, l=document.getElementById('op-lead').value; if(!n)return; 
+            if(!this.state.db.ops) this.state.db.ops = [];
+            this.state.db.ops.unshift({name:n, lead:l, status:'AKTİF'}); 
+            this.save(); document.getElementById('new-op-modal').style.display='none'; SFX.success(); 
+        },
+        endOp: function(i) { 
+            if(!this.checkPermission(['admin', 'moderator'])) return;
+            this.state.db.ops[i].status='PASİF'; this.save(); 
+        },
+
+        // --- GÜNCELLENMİŞ İK YÖNETİMİ ---
+        renderHR: function() {
+            if(!this.state.user) return;
+            const myRole = this.state.user.role;
+            const isAdmin = myRole === 'admin';
+            const isMod = myRole === 'moderator';
+            const canManage = isAdmin || isMod;
+
+            document.getElementById('admin-tools').style.display= canManage ? 'block' : 'none';
+            document.getElementById('admin-apps-section').style.display= canManage ? 'block' : 'none';
+            document.getElementById('hr-table-head').innerHTML= canManage ? `<tr><th>İSİM</th><th>KOD</th><th>ROL</th><th>ŞİFRE</th><th>İŞLEM</th></tr>`:`<tr><th>KOD ADI</th><th>RÜTBE</th><th>DURUM</th><th>İLETİŞİM</th></tr>`;
+            
+            // Eğer moderatörse, Defcon butonlarını ve Kripto listesini gizle
+            if(isMod) {
+                 document.getElementById('defcon-controls').style.display = 'none'; // Sadece admin
+                 document.getElementById('admin-crypto-list').innerHTML = '<small style="color:#666">Yetkisiz Alan</small>';
+            }
+
+            const body=document.getElementById('hr-table-body'); body.innerHTML='';
+            
+            if(isAdmin) {
+                // Admin kripto listesini görür
+                const cryptoList = document.getElementById('admin-crypto-list');
+                cryptoList.innerHTML = '';
+                if(this.state.db.cryptoMessages && this.state.db.cryptoMessages.length > 0) {
+                    this.state.db.cryptoMessages.forEach(m => {
+                        cryptoList.innerHTML += `<div style="display:flex; justify-content:space-between; border-bottom:1px solid #333; padding:5px;"><span style="color:#aaa; font-size:0.8rem;">${m.date} - ${m.status}</span><button class="cyber-btn btn-small btn-red" onclick="app.deleteCrypto(${m.id})">SİL</button></div>`;
+                    });
+                } else { cryptoList.innerHTML = '<small style="color:#666">Mesaj yok.</small>'; }
+            }
+
+            if(!this.state.db.personnel) this.state.db.personnel = [];
+            
+            this.state.db.personnel.forEach(p=>{
+                const rStyle = ROLE_DEFS[p.role] || {label:p.role.toUpperCase(), color:'#fff'};
+                const isOnline = this.state.onlineUsers[p.id] ? true : false; 
+                const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null;
+                const isMe = p.id === this.state.user.id;
+                
+                // --- İŞLEM YETKİSİ KONTROLÜ ---
+                // Admin herkesi düzenler. Moderatör; Admin'i düzenleyemez, diğer Moderatörü düzenleyemez.
+                let canEditThisUser = false;
+                if(isAdmin) canEditThisUser = true;
+                if(isMod) {
+                    if(p.role !== 'admin' && p.role !== 'moderator') canEditThisUser = true;
+                }
+
+                if(canManage){
+                    const vis=this.state.visiblePass.has(p.id);
+                    // Şifreyi sadece yetkisi yeten görür
+                    const passDisplay = canEditThisUser ? `<span class="blur-text ${vis?'visible':''}" onclick="app.togglePass('${p.id}')">${p.pass}</span>` : '****';
+                    const actionBtns = canEditThisUser ? 
+                        `<button class="cyber-btn btn-small btn-gold" onclick="app.editUser('${p.id}')"><i class="fas fa-edit"></i></button><button class="cyber-btn btn-small" onclick="app.drawID('${p.id}')">K</button><button class="cyber-btn btn-small" style="border-color:#555;" onclick="app.fireStaff('${p.id}')">X</button>` : 
+                        `<span style="color:#555; font-size:0.7rem;">YETKİ DIŞI</span>`;
+
+                    body.innerHTML+=`<tr><td>${p.name}</td><td style="color:var(--accent);font-weight:bold;">${p.codename}</td><td style="color:${rStyle.color}">${rStyle.label}</td><td>${passDisplay}</td><td>${actionBtns}</td></tr>`;
+                } else {
+                    let callBtn = "-"; 
+                    if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i> ARA</button>`; } 
+                    else if (!isOnline) { callBtn = `<span style="color:#666; font-size:0.7rem;">ÇEVRİMDIŞI</span>`; }
+                    body.innerHTML+=`<tr><td style="color:var(--staff-blue)">${p.codename}</td><td><span style="color:${rStyle.color}">${rStyle.label}</span></td><td style="color:${isOnline?'var(--success)':'#666'}">${isOnline?'ONLINE':'OFFLINE'}</td><td>${callBtn}</td></tr>`;
+                }
+            });
+
+            if(canManage){
+                const l=document.getElementById('hr-apps-list'); l.innerHTML=this.state.db.apps && this.state.db.apps.length?'':'<span style="color:#666">Bekleyen yok.</span>';
+                if(this.state.db.apps) { this.state.db.apps.forEach((a,i)=>{ l.innerHTML+=`<div style="background:#0a0a0a; border:1px solid #222; padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><strong style="color:white">${a.name}</strong> <span style="color:var(--accent); font-size:0.8rem;">${a.skill}</span></div><small style="color:#666">${a.tc}</small><button class="cyber-btn btn-small" style="width:100%; margin-top:10px; border-color:var(--admin-gold); color:var(--admin-gold);" onclick="app.inspectApp(${i})"><i class="fas fa-file-contract"></i> DOSYAYI İNCELE</button></div>`; }); }
+                const tl=document.getElementById('hr-tips-list'); tl.innerHTML=this.state.db.tips && this.state.db.tips.length?'':'<span style="color:#666">İhbar yok.</span>';
+                if(this.state.db.tips) { this.state.db.tips.forEach((tp, i)=>{ tl.innerHTML += `<div style="border-bottom:1px solid #333; padding:10px;"><strong style="color:var(--accent)">${tp.subject}</strong> <small style="float:right">${tp.date}</small><p style="font-size:0.9rem; color:#ccc; margin-top:5px;">${tp.text}</p><button class="cyber-btn btn-small" style="margin-top:5px; border-color:#555" onclick="app.delTip(${i})">SİL</button></div>` }); }
+                document.getElementById('id-actions').innerHTML=`<button class="cyber-btn btn-small" onclick="app.downloadID()">İNDİR</button>`;
+            }
+        },
+
+        editUser: function(id) { const p=this.state.db.personnel.find(x=>x.id===id); document.getElementById('edit-id').value=p.id; document.getElementById('edit-name').value=p.name; document.getElementById('edit-code').value=p.codename; document.getElementById('edit-role').value=p.role; document.getElementById('edit-rank').value = p.rank || ""; document.getElementById('edit-pass').value = ''; document.getElementById('edit-modal').style.display='flex'; },
+        saveEdit: function() { const id=document.getElementById('edit-id').value, p=this.state.db.personnel.find(x=>x.id===id); if(p){ p.name=document.getElementById('edit-name').value; p.codename=document.getElementById('edit-code').value; p.role=document.getElementById('edit-role').value; p.rank = document.getElementById('edit-rank').value.toUpperCase(); const newPass = document.getElementById('edit-pass').value.trim(); if(newPass.length > 0) p.pass = newPass; this.save(); document.getElementById('edit-modal').style.display='none'; this.renderHR(); } },
+        
+        goToExam: function() {
+            const tc=document.getElementById('app-tc').value, name=document.getElementById('app-name').value; 
+            if(!tc||!name){ SFX.error(); return alert("Lütfen kimlik bilgilerini eksiksiz doldurun."); } 
+            
+            const container = document.getElementById('exam-questions-list');
+            container.innerHTML = "";
+            MİT_QUESTIONS.forEach((q, i) => {
+                container.innerHTML += `
+                    <div class="exam-q-box">
+                        <span class="exam-label">${i+1}. ${q}</span>
+                        <textarea id="exam-a-${i}" rows="2" placeholder="Cevabınız..." style="border:1px solid #333; width:100%; background:#111; color:#fff; padding:5px;"></textarea>
+                    </div>
+                `;
+            });
+
+            document.getElementById('app-step-1').style.display = 'none';
+            document.getElementById('app-step-2').style.display = 'block';
+            SFX.click();
+        },
+
+        submitExam: function() {
+            const tc = document.getElementById('app-tc').value;
+            const name = document.getElementById('app-name').value;
+            const gender = document.getElementById('app-gender').value;
+            const skill = document.getElementById('app-skill').value;
+            
+            let answers = [];
+            for(let i=0; i<MİT_QUESTIONS.length; i++) {
+                const ans = document.getElementById(`exam-a-${i}`).value;
+                answers.push(ans);
+            }
+
+            if(answers.filter(a => a.length > 0).length < 5) return alert("Lütfen soruların çoğunu cevaplayınız.");
+
+            if(!this.state.db.apps) this.state.db.apps = [];
+            this.state.db.apps.push({ tc, name, skill, gender, date:new Date().toLocaleDateString(), answers: answers }); 
+            this.save(); alert("BAŞVURU VE MÜLAKAT CEVAPLARI ŞİFRELENEREK GÖNDERİLDİ."); 
+            
+            document.getElementById('app-step-2').style.display='none'; 
+            document.getElementById('app-step-1').style.display='block'; 
+            this.nav('public'); 
+            SFX.success();
+        },
+
+        inspectApp: function(idx) { 
+            this.state.viewingAppIdx = idx; 
+            const a = this.state.db.apps[idx]; 
+            const modal = document.getElementById('app-view-modal'); 
+            const content = document.getElementById('app-view-content'); 
+
+            let qaHTML = "";
+            if(a.answers && a.answers.length > 0) {
+                a.answers.forEach((ans, i) => {
+                    qaHTML += `<div style="margin-bottom:10px; border-bottom:1px dashed #333; padding-bottom:5px;">
+                        <p style="color:var(--accent); font-size:0.8rem;">Soru ${i+1}: ${MİT_QUESTIONS[i]}</p>
+                        <p style="color:white; font-family:'Share Tech Mono'">${ans || 'BOŞ'}</p>
+                    </div>`;
+                });
+            } else {
+                qaHTML = "<p>Mülakat verisi bulunamadı.</p>";
+            }
+
+            content.innerHTML = `
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <div><span style="color:#666">AD:</span> <strong>${a.name}</strong></div>
+                    <div><span style="color:#666">TC:</span> ${a.tc}</div>
+                    <div><span style="color:#666">BRANŞ:</span> ${a.skill.toUpperCase()}</div>
+                    <div><span style="color:#666">TARİH:</span> ${a.date}</div>
+                </div>
+                <h4 style="color:var(--admin-gold); margin-bottom:10px;">MÜLAKAT YANITLARI</h4>
+                <div style="background:#000; padding:10px; border:1px solid #333;">${qaHTML}</div>
+                <br>
+                <label>Atanacak Kod Adı:</label><input id="inspect-code">
+            `;
+            modal.style.display = 'flex'; 
+        },
+
+        approveAppCurrent: function() { const idx = this.state.viewingAppIdx; const code = document.getElementById('inspect-code').value.toUpperCase(); if(!code) return alert("Kod adı girin!"); const a = this.state.db.apps[idx]; let rank = a.skill==='siber'?"SİBER UZMANI":(a.skill==='saha'?"SAHA AJANI":"ANALİST"); const role = a.skill==='siber'?'cyber':(a.skill==='saha'?'agent':'analyst'); const nP={ id:"AG-"+Math.floor(100+Math.random()*900), name:a.name, codename:code, role:role, rank, pass:"MIT"+Math.floor(1000+Math.random()*9000), gender:a.gender, photoId:Math.floor(Math.random()*99) }; this.state.db.personnel.push(nP); this.state.db.apps.splice(idx,1); this.save(); SFX.success(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
+        rejectAppCurrent: function() { const idx = this.state.viewingAppIdx; this.state.db.apps.splice(idx,1); this.save(); document.getElementById('app-view-modal').style.display='none'; this.renderHR(); },
+        delTip: function(idx){ this.state.db.tips.splice(idx,1); this.save(); },
+        fireStaff: function(id){ if(confirm("Sil?")){ const i=this.state.db.personnel.findIndex(x=>x.id===id); if(i>-1)this.state.db.personnel.splice(i,1); this.save(); this.renderHR(); }},
+        togglePass: function(id){ this.state.visiblePass.has(id)?this.state.visiblePass.delete(id):this.state.visiblePass.add(id); this.renderHR(); },
+
+        drawID: function(id) {
+            const p = this.state.db.personnel.find(x => x.id === id); if (!p) return;
+            const cvs = document.getElementById('idCardCanvas'); const ctx = cvs.getContext('2d'); cvs.width = 1000; cvs.height = 630;
+            ctx.fillStyle = "#111"; ctx.fillRect(0,0,1000,630);
+            ctx.strokeStyle = "gold"; ctx.lineWidth = 10; ctx.strokeRect(10,10,980,610);
+            
+            const photo = new Image(); photo.crossOrigin = "Anonymous";
+            photo.src = `https://randomuser.me/api/portraits/${p.gender}/${p.photoId}.jpg`;
+            photo.onload = () => {
+                 const px = 58, py = 200, pw = 285, ph = 310;
+                 ctx.drawImage(photo, px, py, pw, ph);
+                 ctx.lineWidth = 4; ctx.strokeStyle = "gold"; ctx.strokeRect(px, py, pw, ph);
+                 
+                 ctx.font = "bold 40px 'Courier New'"; ctx.fillStyle = "#fff";
+                 ctx.fillText(p.name.toUpperCase(), 400, 250);
+                 ctx.fillStyle = "gold";
+                 ctx.fillText(p.rank || "MEMUR", 400, 320);
+                 ctx.fillStyle = "#fff";
+                 ctx.fillText("KOD: " + p.codename, 400, 400);
+            };
+        },
+        downloadID: function(){ const l=document.createElement('a'); l.download='MIT_ID.png'; l.href=document.getElementById('idCardCanvas').toDataURL(); l.click(); },
+
+        renderPublic: function(){ 
+            document.getElementById('feed-public').innerHTML=''; 
+            if(!this.state.db || !this.state.db.announcements) return;
+            this.state.db.announcements.forEach(a=>{ document.getElementById('feed-public').innerHTML+=`<div style="padding:15px; background:#0f0f0f; border-left:4px solid ${a.type==='critical'?'var(--accent)':'var(--staff-blue)'}; margin-bottom:10px;"><strong style="color:white">${a.title}</strong> <span style="float:right;font-size:0.7rem;color:#666">${a.date}</span><p style="color:#aaa;margin-top:5px;">${a.msg}</p></div>`; }); 
+            const t=document.querySelector('#wanted-table tbody'); t.innerHTML=''; 
+            if(this.state.db.wanted) this.state.db.wanted.forEach(w=>t.innerHTML+=`<tr><td>${w.name}</td><td>${w.crime}</td><td style="color:${w.status==='ARANIYOR'?'red':(w.status==='YAKALANDI'?'lime':'yellow')}">${w.status}</td></tr>`); 
+        },
+        
+        adminPostAnnounce: function(){ 
+            if(!this.checkPermission(['admin', 'moderator'])) return; // Modlar da duyuru atabilir
+            const t=document.getElementById('ann-title').value, m=document.getElementById('ann-msg').value, tp=document.getElementById('ann-type').value; if(!t)return; 
+            if(!this.state.db.announcements) this.state.db.announcements = [];
+            this.state.db.announcements.unshift({title:t, msg:m, type:tp, date:new Date().toLocaleDateString()}); 
+            this.save(); alert("Yayınlandı"); 
+        },
+        
+        sendTip: function(){ 
+            const s=document.getElementById('tip-subj').value, t=document.getElementById('tip-text').value; 
+            if(!t){ SFX.error(); return; }
+            if(!this.state.db.tips) this.state.db.tips = [];
+            this.state.db.tips.unshift({subject:s||"İsimsiz", text:t, date:new Date().toLocaleString()});
+            this.save();
+            alert("İhbar şifrelendi ve havuza iletildi."); 
+            document.getElementById('tip-subj').value=''; document.getElementById('tip-text').value=''; SFX.success();
+        },
+        
+        updateDash: function(){ 
+            if(!this.state.db) return;
+            document.getElementById('stat-staff').innerText=this.state.db.personnel ? this.state.db.personnel.length : 0; 
+            document.getElementById('stat-ops').innerText=this.state.db.ops ? this.state.db.ops.filter(o=>o.status==='AKTİF').length : 0; 
+            const l=document.getElementById('dash-logs'); l.innerHTML=''; 
+            if(this.state.db.audit) this.state.db.audit.slice(-8).reverse().forEach(x=>l.innerHTML+=`<div style="border-bottom:1px solid #222; padding:5px;"><span style="color:var(--accent)">[${x.time}]</span> ${x.detail}</div>`); 
+            if(this.state.user && this.state.user.role === 'admin') { document.getElementById('defcon-controls').style.display='flex'; } else { document.getElementById('defcon-controls').style.display='none'; }
+        },
+        
+        renderChat: function(){ 
+            const w=document.getElementById('chat-window'); w.innerHTML=''; 
+            if(this.state.db.chat) {
+                this.state.db.chat.forEach(c => { 
+                    const me = this.state.user && c.user === this.state.user.codename; 
+                    let contentHTML = `<span>${c.msg}</span>`;
+                    if (c.type === 'image') { contentHTML = `<img src="${c.msg}" class="chat-img" onclick="window.open(this.src)">`; } 
+                    else if (c.type === 'audio') { contentHTML = `<audio controls src="${c.msg}" class="chat-audio"></audio>`; }
+                    w.innerHTML += `<div class="msg ${me?'msg-me':'msg-other'}"><span class="msg-sender">${me?'BEN':c.user}</span>${contentHTML}</div>`; 
+                }); 
+                w.scrollTop = w.scrollHeight;
+            }
+            const userList = document.getElementById('active-user-list'); userList.innerHTML = '';
+            if(this.state.db.personnel) {
+                this.state.db.personnel.forEach(p => {
+                    const isOnline = this.state.onlineUsers[p.id] ? true : false;
+                    const peerId = isOnline ? this.state.onlineUsers[p.id].peerId : null;
+                    const isMe = p.id === this.state.user.id;
+                    let callBtn = '';
+                    if(isOnline && !isMe) { callBtn = `<button class="cyber-btn btn-small btn-green" style="padding:2px 8px;" onclick="app.phone.callUser('${peerId}', '${p.codename}')"><i class="fas fa-phone"></i></button>`; }
+                    userList.innerHTML += `<div class="chat-user-card" style="opacity:${isOnline ? 1 : 0.5}"><div style="display:flex; align-items:center;"><span class="user-status-dot ${isOnline ? 'status-online' : ''}"></span><div><strong style="color:white; font-size:0.9rem;">${p.codename}</strong></div></div><div>${callBtn}</div></div>`;
+                });
+            }
+        },
+        
+        sendChat: function(content = null, type = 'text'){ 
+            const input = document.getElementById('chat-input'); const msg = content || input.value;
+            if(!msg) return; 
+            if(!this.state.db.chat) this.state.db.chat = [];
+            this.state.db.chat.push({ user: this.state.user.codename, msg: msg, type: type, time: new Date().toLocaleTimeString() });
+            if(this.state.db.chat.length > 50) this.state.db.chat.shift();
+            this.save(); if(input) input.value = ''; SFX.click(); 
+        },
+
+        sendFileChat: function(input) {
+            const file = input.files[0]; if (!file) return;
+            if(file.size > 2 * 1024 * 1024) { alert("Dosya çok büyük! Maksimum 2MB."); return; }
+            const reader = new FileReader(); reader.onload = (e) => { this.sendChat(e.target.result, 'image'); }; reader.readAsDataURL(file);
+        },
+
+        startVoice: function() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                this.state.mediaRec = new MediaRecorder(stream); this.state.audioChunks = [];
+                document.getElementById('btn-mic').classList.add('recording-pulse');
+                this.state.mediaRec.ondataavailable = event => { this.state.audioChunks.push(event.data); };
+                this.state.mediaRec.onstop = () => {
+                    document.getElementById('btn-mic').classList.remove('recording-pulse');
+                    const audioBlob = new Blob(this.state.audioChunks, { type: 'audio/webm' });
+                    if(audioBlob.size > 1 * 1024 * 1024) { alert("Ses kaydı çok uzun!"); return; }
+                    const reader = new FileReader(); reader.readAsDataURL(audioBlob); 
+                    reader.onloadend = () => { this.sendChat(reader.result, 'audio'); }
+                };
+                this.state.mediaRec.start();
+            }).catch(err => { alert("Mikrofon izni gerekli!"); });
+        },
+        stopVoice: function() { if (this.state.mediaRec && this.state.mediaRec.state !== 'inactive') { this.state.mediaRec.stop(); } },
+        
+        renderLogs: function() {
+            const t = document.getElementById('wanted-edit-body');
+            t.innerHTML = '';
+            if(this.state.db.wanted) {
+                this.state.db.wanted.forEach((w, i) => {
+                    t.innerHTML += `<tr><td>${w.name}</td><td>${w.status}</td><td><button class="cyber-btn btn-small btn-red" onclick="app.deleteWanted(${i})">X</button></td></tr>`;
+                });
+            }
+        },
+
+        queryDB: function(){ 
+            if(!this.checkPermission(['admin', 'moderator', 'analyst'])) return;
+            const q=document.getElementById('db-q').value; if(!q){SFX.error(); return;}
+            this.logAudit('SORGU', `Aranan: ${q}`); SFX.success();
+            const blood = ["A Rh+", "0 Rh+", "B Rh-", "AB Rh+"][Math.floor(Math.random()*4)];
+            const gender = Math.random()>0.5 ? 'men' : 'women';
+            const photo = Math.floor(Math.random()*80);
+            const score = Math.floor(Math.random()*100);
+            const status = score > 80 ? "<span style='color:red'>KRİMİNAL</span>" : "<span style='color:lime'>TEMİZ</span>";
+            const hash = Array(16).fill(0).map(()=>Math.random().toString(36)[2]).join('').toUpperCase();
+            
+            let alertMsg = "";
+            const isWanted = this.state.db.wanted && this.state.db.wanted.find(w => w.name.includes(q.toUpperCase()));
+            if(isWanted) alertMsg = `<div style="background:red; color:white; padding:10px; text-align:center; margin-bottom:10px; font-weight:bold; animation:pulseRed 1s infinite;">BU ŞAHIS ARANIYOR: ${isWanted.crime}</div>`;
+
+            const html = `${alertMsg}<div class="bio-grid"><img src="https://randomuser.me/api/portraits/${gender}/${photo}.jpg" class="bio-img"><div class="bio-data"><div><span class="bio-label">KİMLİK</span> <span>${q.toUpperCase()}</span></div><div><span class="bio-label">KAN GRUBU</span> <span>${blood}</span></div><div><span class="bio-label">GSM SİNYAL</span> <span>AKTİF (Baz: İst-Avr-342)</span></div><div><span class="bio-label">PARMAK İZİ</span> <span>${hash}</span></div><div><span class="bio-label">GBT SKORU</span> <span>${score}/100</span></div><div><span class="bio-label">DURUM</span> <strong>${status}</strong></div></div></div>`;
+            document.getElementById('db-res').innerHTML = html;
+        },
+        
+        logAudit: function(act, det){ if(!this.state.db.audit) this.state.db.audit = []; this.state.db.audit.push({time:new Date().toLocaleString(), user:this.state.user?this.state.user.name:'SİSTEM', detail:`${act}: ${det}`}); this.save(); },
+        initMap: function(){ if(this.mapInit)return; const m=L.map('map',{zoomControl:false}).setView([39.92,32.85],6); L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(m); this.mapInit=true; m.invalidateSize(); },
+        updateClock: function(){ document.getElementById('sys-clock').innerText=new Date().toLocaleTimeString(); }
     };
+    window.onload = () => app.init();
 </script>
 </body>
 </html>
+
+
